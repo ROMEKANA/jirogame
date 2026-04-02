@@ -8,7 +8,7 @@ export function roleToText(role){
 		case 2: return "人狼";
 		case 3: return "占い師";
 		case 4: return "狂人";
-		default: return "未定義";
+		default: return false;
 	}
 }
 
@@ -31,6 +31,48 @@ export function winnerToText(winner){
 		case 2: return "人狼陣営";
 		default: return "未定義";
 	}
+}
+
+// テキスト入力受付
+export function getUserName(){
+	return document.getElementById('userName').value;
+}
+
+export function getDeleteName(){
+	return document.getElementById('deleteName').value;
+}
+
+// ボタンクリック受付
+export function onJoinClick(callback){
+	document.getElementById('btn-join').addEventListener('click', callback);
+}
+
+export function onAssignClick(callback){
+	document.getElementById('btn-assign').addEventListener('click', callback);
+}
+
+export function onRoleAreaHiddenClick(callback){
+	document.getElementById('btn-roleareahidden').addEventListener('click', callback);
+}
+
+export function onActionClick(callback){
+	document.getElementById('btn-action').addEventListener('click', callback);
+}
+
+export function onNextClick(callback){
+	document.getElementById('btn-next').addEventListener('click', callback);
+}
+
+export function onPlayerDeleteClick(callback){
+	document.getElementById('btn-playerdelete').addEventListener('click', callback);
+}
+
+export function AllgetClick(callback){
+    document.getElementById('btn-allget').addEventListener('click', callback);
+}
+
+export function onAllDeleteClick(callback){
+	document.getElementById('btn-alldelete').addEventListener('click', callback);
 }
 
 // テキストセット
@@ -159,48 +201,6 @@ export function viewVoteList(players) {
 		const selected = document.querySelector('input[name="fruit"]:checked');
 		alert(selected ? `選択中: ${selected.value}` : '未選択です');
 	}
-}
-
-// テキスト入力受付
-export function getUserName(){
-	return document.getElementById('userName').value;
-}
-
-export function getDeleteName(){
-	return document.getElementById('deleteName').value;
-}
-
-// ボタンクリック受付
-export function onJoinClick(callback){
-	document.getElementById('btn-join').addEventListener('click', callback);
-}
-
-export function onAssignClick(callback){
-	document.getElementById('btn-assign').addEventListener('click', callback);
-}
-
-export function onRoleAreaHiddenClick(callback){
-	document.getElementById('btn-roleareahidden').addEventListener('click', callback);
-}
-
-export function onActionClick(callback){
-	document.getElementById('btn-action').addEventListener('click', callback);
-}
-
-export function onNextClick(callback){
-	document.getElementById('btn-next').addEventListener('click', callback);
-}
-
-export function onPlayerDeleteClick(callback){
-	document.getElementById('btn-playerdelete').addEventListener('click', callback);
-}
-
-export function AllgetClick(callback){
-    document.getElementById('btn-allget').addEventListener('click', callback);
-}
-
-export function onAllDeleteClick(callback){
-	document.getElementById('btn-alldelete').addEventListener('click', callback);
 }
 
 

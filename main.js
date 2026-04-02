@@ -21,9 +21,9 @@ ui.onJoinClick(()=>{
 
 	localStorage.setItem('wolf_my_name', name);
 
-	game.joinGame(name).then(()=>{
+	firebase.addPlayer(name).then(()=>{
 		alert(name + "さん、参加完了！");
-		game.watchRole(name, (role)=>{
+		firebase.watchRole(name, (role)=>{
 			ui.setRole(role);
 		});
 	});
