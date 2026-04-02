@@ -38,6 +38,7 @@ ui.onAssignClick(()=>{
 const saved = localStorage.getItem('wolf_my_name');
 if(saved){
 	ui.setUserName(saved);
+	ui.setNameDisplay(saved);
 	game.watchRole(saved, (role)=>{
 		ui.setRole(role);
 	});
@@ -57,15 +58,18 @@ ui.onAllDeleteClick(async ()=>{
 	}
 });
 
-// 全員のプレイヤー名表示
+// 全員のプレイヤー名表示, 投票リスト表示
 firebase.watchAllPlayers((players)=>{
 	ui.viewAllPlayers(players);
+	ui.viewVoteList(players);
 });
 
+/*
 // 生存者のプレイヤー名表示
 firebase.watchAlivePlayers((players)=>{
 	ui.viewAlivePlayers(players);
 });
+*/
 
 // プレイヤー数表示
 firebase.countPlayers((count)=>{
@@ -83,4 +87,3 @@ firebase.countPlayers((count)=>{
 firebase.countAlivePlayers((count)=>{
 	ui.setAliveCount(count);
 });
-

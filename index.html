@@ -6,12 +6,13 @@
     <link rel="icon" href="./favicon.png">
     <!-- <link rel="stylesheet" href="./style.css"> -->
 </head>
+
 <body>
 
 <div class="status-area">
     <div id="status">Firebase接続確認中...</div>
     
-    <input type="text" id="userName" placeholder="あなたの名前を入力">
+    <input type="text" id="userName" placeholder="名前を入力">
     <br>
     <button id="btn-join">参加する</button>
     <br>
@@ -21,51 +22,8 @@
     現在のスコア: <span id="score-display">0</span>
     <br>
     -->
-    あなたの役職: <div id="role-display">参加したら役職が表示されます</div>
-</div>
-
-<hr>
-
-<div class="info-area">
-
-    今の参加人数: <span id="player-count">0</span>人
-    <br>
-
-    <div id="player-list">参加者の名前がここに表示されます</div>
-    <br>
-
-    <br>
-    <div id="alive-list">生存者の名前がここに表示されます</div>
-    <!--現在プレイヤーリストに併合中、死亡者にのみ表示する予定-->
-    <br>
-
-</div>
-
-<hr>
-
-<div class="gameinfo-area">
-
-    日数: <span id="day-count">0</span>日目
-    <br>
-    現在の時間帯: <span id="time-display">不明</span>
-    <br>
-    現在の勝利陣営: <span id="winner-display">不明</span>
-    <br>
-    生存人数: <span id="alive-count">0</span>人
-    <br>
     
-
 </div>
-
-<div class="game-area">
-
-    <div id="action-display">行動内容がここに表示されます。ゲーム開始までお待ちください。</div> 
-
-    <div id="vote-list"></div>
-
-    <button id="btn-action">行動</button>
-    <br>
-    <button id="btn-next">次のフェーズへ</button>
 
 <hr>
 
@@ -101,9 +59,62 @@
 
     </div>
 
-    <button id="btn-assign">役職を配る（誰か1人）</button>
+    <button id="btn-assign">役職を配る</button>
+    <button id="btn-roleareahidden">隠す</button>
+    <br>
+    現在の役職の振り分け: 
+    <br>
+    <span id="nowroles">振り分けられたら表示されます</span>
+</div>
+
+<hr>
+
+<div class="info-area">
+
+    今の参加人数: <span id="player-count">0</span>人
+    <br>
+
+    <div id="player-list">参加者の名前がここに表示されます</div>
+    <!--
+    <br>
+
+    <br>-->
+    <div id="alive-list">生存者の名前がここに表示されます</div>
+    <!--
+    現在プレイヤーリストに併合中、死亡者にのみ表示する予定
+    <br>
+    -->
+</div>
+
+<hr>
+
+<div class="gameinfo-area">
+
+    日数: <span id="day-count">0</span>日目
+    <br>
+    現在の時間帯: <span id="time-display">不明</span>
+    <br>
+    <!--
+    現在の勝利陣営: <span id="winner-display">不明</span>
+    <br>
+    -->
+    生存人数: <span id="alive-count">0</span>人
+    <br>
+    あなたの役職: <div id="role-display">参加したら役職が表示されます</div>
 
 </div>
+
+<hr>
+
+<div class="game-area">
+
+    <div id="action-display">行動内容がここに表示されます。ゲーム開始までお待ちください。</div> 
+
+    <div id="vote-list"></div>
+
+    <button id="btn-action">行動</button>
+    <br>
+    <button id="btn-next">次のフェーズへ</button>
 
 <hr>
 
@@ -118,16 +129,19 @@
 
 <div class="admin-area">
 
+    <input type="text" id="deleteName" placeholder="削除するプレイヤーの名前を入力">
+    <br>
+    <button id="btn-playerdelete">プレイヤーを1人削除</button>
+    <br>
     <button id="randomkill">ランダムに1人殺す(テスト用)</button>
-
+    <br>
     <button id="btn-allget">全てのデータを表示</button>
     <br>
     <button id="btn-alldelete">全データ削除</button>
 
 </div>
 
-
-
 <script type="module" src="./main.js"></script>
 </body>
+
 </html>
