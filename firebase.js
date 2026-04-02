@@ -241,12 +241,22 @@ export function watchVote(name, callback){
 
 // ゲームのデータ
 export function newGame(){
+	AllupdateAlive(true);
+	AllupdateIsDone(false);
 	return set(ref(db, 'game'), {
-		date: null,
-		time: null,
-		winner: null
+		date: 0,
+		time: false,
+		winner: 0
 	});
 }
+
+export function deleteGame(){
+	set(ref(db, 'game/date'), null);
+	set(ref(db, 'game/time'), null);
+	//set(ref(db, 'game/winner'), null);
+	return;
+}
+
 // 日数
 export function setDate(inputdate){
 	return set(ref(db, 'game/date'), {
@@ -285,9 +295,25 @@ export function getTime(){
 	}, { onlyOnce: true });
 }
 
+// 次へ進める
+export function nextPhase(){
+	onValue(ref(db, 'game'), (snapshot)=>{
+		const game = snapshot.val();
+		if(game == null || game.time === null || game.date === null) newGame();
+		else if(!game.time){
+			setTime(true);
+			setDate(game.date + 1);
+		}else{
+			setTime(false);
+		}			
+	}, { onlyOnce: true });
+}
+
 // 勝敗
 export function setWinner(inputwinner){
-	return set(ref(db, 'game/winner'), {
+	return set(ref(db, 'game/'), {
+		date: null,
+		time: null,
 		winner: inputwinner
 	});
 }
@@ -296,4 +322,10 @@ export function watchWinner(callback){
 	onValue(ref(db, 'game/winner'), (snapshot)=>{
 		callback(snapshot.val());
 	});
+}
+
+export function getWinner(){
+	onValue(ref(db, 'game/winner'), (snapshot)=>{
+		return snapshot.val();
+	}, { onlyOnce: true });
 }

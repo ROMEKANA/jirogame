@@ -54,10 +54,26 @@ export function teamToText(team){
 	}
 }
 
+export function roleActionToText(role){
+	switch(role){
+		case 1: return "誰を襲撃しますか？";
+		case 2: return "誰を占いますか？";
+		default: return "怪しいと思う人を選んでください";
+	}
+}
+
+export function roleActionButtonText(role){
+	switch(role){
+		case 1: return "襲撃";
+		case 2: return "占い";
+		default: return "怪しむ";
+	}
+}
+
 // テキストセット
-export function setStatus(text){
+export function setStatus(isConnected){
 	const el = document.getElementById('status');
-	el.innerText = text;
+	el.innerText = statusToText(isConnected);
 }
 
 export function setUserName(name){
@@ -150,8 +166,16 @@ export function setRole(role){
 	document.getElementById('role-display').innerText = roleToText(role);
 }
 
-export function setAction(text){
+export function setDayAction(text){
 	document.getElementById('action-display').innerText = text;
+}
+
+export function setNightAction(role){
+	document.getElementById('action-display').innerText = roleActionToText(role);
+}
+
+export function setActionButtonText(text){
+	document.getElementById('btn-action').innerText = text;
 }
 
 export function setScore(score){
@@ -187,7 +211,7 @@ export function createRoleCounters(containerId){
 
 //投票先表示
 export function viewVoteList(players) {
-	document.getElementById('vote-list').innerHTML = ""; // 初期化
+	document.getElementById('vote-list').innerHTML = "";
 	if(!players) return;
 	const options = Object.keys(players).filter(name => players[name].alive && name !== document.getElementById('name-display').innerText);
 	const container = document.getElementById('vote-list');
@@ -268,5 +292,5 @@ export function AllgetClick(callback){
 
 export function onAllDeleteClick(callback){
 	document.getElementById('btn-alldelete').addEventListener('click', callback);
-	localStorage.removeItem('wolf_my_name');
+	//localStorage.removeItem('wolf_my_name');
 }

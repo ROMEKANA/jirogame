@@ -50,13 +50,13 @@ export function checkWinner(callback){
 	firebase.getCountAlivePlayers((aliveCount)=>{
 		firebase.getRoleCount(1, (wolfCount)=>{
 			if(wolfCount === 0){
-				firebase.updateWinner(1);
+				firebase.setWinner(1);
 				callback(1);
 			}else if(wolfCount >= aliveCount - wolfCount){
-				firebase.updateWinner(2);
+				firebase.setWinner(2);
 				callback(2);
 			}else{
-				firebase.updateWinner(0);
+				firebase.setWinner(0);
 				callback(0);
 			}
 		});
