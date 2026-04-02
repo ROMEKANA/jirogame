@@ -1,17 +1,7 @@
 import * as firebase from "./firebase.js";
+import { roles } from "./ui.js";
 
-export const ROLE = {
-	NONE : 0,		// 未参加
-	CITIZEN : 1,	// 村人
-	WOLF : 2,		// 人狼
-	SEER : 3,		// 占い師
-	MADMAN : 4		// 狂人
-};
-
-export function joinGame(name){
-	return firebase.addPlayer(name);
-}
-
+// シャッフル関数
 function shuffle(array){
 	for(let i = array.length - 1; i > 0; i--){
 		const j = Math.floor(Math.random() * (i + 1));
@@ -20,47 +10,57 @@ function shuffle(array){
 	return array;
 }
 
+// 役職のシャッフルと配布
 export function assignRoles(){
-	firebase.watchPlayersOnce((players)=>{
+	firebase.getAllPlayers((players)=>{
 		if(!players) {
 			alert("参加者がいません");
 			return;
 		}
 
-		const rolecounts = {
-			[ROLE.CITIZEN]: Number(document.getElementById('citizen-count').innerText),
-			[ROLE.WOLF]: Number(document.getElementById('wolf-count').value),
-			[ROLE.SEER]: Number(document.getElementById('seer-count').value),
-			[ROLE.MADMAN]: Number(document.getElementById('madman-count').value)
-		};
-
-		for(const role in rolecounts){
-			if(rolecounts[role] < 0){
-				alert("役職の数は0以上にしてください");
+		const rolecounts ={};
+		for(const role of roles){
+			rolecounts[role.number] = (role.type === "input") ? Number(document.getElementById(role.id).value) : Number(document.getElementById(role.id).innerText);
+			if(isNaN(rolecounts[role.number]) || rolecounts[role.number] < 0){
+				alert("役職の数を正しく入力してください");
 				return;
 			}
 		}
 
 		const names = Object.keys(players);
 
-		const roles = [];
+		const rolecountsArray = [];
 
 		for(const role in rolecounts){
 			for(let i = 0; i < rolecounts[role]; i++){
-				roles.push(Number(role));
+				rolecountsArray.push(role);
 			}
 		}
-		shuffle(roles);
+
+		shuffle(rolecountsArray);
 
 		names.forEach((name, i)=>{
-			firebase.updateRole(name, roles[i % roles.length]);
+			firebase.updateRole(name, rolecountsArray[i % rolecountsArray.length]);
 		});
-
-		alert("役職を配りました！");
 	});
 }
 
-export function watchRole(name, callback){
-	firebase.watchRole(name, callback);
+//　どちらが勝ったのかの判定
+export function checkWinner(callback){
+	firebase.getCountAlivePlayers((aliveCount)=>{
+		firebase.getRoleCount(1, (wolfCount)=>{
+			if(wolfCount === 0){
+				firebase.updateWinner(1);
+				callback(1);
+			}else if(wolfCount >= aliveCount - wolfCount){
+				firebase.updateWinner(2);
+				callback(2);
+			}else{
+				firebase.updateWinner(0);
+				callback(0);
+			}
+		});
+	});
 }
 
+// ゲームの進行

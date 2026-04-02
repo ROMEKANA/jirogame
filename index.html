@@ -29,35 +29,7 @@
 
 <div class="roll-area">
 
-    <div class="role-counter">
-
-        <div class="counter">
-            市民：
-            <span id="citizen-count">0</span>人
-        </div>
-
-        <div class="counter">
-            人狼：
-            <input type="number" class="value" id="wolf-count" value="0" min="0">
-            <!--
-            <botton id="decrease1">-</botton>
-            <span id="value1">0</span>
-            <botton id="increase1">+</botton>
-            -->
-        </div>
-
-        <div class="counter">
-            占い師：
-            <input type="number" class="value" id="seer-count" value="0" min="0">
-        </div>
-
-        <div class="counter">
-            狂人：
-            <input type="number" class="value" id="madman-count" value="0" min="0">
-        </div>
-
-
-    </div>
+    <div id="role-counter" class="role-counter"></div>
 
     <button id="btn-assign">役職を配る</button>
     <button id="btn-roleareahidden">隠す</button>
@@ -79,7 +51,7 @@
     <br>
 
     <br>-->
-    <div id="alive-list">生存者の名前がここに表示されます</div>
+    <div id="alive-list"><!--生存者の名前がここに表示されます--></div>
     <!--
     現在プレイヤーリストに併合中、死亡者にのみ表示する予定
     <br>
@@ -90,31 +62,30 @@
 
 <div class="gameinfo-area">
 
-    日数: <span id="day-count">0</span>日目
+    日数: <span id="day-count">不明</span>
     <br>
     現在の時間帯: <span id="time-display">不明</span>
     <br>
-    <!--
-    現在の勝利陣営: <span id="winner-display">不明</span>
-    <br>
-    -->
     生存人数: <span id="alive-count">0</span>人
     <br>
-    あなたの役職: <div id="role-display">参加したら役職が表示されます</div>
+    現在の勝利陣営: <span id="winner-display">不明</span>
+    <br>
+    <button id="btn-next">ゲームスタート</button>
+    
 
 </div>
 
 <hr>
 
 <div class="game-area">
+    あなたの役職: <div id="role-display">参加したら役職が表示されます</div>
 
-    <div id="action-display">行動内容がここに表示されます。ゲーム開始までお待ちください。</div> 
+    <div id="action-display">行動内容がここに表示されます。
+        <br>ゲーム開始までお待ちください。</div> 
 
     <div id="vote-list"></div>
 
     <button id="btn-action">行動</button>
-    <br>
-    <button id="btn-next">次のフェーズへ</button>
 
 <hr>
 
@@ -132,6 +103,8 @@
     <input type="text" id="deleteName" placeholder="削除するプレイヤーの名前を入力">
     <br>
     <button id="btn-playerdelete">プレイヤーを1人削除</button>
+    <br>
+    <button id="btn-ahead">一日進める（テスト用）</button>
     <br>
     <button id="randomkill">ランダムに1人殺す(テスト用)</button>
     <br>

@@ -1,78 +1,57 @@
 // ui.js
 
+//　変数の定義
+export const roles = [
+	{ name: "市民", id: "citizen-count", type: "display", number: 0, team:1 },
+	{ name: "人狼", id: "count1", type: "input", number: 1, team:2 },
+	{ name: "占い師", id: "count2", type: "input", number: 2, team:1 },
+	{ name: "狂人", id: "count3", type: "input", number: 3, team:2 }
+];
+
+export let roleAreaHidden = false;
+export let roleHidden = false;
+
 // テキスト変換
+export function statusToText(isConnected){
+	if(isConnected === null) return "接続します...";
+	return isConnected ? "接続しました！" : "接続待ち...";
+}
+
 export function roleToText(role){
-	switch(role){
-		case 0: return "未決定";
-		case 1: return "市民";
-		case 2: return "人狼";
-		case 3: return "占い師";
-		case 4: return "狂人";
-		default: return false;
-	}
+	if(role === null) return "参加前";
+	if(role === -1) return "未決定";
+	if(role >= 0 && role < roles.length) return roles[role].name;
+	return "未定義";
 }
 
 export function aliveToText(alive){
+	if(alive === null) return "参加前";
 	return alive ? "生存" : "死亡";
 }
 
 export function isDoneToText(isDone){
+	if(isDone === null) return "参加前";
 	return isDone ? "行動済み" : "未行動";
 }
 
+export function dateToText(date){
+	if(date === null) return "開始前";
+	return `${date}日目`;
+}
+
 export function timeToText(date){
+	if(date === null) return "開始前";
 	return date ? "昼" : "夜";
 }
 
-export function winnerToText(winner){
-	switch(winner){
+export function teamToText(team){
+	switch(team){
+		case null: return "開始前";
 		case 0: return "試合中";
 		case 1: return "市民陣営";
 		case 2: return "人狼陣営";
 		default: return "未定義";
 	}
-}
-
-// テキスト入力受付
-export function getUserName(){
-	return document.getElementById('userName').value;
-}
-
-export function getDeleteName(){
-	return document.getElementById('deleteName').value;
-}
-
-// ボタンクリック受付
-export function onJoinClick(callback){
-	document.getElementById('btn-join').addEventListener('click', callback);
-}
-
-export function onAssignClick(callback){
-	document.getElementById('btn-assign').addEventListener('click', callback);
-}
-
-export function onRoleAreaHiddenClick(callback){
-	document.getElementById('btn-roleareahidden').addEventListener('click', callback);
-}
-
-export function onActionClick(callback){
-	document.getElementById('btn-action').addEventListener('click', callback);
-}
-
-export function onNextClick(callback){
-	document.getElementById('btn-next').addEventListener('click', callback);
-}
-
-export function onPlayerDeleteClick(callback){
-	document.getElementById('btn-playerdelete').addEventListener('click', callback);
-}
-
-export function AllgetClick(callback){
-    document.getElementById('btn-allget').addEventListener('click', callback);
-}
-
-export function onAllDeleteClick(callback){
-	document.getElementById('btn-alldelete').addEventListener('click', callback);
 }
 
 // テキストセット
@@ -115,6 +94,10 @@ export function setupRoleInputs(playerCount){
 	});
 }
 
+export function setPlayerCount(count){
+	document.getElementById('player-count').innerText = count;
+}
+
 export function viewAllPlayers(players){
 	if(!players) return;
 	const playersArray = Object.entries(players)
@@ -131,21 +114,20 @@ export function viewAllPlayers(players){
 	}
 }
 
-export function setPlayerCount(count){
-	document.getElementById('player-count').innerText = count;
-}
-
+// 使わない
 export function viewAlivePlayers(players){
 	const el = document.getElementById('alive-list');
-	el.innerHTML = "";
+	el.innerHTML = "現在の生存者：";
 	for(const name in players){
-		const player = players[name];
-	//el.innerHTML += `<div>${name}: ${roleToText(player.role)}</div>`;
+		if(players[name].alive) {
+			const player = players[name];
+			el.innerHTML += `<div>${name}: ${roleToText(player.role)}</div>`;
+		}
 	}
 }
 
-export function setDaycount(count){
-	document.getElementById('day-count').innerText = count;
+export function setDate(count){
+	document.getElementById('day-count').innerText = dateToText(count);
 }
 
 export function setTime(isDay){
@@ -156,9 +138,16 @@ export function setAliveCount(count){
 	document.getElementById('alive-count').innerText = count;
 }
 
+export function setWinner(winner){
+	document.getElementById('winner-display').innerText = teamToText(winner);
+}
+
+export function setNextButtonText(text){
+	document.getElementById('btn-next').innerText = text;
+}
+
 export function setRole(role){
-	document.getElementById('role-display').innerText =
-		roleToText(role);
+	document.getElementById('role-display').innerText = roleToText(role);
 }
 
 export function setAction(text){
@@ -169,8 +158,36 @@ export function setScore(score){
 	document.getElementById('score-display').innerText = score;
 }
 
+//　役職設定の表示
+export function createRoleCounters(containerId){
+
+
+	const container = document.getElementById(containerId);
+	container.innerHTML = ""; // 初期化
+
+	roles.forEach(role => {
+		const div = document.createElement("div");
+		div.className = "counter";
+
+		if(role.type === "display"){
+			div.innerHTML = `
+				${role.name}：
+				<span id="${role.id}">0</span>人
+			`;
+		}else{
+			div.innerHTML = `
+				${role.name}：
+				<input type="number" class="value" id="${role.id}" value="0" min="0">
+			`;
+		}
+
+		container.appendChild(div);
+	});
+}
+
 //投票先表示
 export function viewVoteList(players) {
+	document.getElementById('vote-list').innerHTML = ""; // 初期化
 	if(!players) return;
 	const options = Object.keys(players).filter(name => players[name].alive && name !== document.getElementById('name-display').innerText);
 	const container = document.getElementById('vote-list');
@@ -203,6 +220,53 @@ export function viewVoteList(players) {
 	}
 }
 
+// テキスト入力受付
+export function getUserName(){
+	return document.getElementById('userName').value;
+}
 
+export function getDeleteName(){
+	return document.getElementById('deleteName').value;
+}
 
+// ボタンクリック受付
+export function onJoinClick(callback){
+	document.getElementById('btn-join').addEventListener('click', callback);
+}
 
+export function onAssignClick(callback){
+	document.getElementById('btn-assign').addEventListener('click', callback);
+}
+
+export function onRoleAreaHiddenClick(callback){
+	document.getElementById('btn-roleareahidden').addEventListener('click', callback);
+}
+
+export function onGameNextClick(callback){
+	document.getElementById('btn-next').addEventListener('click', callback);
+}
+
+export function onActionClick(callback){
+	document.getElementById('btn-action').addEventListener('click', callback);
+}
+
+export function onPlayerDeleteClick(callback){
+	document.getElementById('btn-playerdelete').addEventListener('click', callback);
+}
+
+export function onDayAheadClick(callback){
+	document.getElementById('btn-ahead').addEventListener('click', callback);
+}
+
+export function onRandomKillClick(callback){
+	document.getElementById('randomkill').addEventListener('click', callback);
+}
+
+export function AllgetClick(callback){
+    document.getElementById('btn-allget').addEventListener('click', callback);
+}
+
+export function onAllDeleteClick(callback){
+	document.getElementById('btn-alldelete').addEventListener('click', callback);
+	localStorage.removeItem('wolf_my_name');
+}
