@@ -56,6 +56,7 @@ ui.onAllDeleteClick(async ()=>{
 		await firebase.deleteAllData();
 		alert("全データを削除しました");
 	}
+	firebase.newGame();
 });
 
 // 全員のプレイヤー名表示, 投票リスト表示

@@ -9,7 +9,18 @@ export function watchConnection(callback){
 	});
 }
 
+// 全データの取得と削除
+export async function getAllDataOnce(){
+	const snap = await get(ref(db, "/"));
+	return snap.val();
+}
+
+export async function deleteAllData(){
+	await set(ref(db, "/"), null);
+}
+
 // プレイヤーのデータ
+// プレイヤーの追加
 export function addPlayer(name){
 	return set(ref(db, 'players/' + name), {
 		role: 0,
@@ -20,31 +31,11 @@ export function addPlayer(name){
 	});
 }
 
+//　すべてのプレイヤーのデータを取得
 export function watchPlayersOnce(callback){
 	onValue(ref(db, 'players'), (snapshot)=>{
 		callback(snapshot.val());
 	}, { onlyOnce: true });
-}
-
-export function updateRole(name, inputrole){
-	return update(ref(db, 'players/' + name), {
-		role: inputrole
-	});
-}
-
-export function watchMyRole(name, callback){
-	onValue(ref(db, 'players/' + name + '/role'), (snapshot)=>{
-		callback(snapshot.val());
-	});
-}
-
-export async function getAllData(){
-	const snap = await get(ref(db, "/"));
-	return snap.val();
-}
-
-export async function deleteAllData(){
-	await set(ref(db, "/"), null);
 }
 
 export function watchAllPlayers(callback){
@@ -85,9 +76,32 @@ export function countAlivePlayers(callback){
 	});
 }
 
+// 役職
+export function updateRole(name, inputrole){
+	return update(ref(db, 'players/' + name), {
+		role: inputrole
+	});
+}
+
+export function watchRole(name, callback){
+	onValue(ref(db, 'players/' + name + '/role'), (snapshot)=>{
+		callback(snapshot.val());
+	});
+}
+
+// 生死
 export function updateAlive(name, alivebool){
 	return update(ref(db, 'players/' + name), {
 		alive: alivebool
+	});
+}
+
+export function AllupdateAlive(alivebool){
+	onValue(ref(db, 'players'), (snapshot)=>{
+		const players = snapshot.val();
+		for(const name in players){
+			updateAlive(name, alivebool);
+		}
 	});
 }
 
@@ -97,9 +111,17 @@ export function watchAlive(name, callback){
 	});
 }
 
+// スコア
 export function updateScore(name, score){
 	return update(ref(db, 'players/' + name), {
 		score: score
+	});
+}
+
+export function addScore(name, addscore){
+	onValue(ref(db, 'players/' + name + '/score'), (snapshot)=>{
+		const currentScore = snapshot.val() || 0;
+		updateScore(name, currentScore + addscore);
 	});
 }
 
@@ -109,9 +131,19 @@ export function watchScore(name, callback){
 	});
 }
 
+// 行動完了
 export function updateIsDone(name, isDone){
 	return update(ref(db, 'players/' + name), {
 		isDone: isDone
+	});
+}
+
+export function AllupdateIsDone(isDone){
+	onValue(ref(db, 'players'), (snapshot)=>{
+		const players = snapshot.val();
+		for(const name in players){
+			updateIsDone(name, isDone);
+		}
 	});
 }
 
@@ -134,6 +166,7 @@ export function watchAllIsDone(callback){
 	});
 }
 
+// 投票
 export function updateVote(name, vote){
 	return update(ref(db, 'players/' + name), {
 		vote: vote
@@ -146,8 +179,16 @@ export function watchVote(name, callback){
 	});
 }
 
-
 // ゲームのデータ
+export function newGame(){
+	return set(ref(db, 'game'), {
+		date: 0,
+		time: false,
+		winner: null
+	});
+}
+
+// 日数
 export function setDate(inputdate){
 	return set(ref(db, 'game/date'), {
 		date: inputdate
@@ -160,6 +201,7 @@ export function watchDate(callback){
 	});
 }
 
+// 昼夜
 export function setTime(inputtime){
 	return set(ref(db, 'game/time'), {
 		time: inputtime
@@ -172,6 +214,7 @@ export function watchTime(callback){
 	});
 }
 
+// 勝敗
 export function setWinner(inputwinner){
 	return set(ref(db, 'game/winner'), {
 		winner: inputwinner

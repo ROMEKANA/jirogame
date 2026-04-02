@@ -74,6 +74,7 @@ export function setupRoleInputs(playerCount){
 }
 
 export function viewAllPlayers(players){
+	if(!players) return;
 	const playersArray = Object.entries(players)
 		.sort((a, b) => {
 			const PlayerA = a[1];
@@ -128,6 +129,7 @@ export function setScore(score){
 
 //投票先表示
 export function viewVoteList(players) {
+	if(!players) return;
 	const options = Object.keys(players).filter(name => players[name].alive && name !== document.getElementById('name-display').innerText);
 	const container = document.getElementById('vote-list');
 
