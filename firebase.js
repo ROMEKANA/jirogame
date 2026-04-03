@@ -29,8 +29,8 @@ export async function deleteAllData(){
 
 // プレイヤーのデータ
 // プレイヤーの追加、削除、存在確認
-export function addPlayer(name){
-	return set(ref(db, 'players/' + name), {
+export async function addPlayer(name){
+	await set(ref(db, 'players/' + name), {
 		role: -1,
 		alive: false,
 		isDone: true,
@@ -39,11 +39,11 @@ export function addPlayer(name){
 	});
 }
 
-export function deletePlayer(name){
-	return set(ref(db, 'players/' + name), null);
+export async function deletePlayer(name){
+	await set(ref(db, 'players/' + name), null);
 }
 
-export function isPlayerExist(name, callback){
+export function getisPlayerExist(name, callback){
 	onValue(ref(db, 'players/' + name), (snapshot)=>{
 		callback(snapshot.exists());
 	}, { onlyOnce: true });
@@ -108,19 +108,19 @@ export function getCountAlivePlayers(callback){
 }
 
 // 役職
-export function updateRole(name, inputrole){
-	return update(ref(db, 'players/' + name), {
+export async function updateRole(name, inputrole){
+	await update(ref(db, 'players/' + name), {
 		role: inputrole
 	});
 }
 
-export function updateAllRole(inputrole){
-	onValue(ref(db, 'players'), (snapshot)=>{
-		const players = snapshot.val();
-		for(const name in players){
-			updateRole(name, inputrole);
-		}
-	}, { onlyOnce: true });
+export async function updateAllRole(inputrole){
+	const snapshot = await get(ref(db, 'players'));
+    const players = snapshot.val();
+
+    for (const name in players) {
+        await updateRole(name, inputrole);
+    }
 }
 
 export function watchRole(name, callback){
@@ -147,19 +147,19 @@ export function getRoleCount(roleNumber, callback){
 }
 
 // 生死
-export function updateAlive(name, alivebool){
-	return update(ref(db, 'players/' + name), {
+export async function updateAlive(name, alivebool){
+	await update(ref(db, 'players/' + name), {
 		alive: alivebool
 	});
 }
 
-export function AllupdateAlive(alivebool){
-	onValue(ref(db, 'players'), (snapshot)=>{
-		const players = snapshot.val();
-		for(const name in players){
-			updateAlive(name, alivebool);
-		}
-	});
+export async function AllupdateAlive(alivebool){
+	const snapshot = await get(ref(db, 'players'));
+    const players = snapshot.val();
+
+    for (const name in players) {
+        await updateAlive(name, alivebool);
+    }
 }
 
 export function watchAlive(name, callback){
@@ -169,17 +169,16 @@ export function watchAlive(name, callback){
 }
 
 // スコア
-export function updateScore(name, score){
-	return update(ref(db, 'players/' + name), {
+export async function updateScore(name, score){
+	await update(ref(db, 'players/' + name), {
 		score: score
 	});
 }
 
-export function addScore(name, addscore){
-	onValue(ref(db, 'players/' + name + '/score'), (snapshot)=>{
-		const currentScore = snapshot.val() || 0;
-		updateScore(name, currentScore + addscore);
-	});
+export async function addScore(name, addscore){
+	const snapshot = await get(ref(db, 'players/' + name + '/score'));
+	const currentScore = snapshot.val() || 0;
+	await updateScore(name, currentScore + addscore);
 }
 
 export function watchScore(name, callback){
@@ -189,19 +188,19 @@ export function watchScore(name, callback){
 }
 
 // 行動完了
-export function updateIsDone(name, isDone){
-	return update(ref(db, 'players/' + name), {
+export async function updateIsDone(name, isDone){
+	await update(ref(db, 'players/' + name), {
 		isDone: isDone
 	});
 }
 
-export function AllupdateIsDone(isDone){
-	onValue(ref(db, 'players'), (snapshot)=>{
-		const players = snapshot.val();
-		for(const name in players){
-			updateIsDone(name, isDone);
-		}
-	});
+export async function AllupdateIsDone(isDone){
+	const snapshot = await get(ref(db, 'players'));
+    const players = snapshot.val();
+
+    for (const name in players) {
+        await updateIsDone(name, isDone);
+	}
 }
 
 export function watchIsDone(name, callback){
@@ -236,8 +235,8 @@ export function getAllIsDone(callback){
 }
 
 // 投票
-export function updateVote(name, vote){
-	return update(ref(db, 'players/' + name), {
+export async function updateVote(name, vote){
+	await update(ref(db, 'players/' + name), {
 		vote: vote
 	});
 }
@@ -249,26 +248,32 @@ export function watchVote(name, callback){
 }
 
 // ゲームのデータ
-export function newGame(){
-	AllupdateAlive(true);
-	AllupdateIsDone(false);
-	return set(ref(db, 'game'), {
+export async function newGame(){
+	await AllupdateAlive(true);
+	await AllupdateIsDone(false);
+	await set(ref(db, 'game'), {
 		date: 0,
 		time: false,
 		winner: 0
 	});
 }
 
-export function deleteGame(){
-	set(ref(db, 'game/date'), null);
-	set(ref(db, 'game/time'), null);
-	//set(ref(db, 'game/winner'), null);
+export function getGame(callback){
+	onValue(ref(db, 'game'), (snapshot)=>{
+		callback(snapshot.val());
+	}, { onlyOnce: true });
+}
+
+export async function deleteGame(){
+	await set(ref(db, 'game/date'), null);
+	await set(ref(db, 'game/time'), null);
+	//await set(ref(db, 'game/winner'), null);
 	return;
 }
 
 // 日数
-export function updateDate(inputdate){
-	return set(ref(db, 'game/date'), {
+export async function updateDate(inputdate){
+	await set(ref(db, 'game/date'), {
 		date: inputdate
 	});
 }
@@ -279,15 +284,16 @@ export function watchDate(callback){
 	});
 }
 
-export function getDate(){
+export function getDate(callback){
 	onValue(ref(db, 'game/date'), (snapshot)=>{
-		return snapshot.val();
+		//console.log("getDate: " + snapshot.val());
+		callback(snapshot.val());
 	}, { onlyOnce: true });
 }
 
 // 昼夜
-export function updateTime(inputtime){
-	return set(ref(db, 'game/time'), {
+export async function updateTime(inputtime){
+	await set(ref(db, 'game/time'), {
 		time: inputtime
 	});
 }
@@ -298,12 +304,13 @@ export function watchTime(callback){
 	});
 }
 
-export function getTime(){
+export async function getTime(callback){
 	onValue(ref(db, 'game/time'), (snapshot)=>{
-		return snapshot.val();
+		callback(snapshot.val());
 	}, { onlyOnce: true });
 }
 
+/*
 // 次へ進める
 export function nextPhase(){
 	onValue(ref(db, 'game'), (snapshot)=>{
@@ -316,11 +323,12 @@ export function nextPhase(){
 		}			
 	}, { onlyOnce: true });
 }
+*/
 
 // 勝敗
-export function updateWinner(inputwinner){
-	updateAllRole(-1);
-	return set(ref(db, 'game/'), {
+export async function updateWinner(inputwinner){
+	await updateAllRole(-1);
+	await set(ref(db, 'game/'), {
 		date: null,
 		time: null,
 		winner: inputwinner
@@ -333,8 +341,8 @@ export function watchWinner(callback){
 	});
 }
 
-export function getWinner(){
+export function getWinner(callback){
 	onValue(ref(db, 'game/winner'), (snapshot)=>{
-		return snapshot.val();
+		callback(snapshot.val());
 	}, { onlyOnce: true });
 }

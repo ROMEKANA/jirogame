@@ -179,12 +179,14 @@ export function setDayAction(text){
 	document.getElementById('action-display').innerText = text;
 }
 
-export function setNightAction(role){
-	document.getElementById('action-display').innerText = roleActionToText(role);
-}
-
 export function setActionButtonText(text){
 	document.getElementById('btn-action').innerText = text;
+}
+
+export function setNightAction(role){
+	document.getElementById('action-display').innerText = roleActionToText(role);
+	setActionButtonText(roleActionButtonText(role));
+	//console.log("test: " + num + ui.roleActionToText(num));
 }
 
 export function setScore(score){

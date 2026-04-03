@@ -20,7 +20,7 @@ export function assignRoles(){
 
 		const rolecounts ={};
 		for(const role of roles){
-			rolecounts[role.number] = (role.type === "input") ? Number(document.getElementById(role.id).value) : Number(document.getElementById(role.id).innerText);
+			rolecounts[role.number] = (role.type == "input") ? Number(document.getElementById(role.id).value) : Number(document.getElementById(role.id).innerText);
 			if(isNaN(rolecounts[role.number]) || rolecounts[role.number] < 0){
 				alert("役職の数を正しく入力してください");
 				return;
@@ -49,7 +49,7 @@ export function assignRoles(){
 export function checkWinner(callback){
 	firebase.getCountAlivePlayers((aliveCount)=>{
 		firebase.getRoleCount(1, (wolfCount)=>{
-			if(wolfCount === 0){
+			if(wolfCount == 0){
 				firebase.updateWinner(1);
 				callback(1);
 			}else if(wolfCount >= aliveCount - wolfCount){
@@ -72,5 +72,10 @@ export function isGameStarted(){
 
 // 次のフェーズへの移行処理
 export function goNextPhase(){
-	firebase.nextPhase();
+	firebase.getGame((game)=>{
+		if(!game.time){ //夜から昼へ
+			if(game.date == 1) // 一日目の襲撃はなし
+				
+		}
+	});
 }

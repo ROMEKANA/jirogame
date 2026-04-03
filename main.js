@@ -13,6 +13,8 @@ let farstconnectRole = true;
 let farstconnectWinner = true;
 let farstconnectAlive = true;
 
+let firstNightKill = false;
+
 // 名前復元
 const savedname = localStorage.getItem('wolf_my_name');
 let savedrole = null;
@@ -81,10 +83,14 @@ firebase.watchTime((time)=>{
 		ui.setActionButtonText("投票");
 	}else{
 		firebase.getRole(savedname, (role)=>{
-			let num = Number(role);
-			console.log("test: " + num + ui.roleActionToText(num));
-			ui.setNightAction(num);
-			ui.setActionButtonText(ui.roleActionButtonText(num));
+			firebase.getDate((date)=>{
+				//console.log(firstNightKill + role + date);
+				if(!firstNightKill && role == 1 && date == 0){
+					ui.setNightAction(0); // 最初の夜の人狼は襲撃なし
+				}else{
+					ui.setNightAction(Number(role));
+				}
+			});
 		});
 	}
 });
@@ -141,7 +147,7 @@ ui.onJoinClick(()=>{
 		alert("接続されていません");
 		return;
 	}
-	if(!firebase.updateDate() === null){
+	if(!firebase.updateDate() == null){
 		alert("ゲーム中には参加できません");
 		return;
 	}
@@ -188,7 +194,7 @@ ui.onGameNextClick(()=>{
 				if (allDone) {
 					firebase.AllupdateIsDone(false);
 					game.checkWinner((winner) => {
-						if (winner === 0) {
+						if (winner == 0) {
 							game.goNextPhase();
 						}
 					});
@@ -203,7 +209,7 @@ ui.onGameNextClick(()=>{
 // 投票ボタン
 ui.onActionClick(()=>{
 	const vote = ui.getVote();
-	if(vote === null){
+	if(vote == null){
 		alert("投票先を選択してください");
 		return;
 	}else{
