@@ -75,7 +75,7 @@ export function goNextPhase(){
 	firebase.getGame((game)=>{
 		if(!game.time){ //夜から昼へ
 			if(game.date == 1) // 一日目の襲撃はなし
-				
+			;	
 		}
 	});
 }

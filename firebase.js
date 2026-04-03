@@ -153,7 +153,7 @@ export async function updateAlive(name, alivebool){
 	});
 }
 
-export async function AllupdateAlive(alivebool){
+export async function updateAllAlive(alivebool){
 	const snapshot = await get(ref(db, 'players'));
     const players = snapshot.val();
 
@@ -194,7 +194,7 @@ export async function updateIsDone(name, isDone){
 	});
 }
 
-export async function AllupdateIsDone(isDone){
+export async function updateAllIsDone(isDone){
 	const snapshot = await get(ref(db, 'players'));
     const players = snapshot.val();
 
@@ -249,8 +249,8 @@ export function watchVote(name, callback){
 
 // ゲームのデータ
 export async function newGame(){
-	await AllupdateAlive(true);
-	await AllupdateIsDone(false);
+	await updateAllAlive(true);
+	await updateAllIsDone(false);
 	await set(ref(db, 'game'), {
 		date: 0,
 		time: false,

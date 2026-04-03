@@ -173,7 +173,7 @@ ui.onAssignClick(()=>{
 		return;
 	}
 	else{
-		firebase.AllupdateAlive(true).then(()=>{;
+		firebase.updateAllAlive(true).then(()=>{;
 			game.assignRoles();
 		});
 	}
@@ -192,7 +192,7 @@ ui.onGameNextClick(()=>{
 		} else {
 			firebase.getAllIsDone((allDone) => {
 				if (allDone) {
-					firebase.AllupdateIsDone(false);
+					firebase.updateAllIsDone(false);
 					game.checkWinner((winner) => {
 						if (winner == 0) {
 							game.goNextPhase();

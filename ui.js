@@ -45,7 +45,7 @@ export function timeToText(date){
 }
 
 export function teamToText(team){
-	switch(team){
+	switch(Number(team)){
 		case null: return "開始前";
 		case 0: return "試合中";
 		case 1: return "市民陣営";
@@ -55,7 +55,7 @@ export function teamToText(team){
 }
 
 export function roleActionToText(role){
-	switch(role){
+	switch(Number(role)){
 		case 1: return "誰を襲撃しますか？";
 		case 2: return "誰を占いますか？";
 		default: return "怪しいと思う人を選んでください";
@@ -63,7 +63,7 @@ export function roleActionToText(role){
 }
 
 export function roleActionButtonText(role){
-	switch(role){
+	switch(Number(role)){
 		case 1: return "襲撃";
 		case 2: return "占い";
 		default: return "怪しむ";
