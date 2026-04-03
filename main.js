@@ -193,6 +193,18 @@ ui.onAssignClick(()=>{
 	}
 });
 
+ui.onRoleAreaHiddenClick(()=>{
+	const roleArea = document.getElementById("role-assign");
+	if(roleArea.style.display === "none"){
+		roleArea.style.display = "block";
+		ui.setRoleHiddenButtonText(false);
+	}else{
+		roleArea.style.display = "none";
+		ui.setRoleHiddenButtonText(true);
+	}
+});
+
+
 // 次へ進めるボタン
 ui.onGameNextClick(()=>{
 	//console.log("次へ進むボタンがクリックされました: " + firebase.updateDate());

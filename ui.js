@@ -115,6 +115,10 @@ export function setupRoleInputs(playerCount){
 	});
 }
 
+export function setRoleHiddenButtonText(isHidden){
+	document.getElementById('btn-roleareahidden').innerText = isHidden ? "表示" : "隠す";
+}
+
 export function setNowRole(nowRoles){
 	let i = 0;
 	document.getElementById('nowroles').innerText = "";
