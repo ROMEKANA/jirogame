@@ -23,6 +23,12 @@ export async function getAllData(){
 	return snap.val();
 }
 
+export function getAllDataOnce(callback){
+	onValue(ref(db, "/"), (snapshot)=>{
+		callback(snapshot.val());
+	}, { onlyOnce: true });
+}
+
 export async function deleteAllData(){
 	await set(ref(db, "/"), null);
 }
@@ -243,6 +249,18 @@ export async function updateVote(name, vote){
 
 export function watchVote(name, callback){
 	onValue(ref(db, 'players/' + name + '/vote'), (snapshot)=>{
+		callback(snapshot.val());
+	});
+}
+
+export async function updateBeforeVote(name, vote){
+	await update(ref(db, 'players/' + name), {
+		beforeVote: vote
+	});
+}
+
+export function watchBeforeVote(name, callback){
+	onValue(ref(db, 'players/' + name + '/beforeVote'), (snapshot)=>{
 		callback(snapshot.val());
 	});
 }

@@ -72,9 +72,9 @@ export function isGameStarted(){
 
 // 次のフェーズへの移行処理
 export function goNextPhase(){
-	firebase.getGame((game)=>{
-		if(!game.time){ //夜から昼へ
-			if(game.date == 1) // 一日目の襲撃はなし
+	firebase.getAllDataOnce((Data)=>{
+		if(!Data.game.time){ //夜
+			if(Data.game.date == 1) // 一日目の襲撃はなし
 			;	
 		}
 	});
