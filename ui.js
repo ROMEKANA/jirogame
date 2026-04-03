@@ -225,7 +225,7 @@ export function viewVoteList(players) {
 	const options = Object.keys(players).filter(name => players[name].alive && name !== document.getElementById('name-display').innerText);
 	const container = document.getElementById('vote-list');
 
-	// 1. 配列をループして要素を作成
+	// 配列をループして要素を作成
 	options.forEach((item, index) => {
 		// ラベル要素の作成
 		const label = document.createElement('label');
@@ -233,7 +233,7 @@ export function viewVoteList(players) {
 		// ラジオボタン本体の作成
 		const radio = document.createElement('input');
 		radio.type = 'radio';
-		radio.name = 'fruit'; // 同じname属性にすることでグループ化される
+		radio.name = 'votename'; // 同じname属性にすることでグループ化される
 		radio.value = item;
 		if (index === 0) radio.checked = true; // 最初の要素を初期選択にする
 
@@ -245,12 +245,13 @@ export function viewVoteList(players) {
 		container.appendChild(label);
 		container.appendChild(document.createElement('br')); // 改行用
 	});
+}
 
-	// 2. 選択されている値を取得する関数
-	function checkValue() {
-		const selected = document.querySelector('input[name="fruit"]:checked');
-		alert(selected ? `選択中: ${selected.value}` : '未選択です');
-	}
+// 選択されている値を取得する関数
+export function getVote() {
+	const selected = document.querySelector('input[name="votename"]:checked');
+	//alert(selected ? `選択中: ${selected.value}` : '未選択です');
+	return selected ? selected.value : null;
 }
 
 // テキスト入力受付

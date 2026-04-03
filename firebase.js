@@ -308,8 +308,7 @@ export function getTime(){
 export function nextPhase(){
 	onValue(ref(db, 'game'), (snapshot)=>{
 		const game = snapshot.val();
-		if(game == null || game.time === null || game.date === null) newGame();
-		else if(!game.time){
+		if(!game.time){
 			updateTime(true);
 			updateDate(game.date + 1);
 		}else{

@@ -69,3 +69,8 @@ export function isGameStarted(){
 		return (date !== null && date !== undefined);
 	});
 }
+
+// 次のフェーズへの移行処理
+export function goNextPhase(){
+	firebase.nextPhase();
+}

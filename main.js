@@ -80,8 +80,12 @@ firebase.watchTime((time)=>{
 		ui.setDayAction("昼になりました。話し合いをしてください");
 		ui.setActionButtonText("投票");
 	}else{
-		ui.setNightAction(savedrole);
-		ui.setActionButtonText(ui.roleActionButtonText(savedrole));
+		firebase.getRole(savedname, (role)=>{
+			let num = Number(role);
+			console.log("test: " + num + ui.roleActionToText(num));
+			ui.setNightAction(num);
+			ui.setActionButtonText(ui.roleActionButtonText(num));
+		});
 	}
 });
 
@@ -111,7 +115,7 @@ firebase.watchRole(savedname, (role)=>{
 	}
 	savedrole = role;
 
-	//console.log("役職が更新されました: " + role);
+	console.log("役職が更新されました: " + savedrole);
 	//console.log(localStorage.getItem('wolf_my_name'));
 	
 });
@@ -180,13 +184,32 @@ ui.onGameNextClick(()=>{
 			console.log("ゲーム開始");
 			firebase.newGame();
 		} else {
-			game.checkWinner((winner) => {
-				if (winner === 0) {
-					firebase.nextPhase();
+			firebase.getAllIsDone((allDone) => {
+				if (allDone) {
+					firebase.AllupdateIsDone(false);
+					game.checkWinner((winner) => {
+						if (winner === 0) {
+							game.goNextPhase();
+						}
+					});
+				} else {
+					alert("全員が行動を完了していません");
 				}
 			});
 		}
 	});
+});
+
+// 投票ボタン
+ui.onActionClick(()=>{
+	const vote = ui.getVote();
+	if(vote === null){
+		alert("投票先を選択してください");
+		return;
+	}else{
+		firebase.updateVote(savedname, vote);
+		firebase.updateIsDone(savedname, true);
+	}
 });
 
 // 全データ取得
