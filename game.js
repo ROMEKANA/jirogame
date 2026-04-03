@@ -40,7 +40,7 @@ export function assignRoles(){
 		shuffle(rolecountsArray);
 
 		names.forEach((name, i)=>{
-			firebase.updateRole(name, rolecountsArray[i % rolecountsArray.length]);
+			firebase.updateRole(name, Number(rolecountsArray[i % rolecountsArray.length]));
 		});
 	});
 }

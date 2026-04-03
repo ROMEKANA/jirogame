@@ -24,6 +24,11 @@ export function roleToText(role){
 	return "未定義";
 }
 
+export function furtuneToText(fortune){
+	if(fortune === null) return "占い結果がここに表示されます";
+	return fortune == 1 ? "人狼です" : "人狼ではありません";
+}
+
 export function aliveToText(alive){
 	if(alive === null) return "参加前";
 	return alive ? "生存" : "死亡";
@@ -173,6 +178,10 @@ export function setNextButtonText(text){
 
 export function setRole(role){
 	document.getElementById('role-display').innerText = roleToText(role);
+}
+
+export function setFortune(result){
+	document.getElementById('fortune-display').innerText = result;
 }
 
 export function setDayAction(text){

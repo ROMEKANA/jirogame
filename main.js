@@ -126,6 +126,20 @@ firebase.watchRole(savedname, (role)=>{
 	
 });
 
+// 占いの結果の表示
+firebase.watchBeforeVote(savedname, (beforeVote)=>{
+	//console.log("占いの投票先が更新されました: " + beforeVote);
+	if(beforeVote !== null && beforeVote !== undefined){
+		firebase.getRole(savedname, (role)=>{
+			if(role == 2){ // 占い師のときのみ占い結果を表示
+				firebase.getRole(beforeVote, (voteRole)=>{
+					ui.setFortune(beforeVote + " : " + ui.furtuneToText(voteRole));
+				});
+			}
+		});
+	}
+});
+
 // 死亡時メッセージ
 firebase.watchAlive(savedname, (alive)=>{
 	if(farstconnectAlive){
