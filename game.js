@@ -45,15 +45,28 @@ export function assignRoles(){
 	});
 }
 
+// 勝った時の処理
+export async function handleWin(winteam, addpoint){
+	firebase.getAllPlayers((players)=>{
+		for(const name in players){
+			if(ui.roles[players[name].role].team == winteam){
+				firebase.addScore(players[name].uid, addpoint);
+			}
+		}
+	});
+}
+
 //　どちらが勝ったのかの判定
 export function checkWinner(callback){
 	firebase.getCountAlivePlayers((aliveCount)=>{
 		firebase.getRoleCount(1, (wolfCount)=>{
 			if(wolfCount == 0){
 				firebase.updateWinner(1);
+				handleWin(1, 3);
 				callback(1);
 			}else if(wolfCount >= aliveCount - wolfCount){
 				firebase.updateWinner(2);
+				handleWin(2, 5);
 				callback(2);
 			}else{
 				//firebase.updateWinner(0);
