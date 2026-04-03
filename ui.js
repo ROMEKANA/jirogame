@@ -110,6 +110,15 @@ export function setupRoleInputs(playerCount){
 	});
 }
 
+export function setNowRole(nowRoles){
+	let i = 0;
+	document.getElementById('nowroles').innerText = "";
+	for(const role of nowRoles){
+		document.getElementById('nowroles').innerText += roleToText(i) + ": " + role + "人\n";
+		i++;
+	}
+}
+
 export function setPlayerCount(count){
 	document.getElementById('player-count').innerText = count;
 }

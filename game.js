@@ -50,17 +50,22 @@ export function checkWinner(callback){
 	firebase.getCountAlivePlayers((aliveCount)=>{
 		firebase.getRoleCount(1, (wolfCount)=>{
 			if(wolfCount === 0){
-				firebase.setWinner(1);
+				firebase.updateWinner(1);
 				callback(1);
 			}else if(wolfCount >= aliveCount - wolfCount){
-				firebase.setWinner(2);
+				firebase.updateWinner(2);
 				callback(2);
 			}else{
-				firebase.setWinner(0);
+				//firebase.updateWinner(0);
 				callback(0);
 			}
 		});
 	});
 }
 
-// ゲームの進行
+// ゲームが開始したかどうかの判定
+export function isGameStarted(){
+	firebase.getDate((date)=>{
+		return (date !== null && date !== undefined);
+	});
+}

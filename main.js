@@ -2,6 +2,17 @@ import * as ui from "./ui.js";
 import * as game from "./game.js";
 import * as firebase from "./firebase.js";
 
+// テスト用
+window.test = {
+	firebase: firebase,
+	ui: ui,
+	game: game
+};
+
+let farstconnectRole = true;
+let farstconnectWinner = true;
+let farstconnectAlive = true;
+
 // 名前復元
 const savedname = localStorage.getItem('wolf_my_name');
 let savedrole = null;
@@ -30,6 +41,14 @@ firebase.watchAllPlayers((players)=>{
 	ui.viewAllPlayers(players);
 	ui.viewVoteList(players);
 	//ui.viewAlivePlayers(players);
+	let nowRoles = [];
+	for(const role of ui.roles){
+		nowRoles[role.number] = 0;
+	}
+	for(const name in players){
+		nowRoles[players[name].role]++;
+	}
+	ui.setNowRole(nowRoles);
 });
 
 // プレイヤー数表示
@@ -74,7 +93,9 @@ firebase.watchCountAlivePlayers((count)=>{
 // 勝利陣営の表示
 firebase.watchWinner((winner)=>{
 	ui.setWinner(winner);
-	if(winner !== null && winner !== 0){
+	if(farstconnectWinner){
+		farstconnectWinner = false;
+	}else if(winner !== null && winner !== 0){
 		alert(ui.teamToText(winner) + "の勝利です！");
 	}
 });
@@ -82,13 +103,29 @@ firebase.watchWinner((winner)=>{
 // 役職の表示
 firebase.watchRole(savedname, (role)=>{
 	ui.setRole(role);
-	savedrole = role;
-
-	console.log("役職が更新されました: " + role);
-	//console.log(localStorage.getItem('wolf_my_name'));
-	if(role !== null && role >= 0){
+	if(farstconnectRole){
+		farstconnectRole = false;
+	}else if(role !== null && role !== undefined && role >= 0){
 	alert("役職が割り当てられました。\n\
 		あなたの役職は " + ui.roleToText(role) + " です");
+	}
+	savedrole = role;
+
+	//console.log("役職が更新されました: " + role);
+	//console.log(localStorage.getItem('wolf_my_name'));
+	
+});
+
+// 死亡時メッセージ
+firebase.watchAlive(savedname, (alive)=>{
+	if(farstconnectAlive){
+		farstconnectAlive = false;
+	}else if(!alive && alive !== null && alive !== undefined){
+		firebase.getRole(savedname, (role)=>{
+			if(role !== -1){
+				alert("あなたは死亡しました。");
+			}
+		});
 	}
 });
 
@@ -100,7 +137,7 @@ ui.onJoinClick(()=>{
 		alert("接続されていません");
 		return;
 	}
-	if(!firebase.getDate() === null){
+	if(!firebase.updateDate() === null){
 		alert("ゲーム中には参加できません");
 		return;
 	}
@@ -121,27 +158,35 @@ ui.onJoinClick(()=>{
 
 // 役職配布
 ui.onAssignClick(()=>{
-	if(!firebase.getDate() === null){
+	if(game.isGameStarted()){
 		alert("ゲーム中には役職を配布できません");
 		return;
 	}
-
-	game.assignRoles();
+	else{
+		firebase.AllupdateAlive(true).then(()=>{;
+			game.assignRoles();
+		});
+	}
 });
 
 // 次へ進めるボタン
 ui.onGameNextClick(()=>{
-	console.log("次へ進むボタンがクリックされました: " + firebase.getDate());
-	if(firebase.getDate() === null || firebase.getWinner() === undefined){
-		console.log("ゲーム開始");
-		firebase.newGame();
-	}else{
-		game.checkWinner((winner)=>{
-			if(winner === 0){
-				firebase.nextPhase();
-			}
-		});
-	}
+	//console.log("次へ進むボタンがクリックされました: " + firebase.updateDate());
+	firebase.getRoleCount(-1, (undecidedCount)=>{
+		if(undecidedCount > 0){
+			alert("全員に役職が配布されていません");
+			return;
+		} else if (!game.isGameStarted()) {
+			console.log("ゲーム開始");
+			firebase.newGame();
+		} else {
+			game.checkWinner((winner) => {
+				if (winner === 0) {
+					firebase.nextPhase();
+				}
+			});
+		}
+	});
 });
 
 // 全データ取得

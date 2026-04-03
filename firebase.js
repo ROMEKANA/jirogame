@@ -114,6 +114,15 @@ export function updateRole(name, inputrole){
 	});
 }
 
+export function updateAllRole(inputrole){
+	onValue(ref(db, 'players'), (snapshot)=>{
+		const players = snapshot.val();
+		for(const name in players){
+			updateRole(name, inputrole);
+		}
+	}, { onlyOnce: true });
+}
+
 export function watchRole(name, callback){
 	onValue(ref(db, 'players/' + name + '/role'), (snapshot)=>{
 		callback(snapshot.val());
@@ -258,7 +267,7 @@ export function deleteGame(){
 }
 
 // 日数
-export function setDate(inputdate){
+export function updateDate(inputdate){
 	return set(ref(db, 'game/date'), {
 		date: inputdate
 	});
@@ -277,7 +286,7 @@ export function getDate(){
 }
 
 // 昼夜
-export function setTime(inputtime){
+export function updateTime(inputtime){
 	return set(ref(db, 'game/time'), {
 		time: inputtime
 	});
@@ -301,16 +310,17 @@ export function nextPhase(){
 		const game = snapshot.val();
 		if(game == null || game.time === null || game.date === null) newGame();
 		else if(!game.time){
-			setTime(true);
-			setDate(game.date + 1);
+			updateTime(true);
+			updateDate(game.date + 1);
 		}else{
-			setTime(false);
+			updateTime(false);
 		}			
 	}, { onlyOnce: true });
 }
 
 // 勝敗
-export function setWinner(inputwinner){
+export function updateWinner(inputwinner){
+	updateAllRole(-1);
 	return set(ref(db, 'game/'), {
 		date: null,
 		time: null,
