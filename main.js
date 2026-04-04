@@ -370,3 +370,7 @@ ui.onAllDeleteClick(async ()=>{
 		await firebase.newSettings();
 	}
 });
+
+firebase.getSettings((settings)=>{
+	console.log("現在の設定: ", settings);
+});
