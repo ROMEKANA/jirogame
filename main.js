@@ -265,7 +265,7 @@ ui.onGameNextClick(()=>{
 // 投票ボタン
 ui.onActionClick(()=>{
 	if(!savedname){
-		alert("先に参加してください");
+		alert("参加していません");
 		return;
 	}
 	const vote = ui.getVote();
