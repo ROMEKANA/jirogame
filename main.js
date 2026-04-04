@@ -13,8 +13,6 @@ let farstconnectRole = true;
 let farstconnectWinner = true;
 let farstconnectAlive = true;
 
-let firstNightKill = false;
-
 // 名前復元
 const savedname = localStorage.getItem('wolf_my_name');
 let savedrole = null;
@@ -84,12 +82,14 @@ firebase.watchTime((time)=>{
 	}else{
 		firebase.getRole(savedname, (role)=>{
 			firebase.getDate((date)=>{
-				//console.log(firstNightKill + role + date);
-				if(!firstNightKill && role == 1 && date == 0){
-					ui.setNightAction(0); // 最初の夜の人狼は襲撃なし
-				}else{
-					ui.setNightAction(Number(role));
-				}
+				firebase.getSettings((settings)=>{
+					const firstNightKill = settings?.firstNightKill ?? false;
+					if(!firstNightKill && role == 1 && date == 0){
+						ui.setNightAction(0);
+					}else{
+						ui.setNightAction(Number(role));
+					}
+				});
 			});
 		});
 	}
@@ -156,39 +156,48 @@ firebase.watchAlive(savedname, (alive)=>{
 //　ボタン
 // 参加ボタン
 ui.onJoinClick(()=>{
-
 	if(!isConnected){
 		alert("接続されていません");
 		return;
 	}
-	if(!firebase.updateDate() == null){
-		alert("ゲーム中には参加できません");
-		return;
-	}
-	const name = ui.getUserName();
-	if(!name){
-		alert("名前を入力してね");
-		return;
-	}
-	localStorage.setItem('wolf_my_name', name);
-	ui.setNameDisplay(name);
-	firebase.addPlayer(name).then(()=>{
-		alert(name + "さん、参加完了！");
-		firebase.watchRole(name, (role)=>{
-			ui.setRole(role);
+	game.isGameStarted((date)=>{
+		if(date !== null){
+			alert("ゲーム中には参加できません");
+			return;
+		}
+		const name = ui.getUserName();
+		if(!name){
+			alert("名前を入力してね");
+			return;
+		}
+		localStorage.setItem('wolf_my_name', name);
+		ui.setNameDisplay(name);
+		firebase.addPlayer(name).then(()=>{
+			alert(name + "さん、参加完了！");
+			firebase.watchRole(name, (role)=>{
+				ui.setRole(role);
+			});
 		});
 	});
 });
 
 // 役職配布
 ui.onAssignClick(()=>{
-	if(game.isGameStarted()){
-		alert("ゲーム中には役職を配布できません");
-		return;
-	}
-	else{
-		firebase.updateAllAlive(true).then(()=>{;
-			game.assignRoles();
+	game.isGameStarted((started)=>{
+		if(started){
+			alert("ゲーム中には役職を配布できません");
+			return;
+		}
+		else{
+			firebase.updateAllAlive(true).then(()=>{;
+			game.assignRoles((result)=>{
+				switch(result){
+					case 0:		// alert("役職を配布しました"); 
+								break;
+					case 1:		alert("参加者がいません"); break;
+					case 2:		alert("役職の数を正しく入力してください"); break;
+				}
+			});
 		});
 	}
 });
@@ -218,12 +227,14 @@ ui.onGameNextClick(()=>{
 		} else {
 			firebase.getAllIsDone((allDone) => {
 				if (allDone) {
-					firebase.updateAllIsDone(false);
-					game.checkWinner((winner) => {
-						if (winner == 0) {
-							game.goNextPhase();
-						}
-					});
+					(async () => {
+						await firebase.updateAllIsDone(false);
+						game.checkWinner((winner) => {
+							if (winner == 0) {
+								game.goNextPhase();
+							}
+						});
+					})();
 				} else {
 					alert("全員が行動を完了していません");
 				}
@@ -257,5 +268,6 @@ ui.onAllDeleteClick(async ()=>{
 		await firebase.deleteAllData();
 		localStorage.removeItem('wolf_my_name');
 		alert("全データを削除しました");
+		await firebase.newSettings();
 	}
 });

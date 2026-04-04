@@ -1,7 +1,6 @@
 import { db } from "./firebaseset.js";
 import { ref, set, onValue, update, get} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-
 // 接続の監視
 export function watchConnection(callback){
 	onValue(ref(db, '.info/connected'), (snap)=>{
@@ -24,9 +23,9 @@ export async function getAllData(){
 }
 
 export function getAllDataOnce(callback){
-	onValue(ref(db, "/"), (snapshot)=>{
+	get(ref(db, "/")).then((snapshot)=>{
 		callback(snapshot.val());
-	}, { onlyOnce: true });
+	});
 }
 
 export async function deleteAllData(){
@@ -50,16 +49,16 @@ export async function deletePlayer(name){
 }
 
 export function getisPlayerExist(name, callback){
-	onValue(ref(db, 'players/' + name), (snapshot)=>{
+	get(ref(db, 'players/' + name)).then((snapshot)=>{
 		callback(snapshot.exists());
-	}, { onlyOnce: true });
+	});
 }
 
 //　すべてのプレイヤーのデータを取得
 export function getAllPlayers(callback){
-	onValue(ref(db, 'players'), (snapshot)=>{
+	get(ref(db, 'players')).then((snapshot)=>{
 		callback(snapshot.val());
-	}, { onlyOnce: true });
+	});
 }
 
 export function watchAllPlayers(callback){
@@ -67,21 +66,6 @@ export function watchAllPlayers(callback){
 		callback(snapshot.val());
 	});
 }
-
-/*
-export function watchAlivePlayers(callback){
-	onValue(ref(db, 'players'), (snapshot)=>{
-		const players = snapshot.val();
-		const alivePlayers = {};
-		for(const name in players){
-			if(players[name].alive){
-				alivePlayers[name] = players[name];
-			}
-		}
-		callback(alivePlayers);
-	});
-}
-*/
 
 export function watchCountPlayers(callback){
 	onValue(ref(db, 'players'), (snapshot)=>{
@@ -103,14 +87,15 @@ export function watchCountAlivePlayers(callback){
 }
 
 export function getCountAlivePlayers(callback){
-	onValue(ref(db, 'players'), (snapshot)=>{
+	get(ref(db, 'players')).then((snapshot)=>{
 		const players = snapshot.val();
+		if(!players) return callback(0);
 		let count = 0;
 		for(const name in players){
 			if(players[name].alive) count++;
 		}
 		callback(count);
-	}, { onlyOnce: true });
+	});
 }
 
 // 役職
@@ -136,20 +121,21 @@ export function watchRole(name, callback){
 }
 
 export function getRole(name, callback){
-	onValue(ref(db, 'players/' + name + '/role'), (snapshot)=>{
+	get(ref(db, 'players/' + name + '/role')).then((snapshot)=>{
 		callback(snapshot.val());
-	}, { onlyOnce: true });
+	});
 }
 
 export function getRoleCount(roleNumber, callback){
-	onValue(ref(db, 'players'), (snapshot)=>{
+	get(ref(db, 'players')).then((snapshot)=>{
 		const players = snapshot.val();
+		if(!players) return callback(0);
 		let count = 0;
 		for(const name in players){
 			if(players[name].role === roleNumber) count++;
 		}
 		callback(count);
-	}, { onlyOnce: true });
+	});
 }
 
 // 生死
@@ -229,15 +215,16 @@ export function watchAllIsDone(callback){
 }
 
 export function getAllIsDone(callback){
-	onValue(ref(db, 'players'), (snapshot)=>{
+	get(ref(db, 'players')).then((snapshot)=>{
 		const players = snapshot.val();
-		const isDonePlayers = {};
+		if(!players) return callback(true);
 		for(const name in players){
 			if(!players[name].isDone){
 				return callback(false);
 			}
-		}		callback(true);
-	}, { onlyOnce: true });
+		}
+		callback(true);
+	});
 }
 
 // 投票
@@ -272,25 +259,31 @@ export async function newGame(){
 	await set(ref(db, 'game'), {
 		date: 0,
 		time: false,
-		winner: 0
+		winner: 0,
+		revoteCount: 0
 	});
 }
 
 export function getGame(callback){
-	onValue(ref(db, 'game'), (snapshot)=>{
+	get(ref(db, 'game')).then((snapshot)=>{
 		callback(snapshot.val());
-	}, { onlyOnce: true });
+	});
 }
 
 export async function deleteGame(){
-	await set(ref(db, 'game/date'), null);
 	await set(ref(db, 'game/time'), null);
+	await set(ref(db, 'game/date'), null);
+	await set(ref(db, 'game/winner'), null);
+	await set(ref(db, 'game/revoteCount'), null);
 	//await set(ref(db, 'game/winner'), null);
 	return;
 }
 
 // 日数
 export async function updateDate(inputdate){
+	if(inputdate === undefined){
+		throw new Error("updateDate requires a date value");
+	}
 	await set(ref(db, 'game/date'), {
 		date: inputdate
 	});
@@ -303,10 +296,10 @@ export function watchDate(callback){
 }
 
 export function getDate(callback){
-	onValue(ref(db, 'game/date'), (snapshot)=>{
+	get(ref(db, 'game/date')).then((snapshot)=>{
 		//console.log("getDate: " + snapshot.val());
 		callback(snapshot.val());
-	}, { onlyOnce: true });
+	});
 }
 
 // 昼夜
@@ -323,25 +316,41 @@ export function watchTime(callback){
 }
 
 export async function getTime(callback){
-	onValue(ref(db, 'game/time'), (snapshot)=>{
-		callback(snapshot.val());
-	}, { onlyOnce: true });
+	const snapshot = await get(ref(db, 'game/time'));
+	callback(snapshot.val());
 }
 
-/*
-// 次へ進める
-export function nextPhase(){
-	onValue(ref(db, 'game'), (snapshot)=>{
-		const game = snapshot.val();
-		if(!game.time){
-			updateTime(true);
-			updateDate(game.date + 1);
-		}else{
-			updateTime(false);
-		}			
-	}, { onlyOnce: true });
+// 再投票の回数
+export async function updateRevoteCount(count){
+	await set(ref(db, 'game/revoteCount'), {
+		revoteCount: count
+	});
 }
-*/
+
+export function watchRevoteCount(callback){
+	onValue(ref(db, 'game/revoteCount'), (snapshot)=>{
+		callback(snapshot.val());
+	});
+}
+
+export function getRevoteCount(callback){
+	get(ref(db, 'game/revoteCount')).then((snapshot)=>{
+		callback(snapshot.val());
+	});
+}
+
+export async function resetRevoteCount(){
+	await set(ref(db, 'game/revoteCount'), {
+		revoteCount: 0
+	});
+}
+
+export async function incrementRevoteCount(){
+    const snapshot = await get(ref(db, 'game/revoteCount'));
+    const value = snapshot.val();
+    const count = Number((typeof value === "object" ) ? value.revoteCount : value) || 0;
+    await updateRevoteCount(count + 1);
+}
 
 // 勝敗
 export async function updateWinner(inputwinner){
@@ -349,7 +358,8 @@ export async function updateWinner(inputwinner){
 	await set(ref(db, 'game/'), {
 		date: null,
 		time: null,
-		winner: inputwinner
+		winner: inputwinner,
+		revoteCount: 0
 	});
 }
 
@@ -360,7 +370,47 @@ export function watchWinner(callback){
 }
 
 export function getWinner(callback){
-	onValue(ref(db, 'game/winner'), (snapshot)=>{
+	get(ref(db, 'game/winner')).then((snapshot)=>{
 		callback(snapshot.val());
-	}, { onlyOnce: true });
+	});
+}
+
+// ゲームの設定管理
+// 初期設定
+export function getSettings(callback){
+	get(ref(db, 'settings')).then((snapshot)=>{
+		callback(snapshot.val());
+	});
+}
+
+export function watchSettings(callback){
+	onValue(ref(db, 'settings'), (snapshot)=>{
+		callback(snapshot.val());
+	});
+}
+
+export async function newSettings(){
+	await set(ref(db, 'settings'), {
+		firstNightAttack: false,
+		revote: true,
+		maxRevoteCount: 1,
+		skipAttackSameVote: false,
+		skipExecutionSameVote: false,
+		disucussionTime: 5,
+		firstNightFortune: true,
+		firstNightramdomWhite: false,
+		firstDayExecution: false,
+		revealRoleOnDeath: true,
+	});
+}
+
+export async function getPromiseSettings(settingsKey){
+	const snapshot = await get(ref(db, 'settings/' + settingsKey));
+	if(snapshot.exists()){
+		const value = snapshot.val();
+		return typeof value === "object" ? Object.values(value)[0] : value;
+	}else{
+		console.warn(`設定キー "${settingsKey}" が見つかりません。`);
+		return null;
+	}
 }
