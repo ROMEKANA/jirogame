@@ -162,8 +162,8 @@ ui.onJoinClick(()=>{
 		alert("接続されていません");
 		return;
 	}
-	game.isGameStarted((date)=>{
-		if(date !== null){
+	game.isGameStarted((started)=>{
+		if(started){
 			alert("ゲーム中には参加できません");
 			return;
 		}

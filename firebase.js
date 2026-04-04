@@ -321,11 +321,13 @@ export async function getTime(callback){
 }
 
 // 再投票の回数
+//*
 export async function updateRevoteCount(count){
 	await set(ref(db, 'game/revoteCount'), {
 		revoteCount: count
 	});
 }
+//*/
 
 export function watchRevoteCount(callback){
 	onValue(ref(db, 'game/revoteCount'), (snapshot)=>{
