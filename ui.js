@@ -148,6 +148,26 @@ export function viewAllPlayers(players){
 	}
 }
 
+export function viewScoreList(players){
+	const el = document.getElementById('score-list');
+	if(!players){
+		el.innerHTML = "表示できるスコアがありません";
+		return;
+	}
+
+	const scoreArray = Object.entries(players)
+		.map(([name, player]) => [name, Number(player?.score) || 0])
+		.sort((a, b) => {
+			if(b[1] !== a[1]) return b[1] - a[1];
+			return a[0].localeCompare(b[0], 'ja');
+		});
+
+	el.innerHTML = "";
+	for(const [name, score] of scoreArray){
+		el.innerHTML += `<div>${name}: ${score}点</div>`;
+	}
+}
+
 // 使わない
 export function viewAlivePlayers(players){
 	const el = document.getElementById('alive-list');

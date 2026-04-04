@@ -40,6 +40,7 @@ ui.createRoleCounters("role-counter");
 firebase.watchAllPlayers((players)=>{
 	ui.viewAllPlayers(players);
 	ui.viewVoteList(players);
+	ui.viewScoreList(players);
 	//ui.viewAlivePlayers(players);
 	let nowRoles = [];
 	for(const role of ui.roles){
