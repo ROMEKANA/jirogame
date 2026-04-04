@@ -171,7 +171,7 @@ function countVotes(players, voterFilter){
 //　夜の処理の関数
 async function resolveNightPhase(settings, players, date){
 	const firstNightKill = settings.firstNightKill ?? false;
-	const randomKillSameVote = settings.randomKillSameVote ?? false;
+	const randomKillSameVote = settings.randomKillSameVote ?? true;
 
 	// 初日の夜の処理、「初日の夜は人狼の襲撃オフ」のときはなし
 	const isFirstNight = Number(date) === 0;
