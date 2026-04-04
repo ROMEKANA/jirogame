@@ -150,7 +150,8 @@ export function viewAllPlayers(players){
 	el.innerHTML = "";
 	for(const [name, player] of playersArray){
 		//el.innerHTML += `<div>${name}</div>`;
-		el.innerHTML += `<div>${name}: ${roleToText(player.role)}, ${aliveToText(player.alive)}, ${isDoneToText(player.isDone)}</div>`;
+		//el.innerHTML += `<div>${name}: ${roleToText(player.role)}, ${aliveToText(player.alive)}, ${isDoneToText(player.isDone)}</div>`;
+		el.innerHTML += `<div>${name}: ${aliveToText(player.alive)}, ${isDoneToText(player.isDone)}</div>`;
 	}
 }
 
