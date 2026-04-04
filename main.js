@@ -181,13 +181,25 @@ ui.onJoinClick(()=>{
 			alert("名前を入力してね");
 			return;
 		}
-		localStorage.setItem('wolf_my_name', name);
-		savedname = name;
-		ui.setNameDisplay(name);
-		firebase.addPlayer(name).then(()=>{
-			alert(name + "さん、参加完了！");
-			firebase.watchRole(name, (role)=>{
-				ui.setRole(role);
+
+		firebase.getisPlayerExist(name, (exists)=>{
+			localStorage.setItem('wolf_my_name', name);
+			savedname = name;
+			ui.setNameDisplay(name);
+
+			if(exists){
+				alert(name + "さんとして再参加しました");
+				firebase.watchRole(name, (role)=>{
+					ui.setRole(role);
+				});
+				return;
+			}
+
+			firebase.addPlayer(name).then(()=>{
+				alert(name + "さん、参加完了！");
+				firebase.watchRole(name, (role)=>{
+					ui.setRole(role);
+				});
 			});
 		});
 	});
