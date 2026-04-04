@@ -290,6 +290,69 @@ ui.onActionClick(()=>{
 	}
 });
 
+// プレイヤー1人削除
+ui.onPlayerDeleteClick(()=>{
+	const deleteName = (ui.getDeleteName() || "").trim();
+	if(!deleteName){
+		alert("削除する名前を入力してください");
+		return;
+	}
+
+	firebase.getisPlayerExist(deleteName, (exists)=>{
+		if(!exists){
+			alert("その名前のプレイヤーはいません");
+			return;
+		}
+
+		firebase.deletePlayer(deleteName).then(()=>{
+			if(savedname === deleteName){
+				localStorage.removeItem('wolf_my_name');
+				savedname = null;
+				ui.setNameDisplay("未参加");
+				ui.setRole(null);
+			}
+			alert(deleteName + " を削除しました");
+		});
+	});
+});
+
+// 一日進める（テスト用）
+ui.onDayAheadClick(()=>{
+	firebase.getDate((rawDate)=>{
+		const date = Number(rawDate);
+		if(date === null || Number.isNaN(date)){
+			alert("ゲーム開始後に実行してください");
+			return;
+		}
+
+		firebase.updateDate(date + 1).then(()=>{
+			alert("日数を1進めました");
+		});
+	});
+});
+
+// ランダムに1人死亡（テスト用）
+ui.onRandomKillClick(()=>{
+	firebase.getAllPlayers((players)=>{
+		if(!players){
+			alert("プレイヤーがいません");
+			return;
+		}
+
+		const aliveNames = Object.keys(players).filter((name)=>players[name]?.alive);
+		if(aliveNames.length === 0){
+			alert("生存者がいません");
+			return;
+		}
+
+		const randomIndex = Math.floor(Math.random() * aliveNames.length);
+		const target = aliveNames[randomIndex];
+		firebase.updateAlive(target, false).then(()=>{
+			alert(target + " を死亡にしました");
+		});
+	});
+});
+
 // 全データ取得
 ui.AllgetClick(async ()=>{
     const data = await firebase.getAllData();
