@@ -14,7 +14,7 @@ let farstconnectWinner = true;
 let farstconnectAlive = true;
 
 // 名前復元
-const savedname = localStorage.getItem('wolf_my_name');
+let savedname = localStorage.getItem('wolf_my_name');
 let savedrole = null;
 if(savedname){
 	ui.setUserName(savedname);
@@ -82,6 +82,10 @@ firebase.watchTime((time)=>{
 		ui.setDayAction("昼になりました。話し合いをしてください");
 		ui.setActionButtonText("投票");
 	}else{
+		if(!savedname){
+			ui.setDayAction("参加していません");
+			return;
+		}
 		firebase.getRole(savedname, (role)=>{
 			firebase.getDate((date)=>{
 				firebase.getSettings((settings)=>{
@@ -113,47 +117,52 @@ firebase.watchWinner((winner)=>{
 });
 
 // 役職の表示
-firebase.watchRole(savedname, (role)=>{
-	ui.setRole(role);
-	if(farstconnectRole){
-		farstconnectRole = false;
-	}else if(role !== null && role !== undefined && role >= 0){
-	alert("役職が割り当てられました。\n\
-		あなたの役職は " + ui.roleToText(role) + " です");
-	}
-	savedrole = role;
+if(savedname){
+	firebase.watchRole(savedname, (role)=>{
+		ui.setRole(role);
+		if(farstconnectRole){
+			farstconnectRole = false;
+		}else if(role !== null && role !== undefined && role >= 0){
+		alert("役職が割り当てられました。\n\
+			あなたの役職は " + ui.roleToText(role) + " です");
+		}
+		savedrole = role;
 
-	console.log("役職が更新されました: " + savedrole);
-	//console.log(localStorage.getItem('wolf_my_name'));
-	
-});
+		console.log("役職が更新されました: " + savedrole);
+		//console.log(localStorage.getItem('wolf_my_name'));
+	});
+}
 
 // 占いの結果の表示
-firebase.watchBeforeVote(savedname, (beforeVote)=>{
-	//console.log("占いの投票先が更新されました: " + beforeVote);
-	if(beforeVote !== null && beforeVote !== undefined){
-		firebase.getRole(savedname, (role)=>{
-			if(role == 2){ // 占い師のときのみ占い結果を表示
-				firebase.getRole(beforeVote, (voteRole)=>{
-					ui.setFortune(beforeVote + " : " + ui.furtuneToText(voteRole));
-				});
-			}
-		});
-	}
-});
+if(savedname){
+	firebase.watchBeforeVote(savedname, (beforeVote)=>{
+		//console.log("占いの投票先が更新されました: " + beforeVote);
+		if(beforeVote !== null && beforeVote !== undefined){
+			firebase.getRole(savedname, (role)=>{
+				if(role == 2){ // 占い師のときのみ占い結果を表示
+					firebase.getRole(beforeVote, (voteRole)=>{
+						ui.setFortune(beforeVote + " : " + ui.furtuneToText(voteRole));
+					});
+				}
+			});
+		}
+	});
+}
 
 // 死亡時メッセージ
-firebase.watchAlive(savedname, (alive)=>{
-	if(farstconnectAlive){
-		farstconnectAlive = false;
-	}else if(!alive && alive !== null && alive !== undefined){
-		firebase.getRole(savedname, (role)=>{
-			if(role !== -1){
-				alert("あなたは死亡しました。");
-			}
-		});
-	}
-});
+if(savedname){
+	firebase.watchAlive(savedname, (alive)=>{
+		if(farstconnectAlive){
+			farstconnectAlive = false;
+		}else if(!alive && alive !== null && alive !== undefined){
+			firebase.getRole(savedname, (role)=>{
+				if(role !== -1){
+					alert("あなたは死亡しました。");
+				}
+			});
+		}
+	});
+}
 
 //　ボタン
 // 参加ボタン
@@ -173,6 +182,7 @@ ui.onJoinClick(()=>{
 			return;
 		}
 		localStorage.setItem('wolf_my_name', name);
+		savedname = name;
 		ui.setNameDisplay(name);
 		firebase.addPlayer(name).then(()=>{
 			alert(name + "さん、参加完了！");
@@ -254,6 +264,10 @@ ui.onGameNextClick(()=>{
 
 // 投票ボタン
 ui.onActionClick(()=>{
+	if(!savedname){
+		alert("先に参加してください");
+		return;
+	}
 	const vote = ui.getVote();
 	if(vote == null){
 		alert("投票先を選択してください");
