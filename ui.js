@@ -209,7 +209,6 @@ export function setScore(score){
 //　役職設定の表示
 export function createRoleCounters(containerId){
 
-
 	const container = document.getElementById(containerId);
 	container.innerHTML = ""; // 初期化
 

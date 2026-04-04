@@ -3,6 +3,60 @@ import { roles } from "./ui.js";
 
 // ゲームのロジックをここに記述
 
+// ゲームが開始したかどうかの判定
+export function isGameStarted(callback){
+	firebase.getDate((date)=>{
+		callback(normalizeDate(date) !== null);
+	});
+}
+
+// シャッフル関数
+function shuffle(array){
+	for(let i = array.length - 1; i > 0; i--){
+		const j = Math.floor(Math.random() * (i + 1));
+		[array[i], array[j]] = [array[j], array[i]];
+	}
+	return array;
+}
+
+// 役職のシャッフルと配布
+export function assignRoles(callback){
+	firebase.getAllPlayers((players)=>{
+		if(!players) {
+			// alert("参加者がいません");
+			callback(1);
+			return;
+		}
+
+		const rolecounts ={};
+		for(const role of roles){
+			rolecounts[role.number] = (role.type == "input") ? Number(document.getElementById(role.id).value) : Number(document.getElementById(role.id).innerText);
+			if(isNaN(rolecounts[role.number]) || rolecounts[role.number] < 0){
+				// alert("役職の数を正しく入力してください");
+				callback(2);
+				return;
+			}
+		}
+
+		const names = Object.keys(players);
+
+		const rolecountsArray = [];
+
+		for(const role in rolecounts){
+			for(let i = 0; i < rolecounts[role]; i++){
+				rolecountsArray.push(role);
+			}
+		}
+
+		shuffle(rolecountsArray);
+
+		names.forEach((name, i)=>{
+			firebase.updateRole(name, Number(rolecountsArray[i % rolecountsArray.length]));
+		});
+		callback(0);
+	});
+}
+
 //　日付の正規化関数
 function normalizeDate(rawDate){
 	if(rawDate === null || rawDate === undefined) return null;
@@ -185,53 +239,6 @@ async function resolveDayPhase(settings, players, date){
 	await firebase.updateTime(false);
 }
 
-// シャッフル関数
-function shuffle(array){
-	for(let i = array.length - 1; i > 0; i--){
-		const j = Math.floor(Math.random() * (i + 1));
-		[array[i], array[j]] = [array[j], array[i]];
-	}
-	return array;
-}
-
-// 役職のシャッフルと配布
-export function assignRoles(callback){
-	firebase.getAllPlayers((players)=>{
-		if(!players) {
-			// alert("参加者がいません");
-			callback(1);
-			return;
-		}
-
-		const rolecounts ={};
-		for(const role of roles){
-			rolecounts[role.number] = (role.type == "input") ? Number(document.getElementById(role.id).value) : Number(document.getElementById(role.id).innerText);
-			if(isNaN(rolecounts[role.number]) || rolecounts[role.number] < 0){
-				// alert("役職の数を正しく入力してください");
-				callback(2);
-				return;
-			}
-		}
-
-		const names = Object.keys(players);
-
-		const rolecountsArray = [];
-
-		for(const role in rolecounts){
-			for(let i = 0; i < rolecounts[role]; i++){
-				rolecountsArray.push(role);
-			}
-		}
-
-		shuffle(rolecountsArray);
-
-		names.forEach((name, i)=>{
-			firebase.updateRole(name, Number(rolecountsArray[i % rolecountsArray.length]));
-		});
-		callback(0);
-	});
-}
-
 // 勝った時の処理
 export async function handleWin(winteam, addpoint){
 	firebase.getAllPlayers((players)=>{
@@ -263,27 +270,12 @@ export function checkWinner(callback){
 	});
 }
 
-// ゲームが開始したかどうかの判定
-export function isGameStarted(callback){
-	firebase.getDate((date)=>{
-		callback(normalizeDate(date) !== null);
-	});
-}
-
-const DEFAULT_SETTINGS = {
-	firstNightKill: false,
-	revote: true,
-	randomKillSameVote: false
-};
-
 // 次のフェーズへの移行処理
 export function goNextPhase(){
 	firebase.getAllDataOnce(async (Data)=>{
 		if(!Data || !Data.game || !Data.players){
 			throw new Error("ゲームデータが不完全です");
 		}
-
-		const settings = { ...DEFAULT_SETTINGS, ...(Data.settings ?? {}) };
 
 		const phasePlayers = createPhaseSnapshot(Data.players);
 		await recordBeforeVoteSnapshot(phasePlayers);

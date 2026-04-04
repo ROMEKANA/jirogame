@@ -190,16 +190,17 @@ ui.onAssignClick(()=>{
 		}
 		else{
 			firebase.updateAllAlive(true).then(()=>{;
-			game.assignRoles((result)=>{
-				switch(result){
-					case 0:		// alert("役職を配布しました"); 
+				game.assignRoles((result)=>{
+					switch(result){
+						case 0:		// alert("役職を配布しました"); 
 								break;
-					case 1:		alert("参加者がいません"); break;
-					case 2:		alert("役職の数を正しく入力してください"); break;
-				}
+						case 1:		alert("参加者がいません"); break;
+						case 2:		alert("役職の数を正しく入力してください"); break;
+					}
+				});
 			});
-		});
-	}
+		}
+	});
 });
 
 ui.onRoleAreaHiddenClick(()=>{
