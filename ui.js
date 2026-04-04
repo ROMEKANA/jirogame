@@ -41,11 +41,17 @@ export function isDoneToText(isDone){
 
 export function dateToText(date){
 	if(date === null) return "開始前";
+	if(typeof date === "object" && date !== null && "date" in date){
+		return `${date.date}日目`;
+	}
 	return `${date}日目`;
 }
 
 export function timeToText(date){
 	if(date === null) return "開始前";
+	if(typeof date === "object" && date !== null && "time" in date){
+		return date.time ? "昼" : "夜";
+	}
 	return date ? "昼" : "夜";
 }
 
