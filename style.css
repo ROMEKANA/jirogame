@@ -90,6 +90,15 @@ hr {
     background: rgba(255, 255, 255, 0.75);
 }
 
+#vote-list {
+    text-align: left;
+}
+
+#vote-list label {
+    display: block;
+    text-align: left;
+}
+
 input {
     width: min(460px, 100%);
     padding: 12px 14px;
