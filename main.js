@@ -63,11 +63,13 @@ firebase.watchCountPlayers((count)=>{
 firebase.watchDate((date)=>{
 	ui.setDate(date);
 
-	if(date !== null){
-		ui.setNextButtonText("次のフェーズへ");
-	}else{
-		ui.setNextButtonText("ゲームスタート");
-	}
+	game.isGameStarted((started) => {
+		if (started) {
+			ui.setNextButtonText("次のフェーズへ");
+		} else {
+			ui.setNextButtonText("ゲームスタート");
+		}
+	});
 	//console.log("日数が更新されました: " + date);
 });
 
@@ -83,8 +85,8 @@ firebase.watchTime((time)=>{
 		firebase.getRole(savedname, (role)=>{
 			firebase.getDate((date)=>{
 				firebase.getSettings((settings)=>{
-					const firstNightKill = settings?.firstNightKill ?? false;
-					if(!firstNightKill && role == 1 && date == 0){
+					const firstNightAttack = settings?.firstNightAttack ?? false;
+					if(!firstNightAttack && role == 1 && date == 0){
 						ui.setNightAction(0);
 					}else{
 						ui.setNightAction(Number(role));
@@ -222,12 +224,20 @@ ui.onGameNextClick(()=>{
 		if(undecidedCount > 0){
 			alert("全員に役職が配布されていません");
 			return;
-		} else if (!game.isGameStarted()) {
-			console.log("ゲーム開始");
-			firebase.newGame();
-		} else {
+		}
+
+		game.isGameStarted((started) => {
+			if (!started) {
+				console.log("ゲーム開始");
+				firebase.newGame();
+				return;
+			}
+
 			firebase.getAllIsDone((allDone) => {
-				if (allDone) {
+				if (!allDone) {
+					alert("全員が行動を完了していません");
+					return;
+				} else {
 					(async () => {
 						await firebase.updateAllIsDone(false);
 						game.checkWinner((winner) => {
@@ -236,11 +246,9 @@ ui.onGameNextClick(()=>{
 							}
 						});
 					})();
-				} else {
-					alert("全員が行動を完了していません");
 				}
 			});
-		}
+		});
 	});
 });
 
