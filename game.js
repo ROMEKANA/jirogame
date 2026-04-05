@@ -1,13 +1,16 @@
 import * as firebase from "./firebase.js";
-import { roles } from "./ui.js";
 
-// ゲームのロジックをここに記述
+export const roles = [
+	{ name: "市民", id: "citizen-count", type: "display", number: 0, team:1 },
+	{ name: "人狼", id: "count1", type: "input", number: 1, team:2 },
+	{ name: "占い師", id: "count2", type: "input", number: 2, team:1 },
+	{ name: "狂人", id: "count3", type: "input", number: 3, team:2 }
+];
 
 // ゲームが開始したかどうかの判定
-export function isGameStarted(callback){
-	firebase.getDate((date)=>{
-		callback(normalizeDate(date) !== null);
-	});
+export async function isGameStarted(){
+	const date = await firebase.getDate();
+	return (date != null && date >= 0);
 }
 
 // シャッフル関数
@@ -20,72 +23,71 @@ function shuffle(array){
 }
 
 // 役職のシャッフルと配布
-export function assignRoles(callback){
-	firebase.getAllPlayers((players)=>{
-		if(!players) {
-			// alert("参加者がいません");
-			callback(1);
+export async function assignRoles(){
+	const players = await firebase.getAllPlayers();
+	if(!players) {
+		alert("参加者がいません");
+		return;
+	}
+
+	const isgameStarted = await isGameStarted();
+	if(isgameStarted){
+		alert("ゲーム開始後は役職の再配布はできません");
+		return;
+	}
+
+	const rolecounts = {};
+	for (const role of roles) {
+		rolecounts[role.number] = (role.type == "input") ? Number(document.getElementById(role.id).value) : Number(document.getElementById(role.id).innerText);
+		if (isNaN(rolecounts[role.number]) || rolecounts[role.number] < 0) {
+			alert("役職の数を正しく入力してください");
 			return;
 		}
-
-		const rolecounts ={};
-		for(const role of roles){
-			rolecounts[role.number] = (role.type == "input") ? Number(document.getElementById(role.id).value) : Number(document.getElementById(role.id).innerText);
-			if(isNaN(rolecounts[role.number]) || rolecounts[role.number] < 0){
-				// alert("役職の数を正しく入力してください");
-				callback(2);
-				return;
-			}
-		}
-
-		const names = Object.keys(players);
-
-		const rolecountsArray = [];
-
-		for(const role in rolecounts){
-			for(let i = 0; i < rolecounts[role]; i++){
-				rolecountsArray.push(role);
-			}
-		}
-
-		shuffle(rolecountsArray);
-
-		names.forEach((name, i)=>{
-			firebase.updateRole(name, Number(rolecountsArray[i % rolecountsArray.length]));
-		});
-		callback(0);
-	});
-}
-
-
-//　日付の正規化関数
-function normalizeDate(rawDate){
-	if(rawDate === null || rawDate === undefined) return null;
-	if(typeof rawDate === "object" && rawDate !== null && "date" in rawDate){
-		return Number(rawDate.date);
 	}
-	return Number(rawDate);
-}
 
-// 時間の正規化関数
-function normalizeTime(rawTime){
-	if(rawTime === null || rawTime === undefined) return null;
-	if(typeof rawTime === "object" && rawTime !== null && "time" in rawTime){
-		return Boolean(rawTime.time);
+	await firebase.updateAllRole(-1);
+
+	const roleArray = [];
+
+	for (const role in rolecounts) {
+		for (let i = 0; i < rolecounts[role]; i++) {
+			roleArray.push(role);
+		}
 	}
-	return Boolean(rawTime);
+
+	shuffle(roleArray);
+
+	const names = Object.keys(players);
+	for (let i = 0; i < names.length; i++) {
+		await firebase.updateRole(names[i], Number(roleArray[i]));
+	}
 }
 
-// プレイヤーの生存者の配列を取得、[[name, player], ...]の形式
-function getAlivePlayers(players){
-	if(!players) return [];
-	return Object.entries(players).filter(([, player]) => player && player.alive);
+// 入力されたプレイヤーのオブジェクトから生存者の配列を取得、[["name", {alive: true, ...}], ...]の形式
+function getAlivePlayers(snapPlayers){
+	if(!snapPlayers) return [];
+	return Object.entries(snapPlayers).filter(([, player]) => player && player.alive);
+}
+
+// 投票の集計関数、voterFilterは投票者をフィルタリングする関数、aliveのみや人狼のみなど。出力は{target: count, ...}の形式
+function countVotes(snapPlayers, voterFilter){
+	const aliveSet = new Set(getAlivePlayers(snapPlayers).map(([name]) => name));
+	const voteCounts = {};
+
+	for(const [name, player] of getAlivePlayers(snapPlayers)){
+		if(!voterFilter(name, player)) continue;
+		const target = player.vote;
+		if(!target || !aliveSet.has(target)) continue;
+		voteCounts[target] = (voteCounts[target] || 0) + 1;
+	}
+
+	return voteCounts;
 }
 
 // 最多投票先を取得する関数、同数の場合は複数返す、入力は{target: count, ...}の形式、返り値は[target1, target2, ...]の形式
 function getTopVotes(voteCounts){
 	const entries = Object.entries(voteCounts);
-	if(entries.length === 0) return [];
+	if(entries.length == 0) return [];
 
 	let maxVotes = 0;
 	for(const [, count] of entries){
@@ -104,81 +106,38 @@ function pickRandomTarget(targets){
 	return targets[randomIndex];
 }
 
-// 投票前の状態を更新する関数
-async function updateBeforeVoteForAll(snapPlayers){
-	if(!snapPlayers) return;
-	for(const name in snapPlayers){
-		await firebase.updateBeforeVote(name, snapPlayers[name].vote ?? null);
-	}
-}
-
-// プレイヤー情報をフェーズ開始前のスナップショット形式で作成する関数、{name: {playerData, beforeVote}, ...}の形式を返す
-// beforeVoteは投票前の状態を保持するためのフィールドで、ゲームの進行に応じて更新されるのを防ぐ
-function createPhaseSnapshot(players){
-	if(!players) return {};
-	const snapshot = {};
-	for(const name in players){
-		snapshot[name] = {
-			...players[name],
-			beforeVote: players[name]?.vote ?? null
-		};
-	}
-	return snapshot;
-}
-
-// 投票前の状態をFirebaseに記録する関数
+// 投票の状態をFirebaseに記録する関数
 async function recordBeforeVoteSnapshot(snapPlayers){
-	if(!snapPlayers) return;
 	for(const name in snapPlayers){
-		await firebase.updateBeforeVote(name, snapPlayers[name].beforeVote ?? null);
-	}
-}
-
-// 生存者全員の投票をクリアする関数
-async function clearVotesForAlive(players){
-	for(const [name] of getAlivePlayers(players)){
-		await firebase.updateVote(name, null);
+		await firebase.updateBeforeVote(name, snapPlayers[name].vote);
 	}
 }
 
 // プレイヤーを殺す関数
 async function killPlayer(name){
-	if(!name) return;
 	await firebase.updateAlive(name, false);
-}
-
-// 投票の集計関数、voterFilterは投票者をフィルタリングする関数、出力は{target: count, ...}の形式
-function countVotes(players, voterFilter){
-	const aliveSet = new Set(getAlivePlayers(players).map(([name]) => name));
-	const voteCounts = {};
-
-	for(const [name, player] of getAlivePlayers(players)){
-		if(!voterFilter(name, player)) continue;
-		const target = player.beforeVote;
-		if(!target || !aliveSet.has(target)) continue;
-		voteCounts[target] = (voteCounts[target] || 0) + 1;
-	}
-
-	return voteCounts;
 }
 
 // 再投票の開始処理, revoteCountをインクリメント
 async function startRevote(players){
-	//await updateBeforeVoteForAll(players);
-	await clearVotesForAlive(players);
-	//await firebase.updateAllIsDone(false);
 	await firebase.incrementRevoteCount();
 }
 
 // 夜の処理の関数の最後に、日付を進める処理と時間を昼にする処理
 async function endNightPhase(snapPlayers, date){
 	// 昼にしてから、beforeVoteを更新することで、占い師の占い結果が夜の投票に影響しないようにする
-	await clearVotesForAlive(snapPlayers);
 	await firebase.resetRevoteCount();
-	await firebase.updateTime(true);
+	await firebase.updateIsDaytime(true);
 	await firebase.updateDate(Number(date) + 1);
 	await recordBeforeVoteSnapshot(snapPlayers);
-	//checkWinner((winner)=>{});
+}
+
+// 昼の処理の関数の最後に、勝敗の判定と表示を行う処理
+async function endDayPhase(snapPlayers){
+	// beforeVoteを更新してから夜に移行することで、占い師の結果を正しく反映させる
+	await firebase.resetRevoteCount();
+	await recordBeforeVoteSnapshot(snapPlayers);
+	await firebase.updateIsDaytime(false);
 }
 
 //　夜の処理の関数
@@ -186,10 +145,9 @@ async function resolveNightPhase(settings, snapPlayers, date, revoteCount){
 	// 設定の取得、設定がない場合はデフォルト値を使用
 	const firstNightAttack = settings.firstNightAttack ?? false;
 	const randomKillSameVote = settings.randomKillSameVote ?? true;
-	const maxRevoteCount = settings.maxRevoteCount ?? 1;
 
 	// 初日の夜の処理、「初日の夜は人狼の襲撃オフ」のときはなし
-	const isFirstNight = Number(date) === 0;
+	const isFirstNight = (date == 0);
 	if(!firstNightAttack && isFirstNight){
 		await endNightPhase(snapPlayers, date);
 		return;
@@ -201,7 +159,7 @@ async function resolveNightPhase(settings, snapPlayers, date, revoteCount){
 		// 同数投票の処理
 		if (targets.length !== 1) {	// 同数投票のとき
 			// ランダムに1人殺す設定のときはランダムに1人殺す
-			if (randomKillSameVote || revoteCount >= maxRevoteCount) {
+			if (randomKillSameVote || revoteCount == 1) {
 				const randomTarget = pickRandomTarget(targets);
 				await killPlayer(randomTarget);
 				await endNightPhase(snapPlayers, date);
@@ -214,30 +172,20 @@ async function resolveNightPhase(settings, snapPlayers, date, revoteCount){
 			// 投票数が1位の人を殺す
 			await killPlayer(targets[0]);
 			await endNightPhase(snapPlayers, date);
+			return;
 		}
 	}
-}
-
-// 昼の処理の関数の最後に、勝敗の判定と表示を行う処理
-async function endDayPhase(snapPlayers){
-	// beforeVoteを更新してから夜に移行することで、占い師の結果を正しく反映させる
-	await clearVotesForAlive(snapPlayers);
-	await firebase.resetRevoteCount();
-	await recordBeforeVoteSnapshot(snapPlayers);
-	await firebase.updateTime(false);
-	//checkWinner((winner)=>{});
 }
 
 // 昼の処理の関数
 async function resolveDayPhase(settings, snapPlayers, date, revoteCount){
 	// 設定の取得、設定がない場合はデフォルト値を使用
-	const randomKillSameVote = settings.randomKillSameVote ?? false;
+	const skipExecutionSameVote = settings.skipExecutionSameVote ?? false;
 	const revote = settings.revote ?? true;
-	const maxRevoteCount = settings.maxRevoteCount ?? 1;
 	const firstDayException = settings.firstDayExecution ?? false;
 	
 	// 初日の例外処理、初日に投票が行われない設定のときは投票なしで夜に移行
-	const isFirstDay = Number(date) === 1;
+	const isFirstDay = (date == 1);
 	if(isFirstDay && !firstDayException){
 		await endDayPhase(snapPlayers);
 		return;
@@ -246,16 +194,16 @@ async function resolveDayPhase(settings, snapPlayers, date, revoteCount){
 		const dayVoteCounts = countVotes(snapPlayers, () => true);
 		const targets = getTopVotes(dayVoteCounts);
 
-		if (targets.length !== 1) {
-			if (randomKillSameVote || revoteCount >= maxRevoteCount) {
-				const randomTarget = pickRandomTarget(targets);
-				await killPlayer(randomTarget);
-				await endDayPhase(snapPlayers);
-			} else if (revote) {
+		if (targets.length !== 1) { // 同数投票のとき
+			if (revote && revoteCount < 1) { // 同数投票のとき、再投票が許可されていて、まだ再投票が行われていないときは再投票
 				await startRevote(snapPlayers);
 				return;
-			}else{
-				// 再投票もなしのときは誰も処刑せずに夜に移行
+			} else if (skipExecutionSameVote) { // 同数投票のとき、処刑なしの設定のときは処刑なしで夜に移行
+				await endDayPhase(snapPlayers);
+				return;
+			} else {
+				const randomTarget = pickRandomTarget(targets);
+				await killPlayer(randomTarget);
 				await endDayPhase(snapPlayers);
 			}
 		} else {
@@ -265,58 +213,50 @@ async function resolveDayPhase(settings, snapPlayers, date, revoteCount){
 	}
 }
 
-// 勝った時の処理
-export async function handleWin(winteam, addpoint){
-	firebase.getAllPlayers((players)=>{
-		for(const name in players){
-			if(roles[players[name].role]?.team == winteam){
-				firebase.addScore(name, addpoint);
-			}
+// 勝った時のスコア処理
+async function handleWin(winteam, addpoint){
+	const players = await firebase.getAllPlayers();
+	for(const name in players){
+		if(roles[players[name].role]?.team == winteam){
+			await firebase.addScore(name, addpoint);
 		}
-	});
+	}
 }
 
 //　どちらが勝ったのかの判定
-export function checkWinner(callback){
-	firebase.getCountAlivePlayers((aliveCount)=>{
-		firebase.getRoleCount(1, (wolfCount)=>{
-			if(wolfCount == 0){
-				firebase.updateWinner(1);
-				handleWin(1, 3);
-				callback(1);
-			}else if(wolfCount >= aliveCount - wolfCount){
-				firebase.updateWinner(2);
-				handleWin(2, 5);
-				callback(2);
-			}else{
-				//firebase.updateWinner(0);
-				callback(0);
-			}
-		});
-	});
+export async function checkWinner(){
+	const aliveCount = await firebase.getCountAlivePlayers();
+	const wolfCount = await firebase.getRoleCount(1);
+
+	if (wolfCount == 0) {
+		await firebase.updateWinner(1);
+		await handleWin(1, 3);
+		//await firebase.updateAllRole(-1);
+		return 1;
+	} else if (wolfCount >= aliveCount - wolfCount) {
+		await firebase.updateWinner(2);
+		await handleWin(2, 5);
+		//await firebase.updateAllRole(-1);
+		return 2;
+	} else {
+		return 0;
+	}
 }
 
 // 次のフェーズへの移行処理
 export async function goNextPhase(){
-	firebase.getAllDataOnce(async (Data)=>{
-		if(!Data || !Data.game || !Data.players){
-			throw new Error("ゲームデータが不完全です");
-		}
+	const Data = await firebase.getAllData();
+	
+	const snapPlayers = Data.players;
 
-		const snapPlayers = createPhaseSnapshot(Data.players);
+	const date = Data.game.date;
+	const isDaytime = Data.game.isDaytime;
+	const settings = Data.settings;
 
-		const date = normalizeDate(Data.game.date);
-		const time = normalizeTime(Data.game.time);
-		const settings = Data.settings ?? {};
-
-		if(time === null || date === null){
-			throw new Error("ゲームの時間データが不完全です");
-		}else if(!time){
-			await resolveNightPhase(settings, snapPlayers, date, Number(Data.game.revoteCount));
-		}else{
-			await resolveDayPhase(settings, snapPlayers, date, Number(Data.game.revoteCount));
-		}
-
-		checkWinner((_winner)=>{});
-	});
+	if(!isDaytime){
+		await resolveNightPhase(settings, snapPlayers, date, Number(Data.game.revoteCount));
+	}else{
+		await resolveDayPhase(settings, snapPlayers, date, Number(Data.game.revoteCount));
+	}
+	await checkWinner();
 }

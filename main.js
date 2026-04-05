@@ -9,225 +9,230 @@ window.test = {
 	game: game
 };
 
+let isConnected = false;
+
 let farstconnectRole = true;
+let savedRole = null;
+
 let farstconnectWinner = true;
+let savedWinner = null;
+
 let farstconnectAlive = true;
+let savedAlive = null;
+
+let farstconnectRevote = true;
+let savedRevote = null;
 
 // 名前復元
 let savedname = localStorage.getItem('wolf_my_name');
-let savedrole = null;
+
 if(savedname){
 	ui.setUserName(savedname);
 	ui.setNameDisplay(savedname);
-	firebase.getRole(savedname, (role)=>{
-		ui.setRole(role);
-		savedrole = role;
-	});
 }
+
+// 生成
+// 役職設定の入力欄の生成
+ui.createRoleCounters("role-counter");
 
 //　表示
 // 接続状態の表示
-let isConnected = null;
 firebase.watchConnection((connected)=>{
 	ui.setStatus(connected);
 	isConnected = connected;
 });
 
-// 役職設定の表示
-ui.createRoleCounters("role-counter");
-
-// 全員のプレイヤー名表示, 投票リスト表示
-firebase.watchAllPlayers((players)=>{
+// プレイヤー情報からの表示
+firebase.watchAllPlayers(async (players)=>{
 	ui.viewAllPlayers(players);
-	ui.viewVoteList(players);
+	if(savedname) {
+		ui.viewVoteList(players, savedname);
+	}
 	ui.viewScoreList(players);
-	//ui.viewAlivePlayers(players);
-	let nowRoles = [];
-	for(const role of ui.roles){
-		nowRoles[role.number] = 0;
-	}
-	for(const name in players){
-		nowRoles[players[name].role]++;
-	}
-	ui.setNowRole(nowRoles);
-});
+	ui.setNowRole(players);
 
-// プレイヤー数表示
-firebase.watchCountPlayers((count)=>{
+	const count = players ? Object.keys(players).length : 0;
 	ui.setPlayerCount(count);
-	// 市民の数計算
 	ui.setupRoleInputs(count);
 	ui.updateCitizenDisplay(count);
-});
 
-// 日数の表示、次へ進めるボタン変更
-firebase.watchDate((date)=>{
-	ui.setDate(date);
+	const countAlive = players ? Object.values(players).filter(player => player && player.alive).length : 0;
+	ui.setAliveCount(countAlive);
 
-	game.isGameStarted((started) => {
-		if (started) {
-			ui.setNextButtonText("次のフェーズへ");
-		} else {
-			ui.setNextButtonText("ゲームスタート");
-		}
-	});
-	//console.log("日数が更新されました: " + date);
-});
-
-// 時間帯の表示, 行動の表示、行動ボタンのテキスト変更
-firebase.watchTime((time)=>{
-	ui.setTime(time);
-	if(time == null){
-		ui.setDayAction("ゲーム開始までお待ちください");
-	}else if(time){
-		ui.setDayAction("昼になりました。話し合いをしてください");
-		ui.setActionButtonText("投票");
-	}else{
-		if(!savedname){
-			ui.setDayAction("参加していません");
-			return;
-		}
-		firebase.getRole(savedname, (role)=>{
-			firebase.getDate((date)=>{
-				firebase.getSettings((settings)=>{
-					const firstNightAttack = settings?.firstNightAttack ?? false;
-					if(!firstNightAttack && role == 1 && date == 0){
-						ui.setNightAction(0);
-					}else{
-						ui.setNightAction(Number(role));
-					}
-				});
-			});
-		});
-	}
-});
-
-// 生存者数表示
-firebase.watchCountAlivePlayers((count)=>{
-	ui.setAliveCount(count);
-});
-
-// 勝利陣営の表示
-firebase.watchWinner((winner)=>{
-	ui.setWinner(winner);
-	if(farstconnectWinner){
-		farstconnectWinner = false;
-	}else if(winner !== null && winner !== 0){
-		alert(ui.teamToText(winner) + "の勝利です！");
-	}
-});
-
-// 役職の表示
-if(savedname){
-	firebase.watchRole(savedname, (role)=>{
-		ui.setRole(role);
-		if(farstconnectRole){
+	// 個人プレイヤーの表示
+	if (savedname) {
+		// 役職の表示と通知
+		const player = await firebase.getPlayer(savedname);
+		ui.setRole(player.role);
+		if (farstconnectRole) {
 			farstconnectRole = false;
-		}else if(role !== null && role !== undefined && role >= 0){
-		alert("役職が割り当てられました。\n\
-			あなたの役職は " + ui.roleToText(role) + " です");
+			savedRole = player.role;
+		} else if (player.role != null && player.role >= 0 && player.role != savedRole) {
+			alert("役職が割り当てられました。\n\
+			あなたの役職は " + ui.roleToText(player.role) + " です");
+			savedRole = player.role;
+		} else {
+			savedRole = player.role;
 		}
-		savedrole = role;
 
-		console.log("役職が更新されました: " + savedrole);
-		//console.log(localStorage.getItem('wolf_my_name'));
-	});
-}
-
-// 占いの結果の表示
-if(savedname){
-	firebase.watchBeforeVote(savedname, (beforeVote)=>{
-		//console.log("占いの投票先が更新されました: " + beforeVote);
-		if(beforeVote !== null && beforeVote !== undefined){
-			firebase.getRole(savedname, (role)=>{
-				if(role == 2){ // 占い師のときのみ占い結果を表示
-					firebase.getRole(beforeVote, (voteRole)=>{
-						ui.setFortune(beforeVote + " : " + ui.furtuneToText(voteRole));
-					});
-				}
-			});
+		// 占いの結果の表示
+		if (player.beforeVote != null && player.role == 2) {
+			const isDaytime = await firebase.getIsDaytime();
+			if (isDaytime) {
+				const voteRole = await firebase.getRole(player.beforeVote);
+				ui.setFortune(player.beforeVote + " : " + ui.furtuneToText(voteRole));
+			}else{
+				ui.setFortune("");
+			}
+		}else{
+			ui.setFortune("");
 		}
-	});
-}
 
-// 死亡時メッセージ
-if(savedname){
-	firebase.watchAlive(savedname, (alive)=>{
-		if(farstconnectAlive){
+		// 死亡時の通知
+		if (farstconnectAlive) {
 			farstconnectAlive = false;
-		}else if(!alive && alive !== null && alive !== undefined){
-			firebase.getRole(savedname, (role)=>{
-				if(role !== -1){
-					alert("あなたは死亡しました。");
-				}
-			});
+			savedAlive = player.alive;
+		} else if (player.alive != null && player.alive != savedAlive) {
+			savedAlive = player.alive;
+			if (!player.alive && player.role != -1) {
+				alert("あなたは死亡しました。");
+			}
+		} else {
+			savedAlive = player.alive;
 		}
-	});
-}
+	}
+});
+
+// ゲームの状態からの表示
+firebase.watchGame(async (gamedata) => {
+	const isGamestarted = await game.isGameStarted();
+	const isExistPlayer = await firebase.getIsPlayerExist(savedname);
+
+	ui.setDate(gamedata.date);
+	if (isGamestarted) {
+		/*
+		const isAllDone = await firebase.getAllIsDone();
+		if (!isAllDone) {
+			ui.setNextButtonText("全員の行動を待っています");
+		} else {
+			ui.setNextButtonText("次のフェーズへ");
+		}
+		*/
+		ui.setNextButtonText("次のフェーズへ");
+	} else {
+		ui.setNextButtonText("ゲームスタート");
+	}
+
+	ui.setisDaytime(gamedata.isDaytime);
+	if (!isExistPlayer) {
+		ui.setDayAction("参加していません");
+		ui.setDayActionButtonText("未参加");
+	} else {
+		if (!isGamestarted) {
+			ui.setDayAction("ゲーム開始までお待ちください");
+			ui.setDayActionButtonText("開始前");
+		} else {
+			const settings = await firebase.getSettings();
+			if (gamedata.isDaytime) {
+				const firstDayExecution = settings?.firstDayExecution ?? false;
+				if (!firstDayExecution && gamedata.date == 0) {
+					ui.setDayAction("初日の昼は処刑がありません。夜を迎えてください");
+					ui.setDayActionButtonText("確認");
+				} else {
+					ui.setDayAction("昼になりました。話し合いをしてください");
+					ui.setDayActionButtonText("投票");
+				}
+			} else {
+				const role = await firebase.getRole(savedname);
+				const firstNightAttack = settings?.firstNightAttack ?? false;
+				if (!firstNightAttack && role == 1 && gamedata.date == 0) {
+					ui.setNightAction(0);
+				} else {
+					ui.setNightAction(role);
+				}
+			}
+		}
+	}
+
+	// 勝利陣営の通知
+	ui.setWinner(gamedata.winner);
+	if (farstconnectWinner) {
+		farstconnectWinner = false;
+		savedWinner = gamedata.winner;
+	} else if (gamedata.winner != null && gamedata.winner != 0 && gamedata.winner != savedWinner) {
+		alert(ui.teamToText(gamedata.winner) + "の勝利です！");
+		savedWinner = gamedata.winner;
+	} else {
+		savedWinner = gamedata.winner;
+	}
+
+	// 同数投票の再投票の通知
+	if (gamedata.revoteCount != null && gamedata.revoteCount > 0) {
+		if (farstconnectRevote) {
+			farstconnectRevote = false;
+			savedRevote = gamedata.revoteCount;
+		} else if (gamedata.revoteCount != savedRevote) {
+			alert("同数投票のため、再投票が行われます");
+			savedRevote = gamedata.revoteCount;
+		}
+	} else {
+		savedRevote = 0;
+	}
+});
+
+// 設定の表示
+firebase.watchSettings((settings)=>{
+	ui.setSettings(settings);
+});
 
 //　ボタン
 // 参加ボタン
-ui.onJoinClick(()=>{
+ui.onJoinClick(async ()=>{
 	if(!isConnected){
 		alert("接続されていません");
 		return;
 	}
-	game.isGameStarted((started)=>{
-		if(started){
-			alert("ゲーム中には参加できません");
-			return;
-		}
-		const name = ui.getUserName();
-		if(!name){
-			alert("名前を入力してね");
-			return;
-		}
 
-		firebase.getisPlayerExist(name, (exists)=>{
-			localStorage.setItem('wolf_my_name', name);
-			savedname = name;
-			ui.setNameDisplay(name);
+	const isGamestarted = await game.isGameStarted();
+	if (isGamestarted) {
+		alert("ゲーム中には参加できません");
+		return;
+	}
 
-			if(exists){
-				alert(name + "さんとして再参加しました");
-				firebase.watchRole(name, (role)=>{
-					ui.setRole(role);
-				});
-				return;
-			}
+	const name = (ui.getUserName() || "").trim();
+	if (!name) {
+		alert("名前を入力してね");
+		return;
+	}
 
-			firebase.addPlayer(name).then(()=>{
-				alert(name + "さん、参加完了！");
-				firebase.watchRole(name, (role)=>{
-					ui.setRole(role);
-				});
-			});
-		});
-	});
+	const exists = await firebase.getIsPlayerExist(name);
+	localStorage.setItem('wolf_my_name', name);
+	savedname = name;
+	ui.setNameDisplay(name);
+
+	if (exists) {
+		alert(name + "さんとして再参加しました、うまく表示されないときはリロードしてください");
+		return;
+	} else {
+		await firebase.addPlayer(name);
+		alert(name + "さん、参加完了！");
+	}
 });
 
 // 役職配布
-ui.onAssignClick(()=>{
-	game.isGameStarted((started)=>{
-		if(started){
-			alert("ゲーム中には役職を配布できません");
-			return;
-		}
-		else{
-			firebase.updateAllAlive(true).then(()=>{;
-				game.assignRoles((result)=>{
-					switch(result){
-						case 0:		// alert("役職を配布しました"); 
-								break;
-						case 1:		alert("参加者がいません"); break;
-						case 2:		alert("役職の数を正しく入力してください"); break;
-					}
-				});
-			});
-		}
-	});
+ui.onAssignClick(async ()=>{
+	const started = await game.isGameStarted();
+	if(started){
+		alert("ゲーム中には役職を配布できません");
+		return;
+	}
+	else{
+		await firebase.updateAllAlive(true);
+		await game.assignRoles();
+	}
 });
 
+// 役職エリアの表示切替
 ui.onRoleAreaHiddenClick(()=>{
 	const roleArea = document.getElementById("role-assign");
 	if(roleArea.style.display === "none"){
@@ -239,44 +244,36 @@ ui.onRoleAreaHiddenClick(()=>{
 	}
 });
 
-
 // 次へ進めるボタン
-ui.onGameNextClick(()=>{
+ui.onGameNextClick(async ()=>{
 	//console.log("次へ進むボタンがクリックされました: " + firebase.updateDate());
-	firebase.getRoleCount(-1, (undecidedCount)=>{
-		if(undecidedCount > 0){
-			alert("全員に役職が配布されていません");
-			return;
-		}
+	const undecidedCount = await firebase.getRoleCount(-1);
+	if(undecidedCount > 0){
+		alert("全員に役職が配布されていません");
+		return;
+	}
 
-		game.isGameStarted((started) => {
-			if (!started) {
-				console.log("ゲーム開始");
-				firebase.newGame();
-				return;
-			}
+	const isGameStarted = await game.isGameStarted();
+	if (!isGameStarted) {
+		await firebase.newGame();
+		return;
+	}
 
-			firebase.getAllIsDone((allDone) => {
-				if (!allDone) {
-					alert("全員が行動を完了していません");
-					return;
-				} else {
-					(async () => {
-						await firebase.updateAllIsDone(false);
-						game.checkWinner((winner) => {
-							if (winner == 0) {
-								game.goNextPhase();
-							}
-						});
-					})();
-				}
-			});
-		});
-	});
+	const allDone = await firebase.getAllIsDone();
+	if (!allDone) {
+		alert("全員が行動を完了していません");
+		return;
+	}
+
+	await firebase.updateAllIsDone(false);
+	const winner = await game.checkWinner();
+	if (winner == 0) {
+		game.goNextPhase();
+	}
 });
 
 // 投票ボタン
-ui.onActionClick(()=>{
+ui.onActionClick(async ()=>{
 	if(!savedname){
 		alert("参加していません");
 		return;
@@ -286,72 +283,69 @@ ui.onActionClick(()=>{
 		alert("投票先を選択してください");
 		return;
 	}else{
-		firebase.updateVote(savedname, vote);
-		firebase.updateIsDone(savedname, true);
+		await firebase.updateVote(savedname, vote);
+		await firebase.updateIsDone(savedname, true);
 	}
 });
 
 // プレイヤー1人削除
-ui.onPlayerDeleteClick(()=>{
+ui.onPlayerDeleteClick(async ()=>{
 	const deleteName = (ui.getDeleteName() || "").trim();
 	if(!deleteName){
 		alert("削除する名前を入力してください");
 		return;
 	}
+	
+	const exists = await firebase.getIsPlayerExist(deleteName);
+	if (!exists) {
+		alert("その名前のプレイヤーはいません");
+		return;
+	}
 
-	firebase.getisPlayerExist(deleteName, (exists)=>{
-		if(!exists){
-			alert("その名前のプレイヤーはいません");
-			return;
-		}
+	await firebase.deletePlayer(deleteName);
 
-		firebase.deletePlayer(deleteName).then(()=>{
-			if(savedname === deleteName){
-				localStorage.removeItem('wolf_my_name');
-				savedname = null;
-				ui.setNameDisplay("未参加");
-				ui.setRole(null);
-			}
-			alert(deleteName + " を削除しました");
-		});
-	});
+	// 削除したプレイヤーが自分だったとき、ローカルストレージからも削除
+	if (savedname == deleteName) {
+		localStorage.removeItem('wolf_my_name');
+		savedname = null;
+		ui.setNameDisplay("未参加");
+		ui.setRole(null);
+	}
+	alert(deleteName + " を削除しました");
 });
 
 // 一日進める（テスト用）
-ui.onDayAheadClick(()=>{
-	firebase.getDate((rawDate)=>{
-		const date = Number(rawDate);
-		if(date === null || Number.isNaN(date)){
-			alert("ゲーム開始後に実行してください");
-			return;
-		}
-
-		firebase.updateDate(date + 1).then(()=>{
-			alert("日数を1進めました");
-		});
-	});
+ui.onDayAheadClick(async()=>{
+	const isGameStarted = await game.isGameStarted();
+	if (!isGameStarted) {
+		alert("ゲーム開始後に実行してください");
+	} else {
+		let date = await firebase.getDate();
+		console.log("現在の日数: " + date);
+		await firebase.updateDate(date + 1);
+		console.log("日数を1進めました: " + await firebase.getDate());
+		alert("日数を1進めました");
+	}
 });
 
 // ランダムに1人死亡（テスト用）
-ui.onRandomKillClick(()=>{
-	firebase.getAllPlayers((players)=>{
-		if(!players){
-			alert("プレイヤーがいません");
-			return;
-		}
+ui.onRandomKillClick(async () => {
+	const players = await firebase.getAllPlayers();
+	if (!players) {
+		alert("プレイヤーがいません");
+		return;
+	}
 
-		const aliveNames = Object.keys(players).filter((name)=>players[name]?.alive);
-		if(aliveNames.length === 0){
-			alert("生存者がいません");
-			return;
-		}
+	const aliveNames = Object.keys(players).filter((name) => players[name]?.alive);
+	if (aliveNames.length == 0) {
+		alert("生存者がいません");
+		return;
+	}
 
-		const randomIndex = Math.floor(Math.random() * aliveNames.length);
-		const target = aliveNames[randomIndex];
-		firebase.updateAlive(target, false).then(()=>{
-			alert(target + " を死亡にしました");
-		});
-	});
+	const randomIndex = Math.floor(Math.random() * aliveNames.length);
+	const target = aliveNames[randomIndex];
+	await firebase.updateAlive(target, false);
+	alert(target + " を死亡にしました");
 });
 
 // 全データ取得
@@ -371,6 +365,7 @@ ui.onAllDeleteClick(async ()=>{
 	}
 });
 
-firebase.getSettings((settings)=>{
+(async ()=>{
+	const settings = await firebase.getSettings();
 	console.log("現在の設定: ", settings);
-});
+})();

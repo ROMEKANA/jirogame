@@ -10,7 +10,7 @@
 <body>
 
 <div class="status-area">
-    <div id="nowversion">現在のバージョン: 1.0.3</div>
+    <div id="nowversion">現在のバージョン: 1.1.0</div>
 
     <div id="status">Firebase接続確認中...</div>
     
@@ -31,12 +31,13 @@
 
 <div class="roll-area">
 
-    <div id="role-assign">
+    <div id="role-assign" style="display: none;">
         <div id="role-counter" class="role-counter"></div>
 
         <button id="btn-assign">役職を配る</button>
+        <div id="settings-list">設定がここに表示されます</div>
     </div>
-    <button id="btn-roleareahidden">隠す</button>
+    <button id="btn-roleareahidden">設定を表示</button>
     <br>
     現在の役職の振り分け: 
     <br>
@@ -68,7 +69,7 @@
 
     日数: <span id="day-count">不明</span>
     <br>
-    現在の時間帯: <span id="time-display">不明</span>
+    現在の時間帯: <span id="isDaytime-display">不明</span>
     <br>
     生存人数: <span id="alive-count">0</span>人
     <br>

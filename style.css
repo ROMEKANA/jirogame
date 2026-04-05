@@ -62,7 +62,7 @@ hr {
 #player-count,
 #alive-count,
 #day-count,
-#time-display,
+#isDaytime-display,
 #winner-display,
 #role-display {
     font-weight: 700;
@@ -186,4 +186,17 @@ button:active {
         display: block;
         padding: 4px 0;
     }
+}
+
+#settings-window {
+    margin-top: 8px;
+}
+
+#settings-list {
+    display: block;
+    margin-top: 8px;
+    padding: 12px;
+    border-radius: 10px;
+    border: 1px solid #dbcdb4;
+    background: rgba(255, 255, 255, 0.75);
 }
