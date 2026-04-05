@@ -135,7 +135,7 @@ firebase.watchGame(async (gamedata) => {
 			const settings = await firebase.getSettings();
 			if (gamedata.isDaytime) {
 				const firstDayExecution = settings?.firstDayExecution ?? false;
-				if (!firstDayExecution && gamedata.date == 0) {
+				if (!firstDayExecution && gamedata.date == 1) {
 					ui.setDayAction("初日の昼は処刑がありません。夜を迎えてください");
 					ui.setDayActionButtonText("確認");
 				} else {
