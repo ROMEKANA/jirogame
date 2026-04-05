@@ -144,10 +144,23 @@ button:active {
     transform: translateY(1px);
 }
 
+.danger-button {
+    background: linear-gradient(180deg, #cf3f3f, #9f1f1f);
+    box-shadow: 0 4px 10px rgba(120, 24, 24, 0.3);
+}
+
+.danger-button:hover {
+    background: linear-gradient(180deg, #db5555, #ad2a2a);
+}
+
 #btn-next,
 #btn-action {
     min-width: 170px;
     font-size: 1.06rem;
+}
+
+#test-tools {
+    margin-top: 4px;
 }
 
 .role-counter .counter {

@@ -244,6 +244,16 @@ ui.onRoleAreaHiddenClick(()=>{
 	}
 });
 
+// テスト用ボタンの表示切替
+ui.onTestToolsToggleClick(() => {
+	const testTools = document.getElementById("test-tools");
+	const toggleButton = document.getElementById("btn-testtools-toggle");
+	const isHidden = testTools.style.display === "none";
+
+	testTools.style.display = isHidden ? "block" : "none";
+	toggleButton.innerText = isHidden ? "テスト用ボタンを隠す" : "テスト用ボタンを表示";
+});
+
 // 次へ進めるボタン
 ui.onGameNextClick(async ()=>{
 	//console.log("次へ進むボタンがクリックされました: " + firebase.updateDate());

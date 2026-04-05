@@ -377,3 +377,7 @@ export function onAllDeleteClick(callback){
 	document.getElementById('btn-alldelete').addEventListener('click', callback);
 	//localStorage.removeItem('wolf_my_name');
 }
+
+export function onTestToolsToggleClick(callback){
+	document.getElementById('btn-testtools-toggle').addEventListener('click', callback);
+}
