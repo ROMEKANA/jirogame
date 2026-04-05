@@ -298,6 +298,14 @@ ui.onActionClick(async ()=>{
 	}
 });
 
+// 全員のスコアリセット
+ui.onScoreResetClick(async ()=>{
+	if(confirm("全員のスコアを0にリセットしますか？")){
+		await firebase.resetAllScores();
+		alert("全員のスコアをリセットしました");
+	}
+});
+
 // プレイヤー1人削除
 ui.onPlayerDeleteClick(async ()=>{
 	const deleteName = (ui.getDeleteName() || "").trim();

@@ -140,6 +140,16 @@ export async function addScore(name, addscore){
 	await updateScore(name, currentScore + addscore);
 }
 
+export async function resetAllScores(){
+	const snapshot = await get(ref(db, 'players'));
+	const players = snapshot.val();
+	if(!players) return;
+
+	for (const name in players) {
+		await updateScore(name, 0);
+	}
+}
+
 // 行動完了
 export async function updateIsDone(name, isDone){
 	await update(ref(db, 'players/' + name), {

@@ -357,6 +357,10 @@ export function onActionClick(callback){
 	document.getElementById('btn-action').addEventListener('click', callback);
 }
 
+export function onScoreResetClick(callback){
+	document.getElementById('btn-scorereset').addEventListener('click', callback);
+}
+
 export function onPlayerDeleteClick(callback){
 	document.getElementById('btn-playerdelete').addEventListener('click', callback);
 }
