@@ -312,6 +312,10 @@ ui.onPlayerDeleteClick(async ()=>{
 		return;
 	}
 
+	if (!confirm(deleteName + " を削除しますか？")) {
+		return;
+	}
+
 	await firebase.deletePlayer(deleteName);
 
 	// 削除したプレイヤーが自分だったとき、ローカルストレージからも削除
