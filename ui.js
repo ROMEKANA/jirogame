@@ -259,10 +259,6 @@ export function setNightAction(role){
 	//console.log("test: " + num + ui.roleActionToText(num));
 }
 
-export function setScore(score){
-	document.getElementById('score-display').innerText = score;
-}
-
 //　役職設定の表示
 export function createRoleCounters(containerId){
 
