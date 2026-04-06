@@ -24,34 +24,6 @@ let savedAlive = null;
 let farstconnectRevote = true;
 let savedRevote = null;
 
-let timerStartAt = null;
-let timerDurationSec = 0;
-let timerIntervalId = null;
-
-function formatTimerText(totalSec) {
-	const safeSec = Math.max(0, totalSec | 0);
-	const min = Math.floor(safeSec / 60);
-	const sec = safeSec % 60;
-	return `${String(min).padStart(2, "0")}:${String(sec).padStart(2, "0")}`;
-}
-
-function renderSharedTimer() {
-	if (!(timerStartAt > 0) || !(timerDurationSec > 0)) {
-		ui.setTimerDisplay("--:--");
-		return;
-	}
-
-	const elapsedSec = Math.floor((Date.now() - timerStartAt) / 1000);
-	const remainSec = Math.max(0, timerDurationSec - elapsedSec);
-	ui.setTimerDisplay(formatTimerText(remainSec));
-}
-
-function startSharedTimerLoop() {
-	if (timerIntervalId != null) return;
-	renderSharedTimer();
-	timerIntervalId = window.setInterval(renderSharedTimer, 250);
-}
-
 // 名前復元
 let savedname = localStorage.getItem('wolf_my_name');
 
@@ -126,8 +98,8 @@ firebase.watchAllPlayers(async (players) => {
 // ゲームの状態からの表示
 firebase.watchGame(async (gamedata) => {
 	const timerStart = Number(gamedata?.timerStartAt);
-	timerStartAt = Number.isFinite(timerStart) && timerStart > 0 ? timerStart : null;
-	renderSharedTimer();
+	ui.setSharedTimerStartAt(timerStart);
+	ui.renderSharedTimer();
 
 	const isGamestarted = await game.isGameStarted();
 	const isExistPlayer = await firebase.getIsPlayerExist(savedname);
@@ -192,13 +164,14 @@ firebase.watchGame(async (gamedata) => {
 firebase.watchSettings((settings) => {
 	ui.setSettings(settings);
 	const discussionMin = Number(settings?.discussionTime);
-	timerDurationSec = Number.isFinite(discussionMin) && discussionMin > 0
+	const timerDurationSec = Number.isFinite(discussionMin) && discussionMin > 0
 		? Math.floor(discussionMin * 60)
 		: 0;
-	renderSharedTimer();
+	ui.setSharedTimerDurationSec(timerDurationSec);
+	ui.renderSharedTimer();
 });
 
-startSharedTimerLoop();
+ui.startSharedTimerLoop();
 
 //　ボタン
 // 参加ボタン
@@ -217,7 +190,7 @@ ui.onJoinClick(async () => {
 		alert(name + "さんとして再参加しました、うまく表示されないときはリロードしてください");
 		return;
 	}
-	
+
 	const isGamestarted = await game.isGameStarted();
 	if (isGamestarted) {
 		alert("ゲーム中には参加できません");

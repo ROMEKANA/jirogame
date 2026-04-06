@@ -1,9 +1,13 @@
-import { roles, teams, roleActionToText, roleActionButtonText } from "./role.js";
+import { roles, teams } from "./role.js";
 
 export let roleAreaHidden = false;
 export let roleHidden = false;
 
-// テキスト変換 いつか消す
+let sharedTimerStartAt = null;
+let sharedTimerDurationSec = 0;
+let sharedTimerIntervalId = null;
+
+// テキスト変換
 export function statusToText(isConnected){
 	if(isConnected == null) return "接続します...";
 	return isConnected ? "接続しました！" : "接続待ち...";
@@ -46,6 +50,47 @@ export function teamToText(team){
 	if(team == null) return "開始前";
 	if(team >= 0 && team < teams.length) return teams[team].name;
 	return "未定義";
+}
+
+// タイマー作成
+function formatTimerText(totalSec) {
+	const safeSec = Math.max(0, totalSec | 0);
+	const min = Math.floor(safeSec / 60);
+	const sec = safeSec % 60;
+	return `${String(min).padStart(2, "0")}:${String(sec).padStart(2, "0")}`;
+}
+
+export function setSharedTimerStartAt(timerStartAt) {
+	const value = Number(timerStartAt);
+	sharedTimerStartAt = Number.isFinite(value) && value > 0 ? value : null;
+}
+
+export function setSharedTimerDurationSec(timerDurationSec) {
+	const value = Number(timerDurationSec);
+	sharedTimerDurationSec = Number.isFinite(value) && value > 0 ? Math.floor(value) : 0;
+}
+
+export function renderSharedTimer() {
+	if (!(sharedTimerStartAt > 0) || !(sharedTimerDurationSec > 0)) {
+		setTimerDisplay("--:--");
+		return;
+	}
+
+	const elapsedSec = Math.floor((Date.now() - sharedTimerStartAt) / 1000);
+	const remainSec = Math.max(0, sharedTimerDurationSec - elapsedSec);
+	setTimerDisplay(formatTimerText(remainSec));
+}
+
+export function startSharedTimerLoop() {
+	if (sharedTimerIntervalId != null) return;
+	renderSharedTimer();
+	sharedTimerIntervalId = window.setInterval(renderSharedTimer, 250);
+}
+
+export function stopSharedTimerLoop() {
+	if (sharedTimerIntervalId == null) return;
+	window.clearInterval(sharedTimerIntervalId);
+	sharedTimerIntervalId = null;
 }
 
 // テキストセット
@@ -234,12 +279,6 @@ export function setAction(text){
 
 export function setActionButtonText(text){
 	document.getElementById('btn-action').innerText = text;
-}
-
-export function setNightAction(role){
-	document.getElementById('action-display').innerText = roleActionToText(role);
-	setActionButtonText(roleActionButtonText(role));
-	//console.log("test: " + num + ui.roleActionToText(num));
 }
 
 //　役職設定の表示
