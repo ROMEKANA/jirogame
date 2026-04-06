@@ -256,6 +256,12 @@ ui.onTestToolsToggleClick(() => {
 
 // 次へ進めるボタン
 ui.onGameNextClick(async ()=>{
+	const players = await firebase.getAllPlayers();
+	if(!players) {
+		alert("プレイヤーがいません");
+		return;
+	}
+
 	//console.log("次へ進むボタンがクリックされました: " + firebase.updateDate());
 	const undecidedCount = await firebase.getRoleCount(-1);
 	if(undecidedCount > 0){
@@ -278,7 +284,7 @@ ui.onGameNextClick(async ()=>{
 	await firebase.updateAllIsDone(false);
 	const winner = await game.checkWinner();
 	if (winner == 0) {
-		game.goNextPhase();
+		await game.goNextPhase();
 	}
 });
 
