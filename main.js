@@ -163,7 +163,7 @@ firebase.watchGame(async (gamedata) => {
 // 設定の表示
 firebase.watchSettings((settings) => {
 	ui.setSettings(settings);
-	const discussionMin = Number(settings?.discussionTime);
+	const discussionMin = Number(settings?.discussionTime) || 5;
 	const timerDurationSec = Number.isFinite(discussionMin) && discussionMin > 0
 		? Math.floor(discussionMin * 60)
 		: 0;
