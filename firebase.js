@@ -219,7 +219,8 @@ export async function newGame(){
 		date: 0,
 		isDaytime: false,
 		winner: 0,
-		revoteCount: 0
+		revoteCount: 0,
+		timerStartAt: Date.now()
 	});
 }
 
@@ -239,8 +240,14 @@ export async function deleteGame(){
 		date: null,
 		isDaytime: null,
 		winner: null,
-		revoteCount: 0
+		revoteCount: 0,
+		timerStartAt: null
 	});
+}
+
+// タイマー
+export async function updateTimerStartAt(inputStartAt){
+	await set(ref(db, 'game/timerStartAt'), inputStartAt);
 }
 
 // 日数
@@ -301,7 +308,8 @@ export async function updateWinner(inputwinner){
 		date: null,
 		isDaytime: null,
 		winner: inputwinner,
-		revoteCount: 0
+		revoteCount: 0,
+		timerStartAt: null
 	});
 }
 

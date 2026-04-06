@@ -203,6 +203,10 @@ export function setisDaytime(isDay){
 	document.getElementById('isDaytime-display').innerText = isDaytimeToText(isDay);
 }
 
+export function setTimerDisplay(text){
+	document.getElementById('timer-display').innerText = text;
+}
+
 export function setAliveCount(count){
 	document.getElementById('alive-count').innerText = count;
 }
@@ -324,6 +328,10 @@ export function onRoleAreaHiddenClick(callback){
 
 export function onGameNextClick(callback){
 	document.getElementById('btn-next').addEventListener('click', callback);
+}
+
+export function onTimerResetClick(callback){
+	document.getElementById('btn-timer-reset').addEventListener('click', callback);
 }
 
 export function onActionClick(callback){

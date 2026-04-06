@@ -24,6 +24,34 @@ let savedAlive = null;
 let farstconnectRevote = true;
 let savedRevote = null;
 
+let timerStartAt = null;
+let timerDurationSec = 0;
+let timerIntervalId = null;
+
+function formatTimerText(totalSec){
+	const safeSec = Math.max(0, totalSec | 0);
+	const min = Math.floor(safeSec / 60);
+	const sec = safeSec % 60;
+	return `${String(min).padStart(2, "0")}:${String(sec).padStart(2, "0")}`;
+}
+
+function renderSharedTimer(){
+	if(!(timerStartAt > 0) || !(timerDurationSec > 0)){
+		ui.setTimerDisplay("--:--");
+		return;
+	}
+
+	const elapsedSec = Math.floor((Date.now() - timerStartAt) / 1000);
+	const remainSec = Math.max(0, timerDurationSec - elapsedSec);
+	ui.setTimerDisplay(formatTimerText(remainSec));
+}
+
+function startSharedTimerLoop(){
+	if(timerIntervalId != null) return;
+	renderSharedTimer();
+	timerIntervalId = window.setInterval(renderSharedTimer, 250);
+}
+
 // 名前復元
 let savedname = localStorage.getItem('wolf_my_name');
 
@@ -97,6 +125,10 @@ firebase.watchAllPlayers(async (players)=>{
 
 // ゲームの状態からの表示
 firebase.watchGame(async (gamedata) => {
+	const timerStart = Number(gamedata?.timerStartAt);
+	timerStartAt = Number.isFinite(timerStart) && timerStart > 0 ? timerStart : null;
+	renderSharedTimer();
+
 	const isGamestarted = await game.isGameStarted();
 	const isExistPlayer = await firebase.getIsPlayerExist(savedname);
 
@@ -159,7 +191,14 @@ firebase.watchGame(async (gamedata) => {
 // 設定の表示
 firebase.watchSettings((settings)=>{
 	ui.setSettings(settings);
+	const discussionMin = Number(settings?.discussionTime);
+	timerDurationSec = Number.isFinite(discussionMin) && discussionMin > 0
+		? Math.floor(discussionMin * 60)
+		: 0;
+	renderSharedTimer();
 });
+
+startSharedTimerLoop();
 
 //　ボタン
 // 参加ボタン
@@ -262,6 +301,10 @@ ui.onGameNextClick(async ()=>{
 	if (winner == 0) {
 		await game.goNextPhase();
 	}
+});
+
+ui.onTimerResetClick(async ()=>{
+	await firebase.updateTimerStartAt(Date.now());
 });
 
 // 投票ボタン
