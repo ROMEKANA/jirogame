@@ -77,17 +77,8 @@ firebase.watchAllPlayers(async (players)=>{
 		}
 
 		// 占いの結果の表示
-		if (player.beforeVote != null && role.isSeerRole(player.role)) {
-			const isDaytime = await firebase.getIsDaytime();
-			if (isDaytime) {
-				const voteRole = await firebase.getRole(player.beforeVote);
-				ui.setFortune(player.beforeVote + " : " + role.furtuneToText(voteRole));
-			}else{
-				ui.setFortune("");
-			}
-		}else{
-			ui.setFortune("");
-		}
+		const furtuneResaltText = role.furtuneResultToText(player.role, player.vote);
+		ui.setFortune(await furtuneResaltText);
 
 		// 死亡時の通知
 		if (farstconnectAlive) {
@@ -126,32 +117,16 @@ firebase.watchGame(async (gamedata) => {
 
 	ui.setisDaytime(gamedata.isDaytime);
 	if (!isExistPlayer) {
-		ui.setDayAction("参加していません");
-		ui.setDayActionButtonText("未参加");
+		ui.setAction("参加していません");
+		ui.setActionButtonText("未参加");
 	} else {
 		if (!isGamestarted) {
-			ui.setDayAction("ゲーム開始までお待ちください");
-			ui.setDayActionButtonText("開始前");
+			ui.setAction("ゲーム開始までお待ちください");
+			ui.setActionButtonText("開始前");
 		} else {
-			const settings = await firebase.getSettings();
-			if (gamedata.isDaytime) {
-				const firstDayExecution = settings?.firstDayExecution ?? false;
-				if (!firstDayExecution && gamedata.date == 1) {
-					ui.setDayAction("初日の昼は処刑がありません。夜を迎えてください");
-					ui.setDayActionButtonText("確認");
-				} else {
-					ui.setDayAction("昼になりました。話し合いをしてください");
-					ui.setDayActionButtonText("投票");
-				}
-			} else {
-				const rolenumber = await firebase.getRole(savedname);
-				const firstNightAttack = settings?.firstNightAttack ?? false;
-				if (!firstNightAttack && role.isWolfRole(rolenumber) && gamedata.date == 0) {
-					ui.setNightAction(role.ROLE.CITIZEN);
-				} else {
-					ui.setNightAction(rolenumber);
-				}
-			}
+			const actionText = await role.actionToText(savedname, gamedata);
+			ui.setAction(actionText[0]);
+			ui.setActionButtonText(actionText[1]);
 		}
 	}
 

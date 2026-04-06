@@ -224,17 +224,17 @@ export function setFortune(result){
 	document.getElementById('fortune-display').innerText = result;
 }
 
-export function setDayAction(text){
+export function setAction(text){
 	document.getElementById('action-display').innerText = text;
 }
 
-export function setDayActionButtonText(text){
+export function setActionButtonText(text){
 	document.getElementById('btn-action').innerText = text;
 }
 
 export function setNightAction(role){
 	document.getElementById('action-display').innerText = roleActionToText(role);
-	setDayActionButtonText(roleActionButtonText(role));
+	setActionButtonText(roleActionButtonText(role));
 	//console.log("test: " + num + ui.roleActionToText(num));
 }
 
