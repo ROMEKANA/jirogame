@@ -1,4 +1,4 @@
-import { roles } from "./game.js";
+import { roles, teams } from "./game.js";
 
 export let roleAreaHidden = false;
 export let roleHidden = false;
@@ -48,13 +48,9 @@ export function isDaytimeToText(date){
 }
 
 export function teamToText(team){
-	switch(Number(team)){
-		case null: return "開始前";
-		case 0: return "試合中";
-		case 1: return "市民陣営";
-		case 2: return "人狼陣営";
-		default: return "未定義";
-	}
+	if(team == null) return "開始前";
+	if(team >= 0 && team < teams.length) return teams[team].name;
+	return "未定義";
 }
 
 export function roleActionToText(role){

@@ -308,6 +308,7 @@ ui.onActionClick(async ()=>{
 ui.onScoreResetClick(async ()=>{
 	if(confirm("全員のスコアを0にリセットしますか？")){
 		await firebase.resetAllScores();
+		await firebase.deleteGame();
 		alert("全員のスコアをリセットしました");
 	}
 });

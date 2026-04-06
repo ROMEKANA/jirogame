@@ -7,6 +7,12 @@ export const roles = [
 	{ name: "狂人", id: "count3", type: "input", number: 3, team:2 }
 ];
 
+export const teams = [
+	{ name: "試合中", id: "team0", number: 0 },
+	{ name: "市民陣営", id: "team1", number: 1 },
+	{ name: "人狼陣営", id: "team2", number: 2 }
+];
+
 // ゲームが開始したかどうかの判定
 export async function isGameStarted(){
 	const date = await firebase.getDate();
