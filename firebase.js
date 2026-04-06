@@ -94,13 +94,24 @@ export async function getRole(name){
 	return snapshot.val();
 }
 
-export async function getRoleCount(roleNumber){
+export async function getAliveRoleCount(roleNumber){
 	const snapshot = await get(ref(db, 'players'));
 	const players = snapshot.val();
 	if(!players) return 0;
 	let count = 0;
 	for(const name in players){
 		if(players[name].role === roleNumber && players[name].alive) count++;
+	}
+	return count;
+}
+
+export async function getRoleCount(roleNumber){
+	const snapshot = await get(ref(db, 'players'));
+	const players = snapshot.val();
+	if(!players) return 0;
+	let count = 0;
+	for(const name in players){
+		if(players[name].role === roleNumber) count++;
 	}
 	return count;
 }

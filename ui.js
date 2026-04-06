@@ -155,7 +155,9 @@ export function setNowRole(players){
 		nowRoles[role.number] = 0;
 	}
 	for (const name in players) {
-		nowRoles[players[name].role]++;
+		const playerRoleNumber = players[name].roleNumber;
+		if(playerRoleNumber != null && playerRoleNumber >= 0 && playerRoleNumber < nowRoles.length)
+			nowRoles[playerRoleNumber]++;
 	}
 
 	document.getElementById('nowroles').innerText = "";

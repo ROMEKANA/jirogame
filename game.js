@@ -226,7 +226,7 @@ async function handleWin(winteam, addpoint){
 //　どちらが勝ったのかの判定
 export async function checkWinner(){
 	const aliveCount = await firebase.getCountAlivePlayers();
-	const wolfCount = await firebase.getRoleCount(1);
+	const wolfCount = await firebase.getAliveRoleCount(1);
 
 	if (wolfCount == 0) {
 		await firebase.updateWinner(1);
