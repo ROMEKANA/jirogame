@@ -1,17 +1,5 @@
 import * as firebase from "./firebase.js";
-
-export const roles = [
-	{ name: "市民", id: "citizen-count", type: "display", number: 0, team:1 },
-	{ name: "人狼", id: "count1", type: "input", number: 1, team:2 },
-	{ name: "占い師", id: "count2", type: "input", number: 2, team:1 },
-	{ name: "狂人", id: "count3", type: "input", number: 3, team:2 }
-];
-
-export const teams = [
-	{ name: "試合中", id: "team0", number: 0 },
-	{ name: "市民陣営", id: "team1", number: 1 },
-	{ name: "人狼陣営", id: "team2", number: 2 }
-];
+import { ROLE, roles, isWolfRole } from "./role.js";
 
 // ゲームが開始したかどうかの判定
 export async function isGameStarted(){
@@ -159,7 +147,7 @@ async function resolveNightPhase(settings, snapPlayers, date, revoteCount){
 		return;
 	} else {
 		// 人狼の投票集計
-		const wolfVoteCounts = countVotes(snapPlayers, (_name, player) => Number(player.role) === 1 && player.alive);
+		const wolfVoteCounts = countVotes(snapPlayers, (_name, player) => isWolfRole(player.role) && player.alive);
 		const targets = getTopVotes(wolfVoteCounts);
 
 		// 同数投票の処理
@@ -232,7 +220,7 @@ async function handleWin(winteam, addpoint){
 //　どちらが勝ったのかの判定
 export async function checkWinner(){
 	const aliveCount = await firebase.getCountAlivePlayers();
-	const wolfCount = await firebase.getAliveRoleCount(1);
+	const wolfCount = await firebase.getAliveRoleCount(ROLE.WOLF);
 
 	if (wolfCount == 0) {
 		await firebase.updateWinner(1);

@@ -1,6 +1,7 @@
 import * as ui from "./ui.js";
 import * as game from "./game.js";
 import * as firebase from "./firebase.js";
+import * as role from "./role.js";
 
 // テスト用
 window.test = {
@@ -76,11 +77,11 @@ firebase.watchAllPlayers(async (players)=>{
 		}
 
 		// 占いの結果の表示
-		if (player.beforeVote != null && player.role == 2) {
+		if (player.beforeVote != null && role.isSeerRole(player.role)) {
 			const isDaytime = await firebase.getIsDaytime();
 			if (isDaytime) {
 				const voteRole = await firebase.getRole(player.beforeVote);
-				ui.setFortune(player.beforeVote + " : " + ui.furtuneToText(voteRole));
+				ui.setFortune(player.beforeVote + " : " + role.furtuneToText(voteRole));
 			}else{
 				ui.setFortune("");
 			}
@@ -143,12 +144,12 @@ firebase.watchGame(async (gamedata) => {
 					ui.setDayActionButtonText("投票");
 				}
 			} else {
-				const role = await firebase.getRole(savedname);
+				const rolenumber = await firebase.getRole(savedname);
 				const firstNightAttack = settings?.firstNightAttack ?? false;
-				if (!firstNightAttack && role == 1 && gamedata.date == 0) {
-					ui.setNightAction(0);
+				if (!firstNightAttack && role.isWolfRole(rolenumber) && gamedata.date == 0) {
+					ui.setNightAction(role.ROLE.CITIZEN);
 				} else {
-					ui.setNightAction(role);
+					ui.setNightAction(rolenumber);
 				}
 			}
 		}

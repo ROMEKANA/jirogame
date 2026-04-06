@@ -1,4 +1,4 @@
-import { roles, teams } from "./game.js";
+import { roles, teams, roleActionToText, roleActionButtonText } from "./role.js";
 
 export let roleAreaHidden = false;
 export let roleHidden = false;
@@ -14,11 +14,6 @@ export function roleToText(role){
 	if(role == -1) return "未決定";
 	if(role >= 0 && role < roles.length) return roles[role].name;
 	return "未定義";
-}
-
-export function furtuneToText(fortune){
-	if(fortune == null) return "占い結果がここに表示されます";
-	return fortune == 1 ? "人狼です" : "人狼ではありません";
 }
 
 export function aliveToText(alive){
@@ -51,22 +46,6 @@ export function teamToText(team){
 	if(team == null) return "開始前";
 	if(team >= 0 && team < teams.length) return teams[team].name;
 	return "未定義";
-}
-
-export function roleActionToText(role){
-	switch(Number(role)){
-		case 1: return "誰を襲撃しますか？";
-		case 2: return "誰を占いますか？";
-		default: return "怪しいと思う人を選んでください";
-	}
-}
-
-export function roleActionButtonText(role){
-	switch(Number(role)){
-		case 1: return "襲撃";
-		case 2: return "占い";
-		default: return "怪しむ";
-	}
 }
 
 // テキストセット
@@ -151,7 +130,7 @@ export function setNowRole(players){
 		nowRoles[role.number] = 0;
 	}
 	for (const name in players) {
-		const playerRoleNumber = players[name].roleNumber;
+		const playerRoleNumber = players[name].role;
 		if(playerRoleNumber != null && playerRoleNumber >= 0 && playerRoleNumber < nowRoles.length)
 			nowRoles[playerRoleNumber]++;
 	}
