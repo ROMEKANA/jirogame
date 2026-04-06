@@ -64,16 +64,16 @@ firebase.watchAllPlayers(async (players) => {
 	if (savedname) {
 		// 役職の表示と通知
 		const player = await firebase.getPlayer(savedname);
-		ui.setRole(player.role);
+		ui.setRole(player?.role);
 		if (farstconnectRole) {
 			farstconnectRole = false;
-			savedRole = player.role;
-		} else if (player.role != null && player.role >= 0 && player.role != savedRole) {
+			savedRole = player?.role;
+		} else if (player?.role != null && player.role >= 0 && player.role != savedRole) {
 			alert("役職が割り当てられました。\n\
 			あなたの役職は " + ui.roleToText(player.role) + " です");
 			savedRole = player.role;
 		} else {
-			savedRole = player.role;
+			savedRole = player?.role;
 		}
 
 		// 占いの結果の表示
@@ -83,14 +83,14 @@ firebase.watchAllPlayers(async (players) => {
 		// 死亡時の通知
 		if (farstconnectAlive) {
 			farstconnectAlive = false;
-			savedAlive = player.alive;
-		} else if (player.alive != null && player.alive != savedAlive) {
+			savedAlive = player?.alive;
+		} else if (player?.alive != null && player.alive != savedAlive) {
 			savedAlive = player.alive;
 			if (!player.alive && player.role != -1) {
 				alert("あなたは死亡しました。");
 			}
 		} else {
-			savedAlive = player.alive;
+			savedAlive = player?.alive;
 		}
 	}
 });
