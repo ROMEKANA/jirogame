@@ -44,16 +44,10 @@ export async function getIsPlayerExist(name){
 	return snapshot.exists();
 }
 
-//　すべてのプレイヤーのデータを取得
+//　すべてのプレイヤーのデータ
 export async function getAllPlayers(){
 	const snapshot = await get(ref(db, 'players'));
 	return snapshot.val();
-}
-
-export function watchPlayer(name, callback){
-	onValue(ref(db, 'players/' + name), (snapshot)=>{
-		callback(snapshot.val());
-	});
 }
 
 export function watchAllPlayers(callback){
@@ -71,6 +65,10 @@ export async function getCountAlivePlayers(){
 		if(players[name].alive) count++;
 	}
 	return count;
+}
+
+export async function deleteAllPlayers(){
+	await set(ref(db, 'players'), '');
 }
 
 // 役職
@@ -208,6 +206,12 @@ export async function updateBeforeVote(name, vote){
 }
 
 // ゲームのデータ
+export async function addGame(){
+	await update(ref(db, 'game'), {
+		revoteCount: 0
+	});
+}
+
 export async function newGame(){
 	await updateAllAlive(true);
 	await updateAllIsDone(false);
@@ -231,7 +235,12 @@ export function watchGame(callback){
 }
 
 export async function deleteGame(){
-	await set(ref(db, 'game'), null);
+	await set(ref(db, 'game'), {
+		date: null,
+		isDaytime: null,
+		winner: null,
+		revoteCount: 0
+	});
 }
 
 // 日数

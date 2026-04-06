@@ -387,10 +387,11 @@ ui.AllgetClick(async ()=>{
 //全データ削除
 ui.onAllDeleteClick(async ()=>{
 	if(confirm("全データを削除しますか？")){
-		await firebase.deleteAllData();
+		await firebase.deleteAllPlayers();
+		await firebase.deleteGame();
+		await firebase.newSettings();
 		localStorage.removeItem('wolf_my_name');
 		alert("全データを削除しました");
-		await firebase.newSettings();
 	}
 });
 
