@@ -28,15 +28,15 @@ let timerStartAt = null;
 let timerDurationSec = 0;
 let timerIntervalId = null;
 
-function formatTimerText(totalSec){
+function formatTimerText(totalSec) {
 	const safeSec = Math.max(0, totalSec | 0);
 	const min = Math.floor(safeSec / 60);
 	const sec = safeSec % 60;
 	return `${String(min).padStart(2, "0")}:${String(sec).padStart(2, "0")}`;
 }
 
-function renderSharedTimer(){
-	if(!(timerStartAt > 0) || !(timerDurationSec > 0)){
+function renderSharedTimer() {
+	if (!(timerStartAt > 0) || !(timerDurationSec > 0)) {
 		ui.setTimerDisplay("--:--");
 		return;
 	}
@@ -46,8 +46,8 @@ function renderSharedTimer(){
 	ui.setTimerDisplay(formatTimerText(remainSec));
 }
 
-function startSharedTimerLoop(){
-	if(timerIntervalId != null) return;
+function startSharedTimerLoop() {
+	if (timerIntervalId != null) return;
 	renderSharedTimer();
 	timerIntervalId = window.setInterval(renderSharedTimer, 250);
 }
@@ -55,7 +55,7 @@ function startSharedTimerLoop(){
 // 名前復元
 let savedname = localStorage.getItem('wolf_my_name');
 
-if(savedname){
+if (savedname) {
 	ui.setUserName(savedname);
 	ui.setNameDisplay(savedname);
 }
@@ -66,15 +66,15 @@ ui.createRoleCounters("role-counter");
 
 //　表示
 // 接続状態の表示
-firebase.watchConnection((connected)=>{
+firebase.watchConnection((connected) => {
 	ui.setStatus(connected);
 	isConnected = connected;
 });
 
 // プレイヤー情報からの表示
-firebase.watchAllPlayers(async (players)=>{
+firebase.watchAllPlayers(async (players) => {
 	ui.viewAllPlayers(players);
-	if(savedname) {
+	if (savedname) {
 		ui.viewVoteList(players, savedname);
 	}
 	ui.viewScoreList(players);
@@ -189,7 +189,7 @@ firebase.watchGame(async (gamedata) => {
 });
 
 // 設定の表示
-firebase.watchSettings((settings)=>{
+firebase.watchSettings((settings) => {
 	ui.setSettings(settings);
 	const discussionMin = Number(settings?.discussionTime);
 	timerDurationSec = Number.isFinite(discussionMin) && discussionMin > 0
@@ -202,12 +202,22 @@ startSharedTimerLoop();
 
 //　ボタン
 // 参加ボタン
-ui.onJoinClick(async ()=>{
-	if(!isConnected){
+ui.onJoinClick(async () => {
+	if (!isConnected) {
 		alert("接続されていません");
 		return;
 	}
 
+	const exists = await firebase.getIsPlayerExist(name);
+	localStorage.setItem('wolf_my_name', name);
+	savedname = name;
+	ui.setNameDisplay(name);
+
+	if (exists) {
+		alert(name + "さんとして再参加しました、うまく表示されないときはリロードしてください");
+		return;
+	}
+	
 	const isGamestarted = await game.isGameStarted();
 	if (isGamestarted) {
 		alert("ゲーム中には参加できません");
@@ -220,40 +230,31 @@ ui.onJoinClick(async ()=>{
 		return;
 	}
 
-	const exists = await firebase.getIsPlayerExist(name);
-	localStorage.setItem('wolf_my_name', name);
-	savedname = name;
-	ui.setNameDisplay(name);
+	await firebase.addPlayer(name);
+	alert(name + "さん、参加完了！");
 
-	if (exists) {
-		alert(name + "さんとして再参加しました、うまく表示されないときはリロードしてください");
-		return;
-	} else {
-		await firebase.addPlayer(name);
-		alert(name + "さん、参加完了！");
-	}
 });
 
 // 役職配布
-ui.onAssignClick(async ()=>{
+ui.onAssignClick(async () => {
 	const started = await game.isGameStarted();
-	if(started){
+	if (started) {
 		alert("ゲーム中には役職を配布できません");
 		return;
 	}
-	else{
+	else {
 		await firebase.updateAllAlive(true);
 		await game.assignRoles();
 	}
 });
 
 // 役職エリアの表示切替
-ui.onRoleAreaHiddenClick(()=>{
+ui.onRoleAreaHiddenClick(() => {
 	const roleArea = document.getElementById("role-assign");
-	if(roleArea.style.display === "none"){
+	if (roleArea.style.display === "none") {
 		roleArea.style.display = "block";
 		ui.setRoleHiddenButtonText(false);
-	}else{
+	} else {
 		roleArea.style.display = "none";
 		ui.setRoleHiddenButtonText(true);
 	}
@@ -270,16 +271,16 @@ ui.onTestToolsToggleClick(() => {
 });
 
 // 次へ進めるボタン
-ui.onGameNextClick(async ()=>{
+ui.onGameNextClick(async () => {
 	const players = await firebase.getAllPlayers();
-	if(!players) {
+	if (!players) {
 		alert("プレイヤーがいません");
 		return;
 	}
 
 	//console.log("次へ進むボタンがクリックされました: " + firebase.updateDate());
 	const undecidedCount = await firebase.getRoleCount(-1);
-	if(undecidedCount > 0){
+	if (undecidedCount > 0) {
 		alert("全員に役職が配布されていません");
 		return;
 	}
@@ -303,29 +304,29 @@ ui.onGameNextClick(async ()=>{
 	}
 });
 
-ui.onTimerResetClick(async ()=>{
+ui.onTimerResetClick(async () => {
 	await firebase.updateTimerStartAt(Date.now());
 });
 
 // 投票ボタン
-ui.onActionClick(async ()=>{
-	if(!savedname){
+ui.onActionClick(async () => {
+	if (!savedname) {
 		alert("参加していません");
 		return;
 	}
 	const vote = ui.getVote();
-	if(vote == null){
+	if (vote == null) {
 		alert("投票先を選択してください");
 		return;
-	}else{
+	} else {
 		await firebase.updateVote(savedname, vote);
 		await firebase.updateIsDone(savedname, true);
 	}
 });
 
 // 全員のスコアリセット
-ui.onScoreResetClick(async ()=>{
-	if(confirm("全員のスコアを0にリセットしますか？")){
+ui.onScoreResetClick(async () => {
+	if (confirm("全員のスコアを0にリセットしますか？")) {
 		await firebase.resetAllScores();
 		await firebase.deleteGame();
 		alert("全員のスコアをリセットしました");
@@ -333,13 +334,13 @@ ui.onScoreResetClick(async ()=>{
 });
 
 // プレイヤー1人削除
-ui.onPlayerDeleteClick(async ()=>{
+ui.onPlayerDeleteClick(async () => {
 	const deleteName = (ui.getDeleteName() || "").trim();
-	if(!deleteName){
+	if (!deleteName) {
 		alert("削除する名前を入力してください");
 		return;
 	}
-	
+
 	const exists = await firebase.getIsPlayerExist(deleteName);
 	if (!exists) {
 		alert("その名前のプレイヤーはいません");
@@ -363,7 +364,7 @@ ui.onPlayerDeleteClick(async ()=>{
 });
 
 // 一日進める（テスト用）
-ui.onDayAheadClick(async()=>{
+ui.onDayAheadClick(async () => {
 	const isGameStarted = await game.isGameStarted();
 	if (!isGameStarted) {
 		alert("ゲーム開始後に実行してください");
@@ -397,15 +398,15 @@ ui.onRandomKillClick(async () => {
 });
 
 // 全データ取得
-ui.AllgetClick(async ()=>{
-    const data = await firebase.getAllData();
-    console.log(data);
+ui.AllgetClick(async () => {
+	const data = await firebase.getAllData();
+	console.log(data);
 	console.log("localname: " + localStorage.getItem('wolf_my_name'));
 });
 
 //全データ削除
-ui.onAllDeleteClick(async ()=>{
-	if(confirm("全データを削除しますか？")){
+ui.onAllDeleteClick(async () => {
+	if (confirm("全データを削除しますか？")) {
 		await firebase.deleteAllPlayers();
 		await firebase.deleteGame();
 		await firebase.newSettings();
@@ -414,7 +415,7 @@ ui.onAllDeleteClick(async ()=>{
 	}
 });
 
-(async ()=>{
+(async () => {
 	const settings = await firebase.getSettings();
 	console.log("現在の設定: ", settings);
 })();
