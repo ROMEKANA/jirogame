@@ -68,7 +68,7 @@ export async function getCountAlivePlayers(){
 }
 
 export async function deleteAllPlayers(){
-	await set(ref(db, 'players'), '');
+	await set(ref(db, 'players'), null);
 }
 
 // 役職
