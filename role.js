@@ -30,7 +30,7 @@ export const roles = [
     { name: "社畜(未完成)", id: "count6", type: "input", number: ROLE.CORPORATE_WORKER, team: TEAM.CITIZEN },
     { name: "霊媒師(未完成)", id: "count7", type: "input", number: ROLE.MEDIUM, team: TEAM.CITIZEN },
     { name: "てるてる(未完成)", id: "count8", type: "input", number: ROLE.TERUTERU, team: TEAM.TERUTERU },
-    { name: "勘違い人狼(未完成)", displayName: "人狼", id: "count9", type: "input", number: ROLE.MISUNDERSTOOD_WOLF, team: TEAM.WOLF }
+    { name: "勘違い人狼(未完成)", displayName: "人狼", id: "count9", type: "input", number: ROLE.MISUNDERSTOOD_WOLF, team: TEAM.CITIZEN }
 ];
 
 export const teams = [
@@ -47,8 +47,12 @@ export function furtuneToText(voteRole) {
 
 export function roleActionToText(role) {
     switch (role) {
-        case ROLE.WOLF: return "誰を襲撃しますか？";
-        case ROLE.SEER: return "誰を占いますか？";
+        case ROLE.WOLF:
+        case ROLE.MISUNDERSTOOD_WOLF: return "誰を襲撃しますか？";
+        case ROLE.SEER:
+        case ROLE.MISUNDERSTOOD_SEER: return "誰を占いますか？";
+        case ROLE.KNIGHT: return "誰を守りますか？";
+        case ROLE.CORPORATE_WORKER: return "誰の家で仕事をしますか？";
         default: return "怪しいと思う人を選んでください";
     }
 }

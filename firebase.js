@@ -341,16 +341,13 @@ export async function newSettings(){
 	await set(ref(db, 'settings'), {
 		firstNightAttack: false,
 		revote: true,
-		// 夜の同数投票時にランダムで襲撃するか（game.js の期待キー名に合わせる）
 		randomKillSameVote: true,
 		skipExecutionSameVote: false,
-		// 表示名のスペルを修正
 		discussionTime: 5,
 		firstNightFortune: true,
-		// 初夜のランダム白出し（スペル修正）
 		firstNightRandomWhite: false,
 		firstDayExecution: false,
-		revealRoleOnDeath: true,
+		revealRoleOnDeath: false
 	});
 }
 

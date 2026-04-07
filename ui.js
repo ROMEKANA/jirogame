@@ -158,9 +158,9 @@ export function setSettings(settings){
 		skipExecutionSameVote: "昼の同数投票時に処刑スキップ",
 		discussionTime: "議論時間(分)",
 		firstNightFortune: "初夜占い",
-		firstNightRandomWhite: "初夜のランダム白出し",
+		firstNightRandomWhite: "初夜のランダム白出し(未実装)",
 		firstDayExecution: "初日の処刑",
-		revealRoleOnDeath: "死亡時の役職公開",
+		revealRoleOnDeath: "死亡時の役職公開(未実装)",
 	};
 
 	const lines = [];
