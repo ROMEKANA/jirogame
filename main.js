@@ -24,6 +24,17 @@ let savedAlive = null;
 let farstconnectRevote = true;
 let savedRevote = null;
 
+function renderVoteList(players) {
+	const voteOptions = Object.keys(players).filter(name => players[name].alive && name != savedname);
+
+	const handleVoteSelect = async (name) => {
+		await firebase.updateVote(savedname, name);
+		await firebase.updateIsDone(savedname, true);
+	};
+
+	ui.viewVoteList(voteOptions, handleVoteSelect);
+}
+
 // 名前復元
 let savedname = localStorage.getItem('wolf_my_name');
 
@@ -45,12 +56,14 @@ firebase.watchConnection((connected) => {
 
 // プレイヤー情報からの表示
 firebase.watchAllPlayers(async (players) => {
-	ui.viewAllPlayers(players);
-	if (savedname) {
-		ui.viewVoteList(players, savedname);
+	if (players) {
+		ui.viewAllPlayers(players);
+		ui.viewScoreList(players);
+		ui.setNowRole(players);
+		if(savedname){
+			renderVoteList(players);
+		}
 	}
-	ui.viewScoreList(players);
-	ui.setNowRole(players);
 
 	const count = players ? Object.keys(players).length : 0;
 	ui.setPlayerCount(count);
@@ -79,6 +92,9 @@ firebase.watchAllPlayers(async (players) => {
 		// 占いの結果の表示
 		const furtuneResaltText = await role.furtuneResultToText(player.role, player.beforeVote);
 		ui.setFortune(furtuneResaltText);
+
+		const selectedPlayer = player.isDone ? player.vote : "未選択";
+		ui.setSelectedPlayer(selectedPlayer);
 
 		// 死亡時の通知
 		if (farstconnectAlive) {
@@ -122,15 +138,12 @@ firebase.watchGame(async (gamedata) => {
 	ui.setisDaytime(gamedata.isDaytime);
 	if (!isExistPlayer) {
 		ui.setAction("参加していません");
-		ui.setActionButtonText("未参加");
 	} else {
 		if (!isGamestarted) {
 			ui.setAction("ゲーム開始までお待ちください");
-			ui.setActionButtonText("開始前");
 		} else {
 			const actionText = await role.actionToText(savedname, gamedata);
-			ui.setAction(actionText[0]);
-			ui.setActionButtonText(actionText[1]);
+			ui.setAction(actionText);
 		}
 	}
 
@@ -281,22 +294,6 @@ ui.onGameNextClick(async () => {
 
 ui.onTimerResetClick(async () => {
 	await firebase.updateTimerStartAt(Date.now());
-});
-
-// 投票ボタン
-ui.onActionClick(async () => {
-	if (!savedname) {
-		alert("参加していません");
-		return;
-	}
-	const vote = ui.getVote();
-	if (vote == null) {
-		alert("投票先を選択してください");
-		return;
-	} else {
-		await firebase.updateVote(savedname, vote);
-		await firebase.updateIsDone(savedname, true);
-	}
 });
 
 // 全員のスコアリセット

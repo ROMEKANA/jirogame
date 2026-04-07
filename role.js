@@ -26,13 +26,6 @@ export const teams = [
     { name: "人狼陣営", id: "team2", number: TEAM.WOLF }
 ];
 
-export const roleNightActionText = [
-    ["怪しいと思う人を選んでください", "怪しむ"] ,
-    ["誰を襲撃しますか？", "襲撃"] ,
-    ["誰を占いますか？", "占い"] ,
-    ["怪しいと思う人を選んでください", "怪しむ"] 
-]
-
 export function isWolfRole(role) {
     return Number(role) === ROLE.WOLF;
 }
@@ -50,12 +43,6 @@ export function roleActionToText(role) {
     if (isWolfRole(role)) return "誰を襲撃しますか？";
     if (isSeerRole(role)) return "誰を占いますか？";
     return "怪しいと思う人を選んでください";
-}
-
-export function roleActionButtonText(role) {
-    if (isWolfRole(role)) return "襲撃";
-    if (isSeerRole(role)) return "占い";
-    return "怪しむ";
 }
 
 export async function furtuneResultToText(rolenumber, beforeVote) {
@@ -78,9 +65,9 @@ export async function actionToText(savedname, gamedata) {
     if (gamedata.isDaytime) {
         const firstDayExecution = settings?.firstDayExecution ?? false;
         if (!firstDayExecution && gamedata.date == 1) {
-            return["初日の昼は処刑がありません。夜を迎えてください", "確認"];
+            return "初日の昼は処刑がありません。夜を迎えてください";
         } else {
-            return["昼になりました。話し合いをしてください", "投票"];
+            return "昼になりました。話し合いをしてください";
         }
     } else {
         let rolenumber = await firebase.getRole(savedname);
@@ -88,6 +75,6 @@ export async function actionToText(savedname, gamedata) {
         const firstNightFortune = settings?.firstNightFortune ?? true;
         if (!firstNightAttack && isWolfRole(rolenumber) && gamedata.date == 0) rolenumber = ROLE.CITIZEN;
         if (!firstNightFortune && isSeerRole(rolenumber) && gamedata.date == 0) rolenumber = ROLE.CITIZEN;
-        return [roleActionToText(rolenumber), roleActionButtonText(rolenumber)];
+        return roleActionToText(rolenumber);
     }
 }

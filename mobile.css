@@ -19,7 +19,8 @@ body {
     border-radius: 12px;
 }
 
-#role-display {
+#role-display,
+#selected-player {
     font-size: 1.32rem;
     line-height: 1.45;
 }
@@ -44,8 +45,7 @@ button {
     touch-action: manipulation;
 }
 
-#btn-next,
-#btn-action {
+#btn-next {
     min-width: 0;
     font-size: 1.06rem;
 }
