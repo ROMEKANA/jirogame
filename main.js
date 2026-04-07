@@ -181,6 +181,7 @@ ui.onJoinClick(async () => {
 		return;
 	}
 
+const name = ui.getUserName();
 	const exists = await firebase.getIsPlayerExist(name);
 	localStorage.setItem('wolf_my_name', name);
 	savedname = name;
