@@ -147,11 +147,12 @@ firebase.watchGame(async (gamedata) => {
 	}
 
 	// 同数投票の再投票の通知
-	if (gamedata.revoteCount != null && gamedata.revoteCount > 0) {
-		if (farstconnectRevote) {
-			farstconnectRevote = false;
-			savedRevote = gamedata.revoteCount;
-		} else if (gamedata.revoteCount != savedRevote) {
+
+	if (farstconnectRevote) {
+		farstconnectRevote = false;
+		savedRevote = gamedata.revoteCount;
+	} else if (gamedata.revoteCount != null && gamedata.revoteCount > 0) {
+		if (gamedata.revoteCount != savedRevote) {
 			alert("同数投票のため、再投票が行われます");
 			savedRevote = gamedata.revoteCount;
 		}
@@ -186,7 +187,7 @@ ui.onJoinClick(async () => {
 		alert("名前を入力してね");
 		return;
 	}
-	
+
 	const exists = await firebase.getIsPlayerExist(name);
 	localStorage.setItem('wolf_my_name', name);
 	savedname = name;
