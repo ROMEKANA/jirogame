@@ -6,7 +6,6 @@ export let roleHidden = false;
 let sharedTimerStartAt = null;
 let sharedTimerDurationSec = 0;
 let sharedTimerIntervalId = null;
-let roleInputsInitialized = false;
 
 // テキスト変換
 export function statusToText(isConnected){
@@ -132,7 +131,6 @@ export function updateCitizenDisplay(playerCount){
 }
 
 export function setupRoleInputs(playerCount){
-	if (roleInputsInitialized) return;
 	const inputs = document.querySelectorAll('.value');
 
 	inputs.forEach(input => {
@@ -140,8 +138,6 @@ export function setupRoleInputs(playerCount){
 			updateCitizenDisplay(playerCount);
 		});
 	});
-
-	roleInputsInitialized = true;
 }
 
 export function setRoleHiddenButtonText(isHidden){
