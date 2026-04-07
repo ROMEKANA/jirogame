@@ -119,19 +119,17 @@ async function startRevote(players){
 
 // 夜の処理の関数の最後に、日付を進める処理と時間を昼にする処理
 async function endNightPhase(snapPlayers, date){
-	// 昼にしてから、beforeVoteを更新することで、占い師の占い結果が夜の投票に影響しないようにする
+	await recordBeforeVoteSnapshot(snapPlayers);
 	await firebase.resetRevoteCount();
 	await firebase.updateIsDaytime(true);
 	await firebase.updateDate(Number(date) + 1);
-	await recordBeforeVoteSnapshot(snapPlayers);
 }
 
 // 昼の処理の関数の最後に、勝敗の判定と表示を行う処理
 async function endDayPhase(snapPlayers){
-	// beforeVoteを更新してから夜に移行することで、占い師の結果を正しく反映させる
 	await firebase.resetRevoteCount();
-	await recordBeforeVoteSnapshot(snapPlayers);
 	await firebase.updateIsDaytime(false);
+	await recordBeforeVoteSnapshot(snapPlayers);
 }
 
 //　夜の処理の関数
