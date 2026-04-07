@@ -390,8 +390,3 @@ ui.onAllDeleteClick(async () => {
 		alert("全データを削除しました");
 	}
 });
-
-(async () => {
-	const settings = await firebase.getSettings();
-	console.log("現在の設定: ", settings);
-})();

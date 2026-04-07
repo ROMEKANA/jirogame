@@ -58,18 +58,19 @@ export function roleActionToText(role) {
 }
 
 export async function furtuneResultToText(rolenumber, beforeVote) {
-    const settings = await firebase.getSettings();
-    if (beforeVote != null && rolenumber == ROLE.SEER && (settings?.firstNightFortune ?? true)) {
-        const isDaytime = await firebase.getIsDaytime();
-        if (isDaytime) {
+    const isDaytime = await firebase.getIsDaytime();
+    if (beforeVote != null && isDaytime) {
+        if (rolenumber == ROLE.SEER) {
+            const settings = await firebase.getSettings();
+            const firstNightFortune = settings?.firstNightFortune ?? true;
+            const date = await firebase.getDate();
+            if(firstNightFortune || date != 1){
             const voteRole = await firebase.getRole(beforeVote);
             return (beforeVote + " : " + furtuneToText(voteRole));
-        } else {
-            return ("");
+            }
         }
-    } else {
-        return ("");
-    }
+    } 
+    return ("");
 }
 
 export async function actionToText(savedname, gamedata) {
@@ -77,7 +78,7 @@ export async function actionToText(savedname, gamedata) {
     if (gamedata.isDaytime) {
         const firstDayExecution = settings?.firstDayExecution ?? false;
         if (!firstDayExecution && gamedata.date == 1) {
-            return "初日の昼は処刑がありません。夜を迎えてください";
+            return "初日の昼は処刑がありません。一人選んでください\n（投票はできますが、処刑はされません）";
         } else {
             return "昼になりました。話し合いをしてください";
         }
