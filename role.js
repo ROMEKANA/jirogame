@@ -10,20 +10,28 @@ export const ROLE = {
 export const TEAM = {
     IN_GAME: 0,
     CITIZEN: 1,
-    WOLF: 2
+    WOLF: 2,
+    TERUTERU: 3
 };
 
 export const roles = [
     { name: "市民", id: "citizen-count", type: "display", number: ROLE.CITIZEN, team: TEAM.CITIZEN },
     { name: "人狼", id: "count1", type: "input", number: ROLE.WOLF, team: TEAM.WOLF },
     { name: "占い師", id: "count2", type: "input", number: ROLE.SEER, team: TEAM.CITIZEN },
-    { name: "狂人", id: "count3", type: "input", number: ROLE.MADMAN, team: TEAM.WOLF }
+    { name: "狂人", id: "count3", type: "input", number: ROLE.MADMAN, team: TEAM.WOLF },
+    { name: "騎士(未完成)", id: "count4", type: "input", number: 4, team: TEAM.CITIZEN },
+    { name: "勘違い占い師(未完成)", displayName: "占い師", id: "count5", type: "input", number: 5, team: TEAM.CITIZEN },
+    { name: "社畜(未完成)", id: "count6", type: "input", number: 6, team: TEAM.CITIZEN },
+    { name: "霊媒師(未完成)", id: "count7", type: "input", number: 7, team: TEAM.CITIZEN },
+    { name: "てるてる(未完成)", id: "count8", type: "input", number: 8, team: TEAM.TERUTERU },
+    { name: "勘違い人狼(未完成)", displayName: "人狼", id: "count9", type: "input", number: 9, team: TEAM.WOLF }
 ];
 
 export const teams = [
     { name: "試合中", id: "team0", number: TEAM.IN_GAME },
     { name: "市民陣営", id: "team1", number: TEAM.CITIZEN },
-    { name: "人狼陣営", id: "team2", number: TEAM.WOLF }
+    { name: "人狼陣営", id: "team2", number: TEAM.WOLF },
+    { name: "てるてる陣営", id: "team3", number: TEAM.TERUTERU }
 ];
 
 export function isWolfRole(role) {

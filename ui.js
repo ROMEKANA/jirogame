@@ -20,6 +20,13 @@ export function roleToText(role){
 	return "未定義";
 }
 
+export function roleDisplayToText(role){
+	if(role == null) return "参加前";
+	if(role == -1) return "未決定";
+	if(role >= 0 && role < roles.length) return roles[role].displayName ? roles[role].displayName : roles[role].name;
+	return "未定義";
+}
+
 export function aliveToText(alive){
 	if(alive == null) return "参加前";
 	return alive ? "生存" : "死亡";
@@ -183,7 +190,8 @@ export function setNowRole(players){
 	document.getElementById('nowroles').innerText = "";
 
 	for(let i = 0; i < nowRoles.length; i++){
-		document.getElementById('nowroles').innerText += roleToText(i) + ": " + nowRoles[i] + "人\n";
+		if(nowRoles[i] != 0)
+			document.getElementById('nowroles').innerText += roleToText(i) + ": " + nowRoles[i] + "人\n";
 	}
 }
 
@@ -253,7 +261,7 @@ export function setNextButtonText(text){
 }
 
 export function setRole(role){
-	document.getElementById('role-display').innerText = roleToText(role);
+	document.getElementById('role-display').innerText = roleDisplayToText(role);
 }
 
 export function setSelectedPlayer(name){

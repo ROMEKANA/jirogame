@@ -24,17 +24,6 @@ let savedAlive = null;
 let farstconnectRevote = true;
 let savedRevote = null;
 
-function renderVoteList(players) {
-	const voteOptions = Object.keys(players).filter(name => players[name].alive && name != savedname);
-
-	const handleVoteSelect = async (name) => {
-		await firebase.updateVote(savedname, name);
-		await firebase.updateIsDone(savedname, true);
-	};
-
-	ui.viewVoteList(voteOptions, handleVoteSelect);
-}
-
 // 名前復元
 let savedname = localStorage.getItem('wolf_my_name');
 
@@ -46,6 +35,18 @@ if (savedname) {
 // 生成
 // 役職設定の入力欄の生成
 ui.createRoleCounters("role-counter");
+
+// 投票の選択肢の生成
+function renderVoteList(players) {
+	const voteOptions = Object.keys(players).filter(name => players[name].alive && name != savedname);
+
+	const handleVoteSelect = async (name) => {
+		await firebase.updateVote(savedname, name);
+		await firebase.updateIsDone(savedname, true);
+	};
+
+	ui.viewVoteList(voteOptions, handleVoteSelect);
+}
 
 //　表示
 // 接続状態の表示
@@ -60,53 +61,54 @@ firebase.watchAllPlayers(async (players) => {
 		ui.viewAllPlayers(players);
 		ui.viewScoreList(players);
 		ui.setNowRole(players);
-		if(savedname){
+		if (savedname) {
 			renderVoteList(players);
 		}
-	}
 
-	const count = players ? Object.keys(players).length : 0;
-	ui.setPlayerCount(count);
-	ui.setupRoleInputs(count);
-	ui.updateCitizenDisplay(count);
 
-	const countAlive = players ? Object.values(players).filter(player => player && player.alive).length : 0;
-	ui.setAliveCount(countAlive);
+		const count = players ? Object.keys(players).length : 0;
+		ui.setPlayerCount(count);
+		ui.setupRoleInputs(count);
+		ui.updateCitizenDisplay(count);
 
-	// 個人プレイヤーの表示
-	if (savedname) {
-		// 役職の表示と通知
-		const player = await firebase.getPlayer(savedname);
-		ui.setRole(player?.role);
-		if (farstconnectRole) {
-			farstconnectRole = false;
-			savedRole = player?.role;
-		} else if (player?.role != null && player.role >= 0 && player.role != savedRole) {
-			alert("役職が割り当てられました。\n\
-			あなたの役職は " + ui.roleToText(player.role) + " です");
-			savedRole = player.role;
-		} else {
-			savedRole = player?.role;
-		}
+		const countAlive = players ? Object.values(players).filter(player => player && player.alive).length : 0;
+		ui.setAliveCount(countAlive);
 
-		// 占いの結果の表示
-		const furtuneResaltText = await role.furtuneResultToText(player.role, player.beforeVote);
-		ui.setFortune(furtuneResaltText);
-
-		const selectedPlayer = player.isDone ? player.vote : "未選択";
-		ui.setSelectedPlayer(selectedPlayer);
-
-		// 死亡時の通知
-		if (farstconnectAlive) {
-			farstconnectAlive = false;
-			savedAlive = player?.alive;
-		} else if (player?.alive != null && player.alive != savedAlive) {
-			savedAlive = player.alive;
-			if (!player.alive && player.role != -1) {
-				alert("あなたは死亡しました。");
+		// 個人プレイヤーの表示
+		if (savedname) {
+			// 役職の表示と通知
+			const player = players[savedname];
+			ui.setRole(player?.role);
+			if (farstconnectRole) {
+				farstconnectRole = false;
+				savedRole = player?.role;
+			} else if (player?.role != null && player.role >= 0 && player.role != savedRole) {
+				alert("役職が割り当てられました。\n\
+			あなたの役職は " + ui.roleDisplayToText(player.role) + " です");
+				savedRole = player.role;
+			} else {
+				savedRole = player?.role;
 			}
-		} else {
-			savedAlive = player?.alive;
+
+			// 占いの結果の表示
+			const furtuneResaltText = await role.furtuneResultToText(player.role, player.beforeVote);
+			ui.setFortune(furtuneResaltText);
+
+			const selectedPlayer = player.isDone ? player.vote : "未選択";
+			ui.setSelectedPlayer(selectedPlayer);
+
+			// 死亡時の通知
+			if (farstconnectAlive) {
+				farstconnectAlive = false;
+				savedAlive = player?.alive;
+			} else if (player?.alive != null && player.alive != savedAlive) {
+				savedAlive = player.alive;
+				if (!player.alive && player.role != -1) {
+					alert("あなたは死亡しました。");
+				}
+			} else {
+				savedAlive = player?.alive;
+			}
 		}
 	}
 });
