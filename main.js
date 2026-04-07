@@ -181,6 +181,13 @@ ui.onJoinClick(async () => {
 		return;
 	}
 
+	const name = (ui.getUserName() || "").trim();
+	if (!name) {
+		alert("名前を入力してね");
+		return;
+	}
+
+	
 	const exists = await firebase.getIsPlayerExist(name);
 	localStorage.setItem('wolf_my_name', name);
 	savedname = name;
@@ -197,11 +204,7 @@ ui.onJoinClick(async () => {
 		return;
 	}
 
-	const name = (ui.getUserName() || "").trim();
-	if (!name) {
-		alert("名前を入力してね");
-		return;
-	}
+	
 
 	await firebase.addPlayer(name);
 	alert(name + "さん、参加完了！");
