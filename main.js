@@ -176,7 +176,34 @@ ui.startSharedTimerLoop();
 //　ボタン
 // 参加ボタン
 ui.onJoinClick(async () => {
-	await firebase.updateTimerStartAt(Date.now());
+	if (!isConnected) {
+		alert("接続されていません");
+		return;
+	}
+
+	const name = (ui.getUserName() || "").trim();
+	if (!name) {
+		alert("名前を入力してね");
+		return;
+	}
+	
+	const exists = await firebase.getIsPlayerExist(name);
+	localStorage.setItem('wolf_my_name', name);
+	savedname = name;
+	ui.setNameDisplay(name);
+
+	if (exists) {
+		alert(name + "さんとして再参加しました、うまく表示されないときはリロードしてください");
+		return;
+	}
+
+	const isGamestarted = await game.isGameStarted();
+	if (isGamestarted) {
+		alert("ゲーム中には参加できません");
+		return;
+	}
+
+	
 
 	await firebase.addPlayer(name);
 	alert(name + "さん、参加完了！");
@@ -256,6 +283,32 @@ ui.onTimerResetClick(async () => {
 	await firebase.updateTimerStartAt(Date.now());
 });
 
+// 投票ボタン
+ui.onActionClick(async () => {
+	if (!savedname) {
+		alert("参加していません");
+		return;
+	}
+	const vote = ui.getVote();
+	if (vote == null) {
+		alert("投票先を選択してください");
+		return;
+	} else {
+		await firebase.updateVote(savedname, vote);
+		await firebase.updateIsDone(savedname, true);
+	}
+});
+
+// 全員のスコアリセット
+ui.onScoreResetClick(async () => {
+	if (confirm("全員のスコアを0にリセットしますか？")) {
+		await firebase.resetAllScores();
+		await firebase.deleteGame();
+		alert("全員のスコアをリセットしました");
+	}
+});
+
+// プレイヤー1人削除
 ui.onPlayerDeleteClick(async () => {
 	const deleteName = (ui.getDeleteName() || "").trim();
 	if (!deleteName) {
