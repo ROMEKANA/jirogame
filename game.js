@@ -107,8 +107,26 @@ async function recordBeforeVoteSnapshot(snapPlayers){
 	}
 }
 
-// プレイヤーを殺す関数
-async function killPlayer(name){
+async function getProtectedByKnight(snapPlayers){
+	const knightPlayers = Object.entries(snapPlayers)
+		.filter(([, player]) => player && player.role == ROLE.KNIGHT && player.alive);
+	if(knightPlayers.length == 0) return [];
+	const protectedByKnightPlayers = Object.entries(snapPlayers)
+		.filter(([name, player]) => player && knightPlayers.some(([, knight]) => knight.vote == name));
+
+	return protectedByKnightPlayers.map(([name]) => name);
+}
+
+// プレイヤーを殺す関数、夜
+async function killPlayer(snapPlayers, name){
+	const protectedByKnight = await getProtectedByKnight(snapPlayers);
+	if(protectedByKnight.includes(name)) return;
+	
+	await firebase.updateAlive(name, false);
+}
+
+// プレイヤーを処刑する関数、昼
+async function ExecutePlayer(name){
 	await firebase.updateAlive(name, false);
 }
 
@@ -153,7 +171,7 @@ async function resolveNightPhase(settings, snapPlayers, date, revoteCount){
 			// ランダムに1人殺す設定のときはランダムに1人殺す
 			if (randomKillSameVote || revoteCount == 1) {
 				const randomTarget = pickRandomTarget(targets);
-				await killPlayer(randomTarget);
+				await killPlayer(snapPlayers, randomTarget);
 				await endNightPhase(snapPlayers, date);
 				return;
 			}
@@ -162,7 +180,7 @@ async function resolveNightPhase(settings, snapPlayers, date, revoteCount){
 			return;
 		} else {
 			// 投票数が1位の人を殺す
-			await killPlayer(targets[0]);
+			await killPlayer(snapPlayers, targets[0]);
 			await endNightPhase(snapPlayers, date);
 			return;
 		}
@@ -195,11 +213,11 @@ async function resolveDayPhase(settings, snapPlayers, date, revoteCount){
 				return;
 			} else {
 				const randomTarget = pickRandomTarget(targets);
-				await killPlayer(randomTarget);
+				await ExecutePlayer(randomTarget);
 				await endDayPhase(snapPlayers);
 			}
 		} else {
-			await killPlayer(targets[0]);
+			await ExecutePlayer(targets[0]);
 			await endDayPhase(snapPlayers);
 		}
 	}

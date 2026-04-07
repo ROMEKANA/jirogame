@@ -25,7 +25,7 @@ export const roles = [
     { name: "人狼", id: "count1", type: "input", number: ROLE.WOLF, team: TEAM.WOLF },
     { name: "占い師", id: "count2", type: "input", number: ROLE.SEER, team: TEAM.CITIZEN },
     { name: "狂人", id: "count3", type: "input", number: ROLE.MADMAN, team: TEAM.WOLF },
-    { name: "騎士(未完成)", id: "count4", type: "input", number: ROLE.KNIGHT, team: TEAM.CITIZEN },
+    { name: "騎士", id: "count4", type: "input", number: ROLE.KNIGHT, team: TEAM.CITIZEN },
     { name: "勘違い占い師(未完成)", displayName: "占い師", id: "count5", type: "input", number: ROLE.MISUNDERSTOOD_SEER, team: TEAM.CITIZEN },
     { name: "社畜(未完成)", id: "count6", type: "input", number: ROLE.CORPORATE_WORKER, team: TEAM.CITIZEN },
     { name: "霊媒師(未完成)", id: "count7", type: "input", number: ROLE.MEDIUM, team: TEAM.CITIZEN },
