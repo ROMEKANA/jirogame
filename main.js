@@ -77,7 +77,7 @@ firebase.watchAllPlayers(async (players) => {
 		}
 
 		// 占いの結果の表示
-		const furtuneResaltText = role.furtuneResultToText(player.role, player.vote);
+		const furtuneResaltText = role.furtuneResultToText(player.role, player.beforevote);
 		ui.setFortune(await furtuneResaltText);
 
 		// 死亡時の通知
@@ -202,8 +202,6 @@ ui.onJoinClick(async () => {
 		alert("ゲーム中には参加できません");
 		return;
 	}
-
-	
 
 	await firebase.addPlayer(name);
 	alert(name + "さん、参加完了！");
