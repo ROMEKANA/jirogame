@@ -77,8 +77,8 @@ firebase.watchAllPlayers(async (players) => {
 		}
 
 		// 占いの結果の表示
-		const furtuneResaltText = role.furtuneResultToText(player.role, player.beforevote);
-		ui.setFortune(await furtuneResaltText);
+		const furtuneResaltText = await role.furtuneResultToText(player.role, player.beforevote);
+		ui.setFortune(furtuneResaltText);
 
 		// 死亡時の通知
 		if (farstconnectAlive) {
