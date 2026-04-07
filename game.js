@@ -1,5 +1,5 @@
 import * as firebase from "./firebase.js";
-import { ROLE, roles, isWolfRole } from "./role.js";
+import { ROLE, roles } from "./role.js";
 
 // ゲームが開始したかどうかの判定
 export async function isGameStarted(){
@@ -145,7 +145,7 @@ async function resolveNightPhase(settings, snapPlayers, date, revoteCount){
 		return;
 	} else {
 		// 人狼の投票集計
-		const wolfVoteCounts = countVotes(snapPlayers, (_name, player) => isWolfRole(player.role) && player.alive);
+		const wolfVoteCounts = countVotes(snapPlayers, (_name, player) => (player.role == ROLE.WOLF) && player.alive);
 		const targets = getTopVotes(wolfVoteCounts);
 
 		// 同数投票の処理

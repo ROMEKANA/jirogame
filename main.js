@@ -343,11 +343,13 @@ ui.onDayAheadClick(async () => {
 	if (!isGameStarted) {
 		alert("ゲーム開始後に実行してください");
 	} else {
-		let date = await firebase.getDate();
-		console.log("現在の日数: " + date);
-		await firebase.updateDate(date + 1);
-		console.log("日数を1進めました: " + await firebase.getDate());
-		alert("日数を1進めました");
+		let isDaytime = await firebase.getIsDaytime();
+		await firebase.updateIsDaytime(!isDaytime);
+		if (!isDaytime){
+			let date = await firebase.getDate();
+			await firebase.updateDate(date + 1);
+		}
+		alert("日数を進めました");
 	}
 });
 

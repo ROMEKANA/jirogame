@@ -4,7 +4,13 @@ export const ROLE = {
     CITIZEN: 0,
     WOLF: 1,
     SEER: 2,
-    MADMAN: 3
+    MADMAN: 3,
+    KNIGHT: 4,
+    MISUNDERSTOOD_SEER: 5,
+    CORPORATE_WORKER: 6,
+    MEDIUM: 7,
+    TERUTERU: 8,
+    MISUNDERSTOOD_WOLF: 9
 };
 
 export const TEAM = {
@@ -19,12 +25,12 @@ export const roles = [
     { name: "人狼", id: "count1", type: "input", number: ROLE.WOLF, team: TEAM.WOLF },
     { name: "占い師", id: "count2", type: "input", number: ROLE.SEER, team: TEAM.CITIZEN },
     { name: "狂人", id: "count3", type: "input", number: ROLE.MADMAN, team: TEAM.WOLF },
-    { name: "騎士(未完成)", id: "count4", type: "input", number: 4, team: TEAM.CITIZEN },
-    { name: "勘違い占い師(未完成)", displayName: "占い師", id: "count5", type: "input", number: 5, team: TEAM.CITIZEN },
-    { name: "社畜(未完成)", id: "count6", type: "input", number: 6, team: TEAM.CITIZEN },
-    { name: "霊媒師(未完成)", id: "count7", type: "input", number: 7, team: TEAM.CITIZEN },
-    { name: "てるてる(未完成)", id: "count8", type: "input", number: 8, team: TEAM.TERUTERU },
-    { name: "勘違い人狼(未完成)", displayName: "人狼", id: "count9", type: "input", number: 9, team: TEAM.WOLF }
+    { name: "騎士(未完成)", id: "count4", type: "input", number: ROLE.KNIGHT, team: TEAM.CITIZEN },
+    { name: "勘違い占い師(未完成)", displayName: "占い師", id: "count5", type: "input", number: ROLE.MISUNDERSTOOD_SEER, team: TEAM.CITIZEN },
+    { name: "社畜(未完成)", id: "count6", type: "input", number: ROLE.CORPORATE_WORKER, team: TEAM.CITIZEN },
+    { name: "霊媒師(未完成)", id: "count7", type: "input", number: ROLE.MEDIUM, team: TEAM.CITIZEN },
+    { name: "てるてる(未完成)", id: "count8", type: "input", number: ROLE.TERUTERU, team: TEAM.TERUTERU },
+    { name: "勘違い人狼(未完成)", displayName: "人狼", id: "count9", type: "input", number: ROLE.MISUNDERSTOOD_WOLF, team: TEAM.WOLF }
 ];
 
 export const teams = [
@@ -34,28 +40,22 @@ export const teams = [
     { name: "てるてる陣営", id: "team3", number: TEAM.TERUTERU }
 ];
 
-export function isWolfRole(role) {
-    return Number(role) === ROLE.WOLF;
-}
-
-export function isSeerRole(role) {
-    return Number(role) === ROLE.SEER;
-}
-
-export function furtuneToText(fortune) {
-    if (fortune == null) return "占い結果がここに表示されます";
-    return fortune == 1 ? "人狼です" : "人狼ではありません";
+export function furtuneToText(voteRole) {
+    if (voteRole == null) return "未定義";
+    return voteRole == ROLE.WOLF ? "人狼です" : "人狼ではありません";
 }
 
 export function roleActionToText(role) {
-    if (isWolfRole(role)) return "誰を襲撃しますか？";
-    if (isSeerRole(role)) return "誰を占いますか？";
-    return "怪しいと思う人を選んでください";
+    switch (role) {
+        case ROLE.WOLF: return "誰を襲撃しますか？";
+        case ROLE.SEER: return "誰を占いますか？";
+        default: return "怪しいと思う人を選んでください";
+    }
 }
 
 export async function furtuneResultToText(rolenumber, beforeVote) {
     const settings = await firebase.getSettings();
-    if (beforeVote != null && isSeerRole(rolenumber) && (settings?.firstNightFortune ?? true)) {
+    if (beforeVote != null && rolenumber == ROLE.SEER && (settings?.firstNightFortune ?? true)) {
         const isDaytime = await firebase.getIsDaytime();
         if (isDaytime) {
             const voteRole = await firebase.getRole(beforeVote);
@@ -81,8 +81,8 @@ export async function actionToText(savedname, gamedata) {
         let rolenumber = await firebase.getRole(savedname);
         const firstNightAttack = settings?.firstNightAttack ?? false;
         const firstNightFortune = settings?.firstNightFortune ?? true;
-        if (!firstNightAttack && isWolfRole(rolenumber) && gamedata.date == 0) rolenumber = ROLE.CITIZEN;
-        if (!firstNightFortune && isSeerRole(rolenumber) && gamedata.date == 0) rolenumber = ROLE.CITIZEN;
+        if (!firstNightAttack && rolenumber == ROLE.WOLF && gamedata.date == 0) rolenumber = ROLE.CITIZEN;
+        if (!firstNightFortune && rolenumber == ROLE.SEER && gamedata.date == 0) rolenumber = ROLE.CITIZEN;
         return roleActionToText(rolenumber);
     }
 }
