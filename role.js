@@ -26,11 +26,11 @@ export const roles = [
     { name: "占い師", id: "count2", type: "input", number: ROLE.SEER, team: TEAM.CITIZEN },
     { name: "狂人", id: "count3", type: "input", number: ROLE.MADMAN, team: TEAM.WOLF },
     { name: "騎士", id: "count4", type: "input", number: ROLE.KNIGHT, team: TEAM.CITIZEN },
-    { name: "勘違い占い師(未完成)", displayName: "占い師", id: "count5", type: "input", number: ROLE.MISUNDERSTOOD_SEER, team: TEAM.CITIZEN },
-    { name: "社畜(未完成)", id: "count6", type: "input", number: ROLE.CORPORATE_WORKER, team: TEAM.CITIZEN },
-    { name: "霊媒師(未完成)", id: "count7", type: "input", number: ROLE.MEDIUM, team: TEAM.CITIZEN },
+    { name: "勘違い占い師", displayName: "占い師", id: "count5", type: "input", number: ROLE.MISUNDERSTOOD_SEER, team: TEAM.CITIZEN },
+    { name: "社畜", id: "count6", type: "input", number: ROLE.CORPORATE_WORKER, team: TEAM.CITIZEN },
+    { name: "霊媒師", id: "count7", type: "input", number: ROLE.MEDIUM, team: TEAM.CITIZEN },
     { name: "てるてる(未完成)", id: "count8", type: "input", number: ROLE.TERUTERU, team: TEAM.TERUTERU },
-    { name: "勘違い人狼(未完成)", displayName: "人狼", id: "count9", type: "input", number: ROLE.MISUNDERSTOOD_WOLF, team: TEAM.CITIZEN }
+    { name: "勘違い人狼", displayName: "人狼", id: "count9", type: "input", number: ROLE.MISUNDERSTOOD_WOLF, team: TEAM.CITIZEN }
 ];
 
 export const teams = [
@@ -59,14 +59,25 @@ export function roleActionToText(role) {
 
 export async function furtuneResultToText(rolenumber, beforeVote) {
     const isDaytime = await firebase.getIsDaytime();
-    if (beforeVote != null && isDaytime) {
-        if (rolenumber == ROLE.SEER) {
-            const settings = await firebase.getSettings();
-            const firstNightFortune = settings?.firstNightFortune ?? true;
-            const date = await firebase.getDate();
-            if(firstNightFortune || date != 1){
-            const voteRole = await firebase.getRole(beforeVote);
-            return (beforeVote + " : " + furtuneToText(voteRole));
+    if (isDaytime) {
+        const settings = await firebase.getSettings();
+        const firstNightFortune = settings?.firstNightFortune ?? true;
+        const firstDayExecution = settings?.firstDayExecution ?? false;
+        const date = await firebase.getDate();
+        if (beforeVote != null && (firstNightFortune || date != 1)) {
+            if (rolenumber == ROLE.SEER) {
+                const voteRole = await firebase.getRole(beforeVote);
+                return (beforeVote + " : " + furtuneToText(voteRole));
+            }else if (rolenumber == ROLE.MISUNDERSTOOD_SEER) {
+                const voteRole = await firebase.getRand();
+                return (beforeVote + " : " + furtuneToText(voteRole < 0.5 ? ROLE.WOLF : ROLE.CITIZEN));
+            }
+        }
+        if(rolenumber == ROLE.MEDIUM && ((date != 1 && !firstDayExecution) || date > 1)){
+            const beforeExecution = await firebase.getBeforeExecution();
+            if (beforeExecution != null) {
+                const voteRole = await firebase.getRole(beforeExecution);
+                return (beforeExecution + " : " + furtuneToText(voteRole));
             }
         }
     } 
@@ -86,8 +97,8 @@ export async function actionToText(savedname, gamedata) {
         let rolenumber = await firebase.getRole(savedname);
         const firstNightAttack = settings?.firstNightAttack ?? false;
         const firstNightFortune = settings?.firstNightFortune ?? true;
-        if (!firstNightAttack && rolenumber == ROLE.WOLF && gamedata.date == 0) rolenumber = ROLE.CITIZEN;
-        if (!firstNightFortune && rolenumber == ROLE.SEER && gamedata.date == 0) rolenumber = ROLE.CITIZEN;
+        if (!firstNightAttack && (rolenumber == ROLE.WOLF || rolenumber == ROLE.MISUNDERSTOOD_WOLF) && gamedata.date == 0) rolenumber = ROLE.CITIZEN;
+        if (!firstNightFortune && (rolenumber == ROLE.SEER || rolenumber == ROLE.MISUNDERSTOOD_SEER) && gamedata.date == 0) rolenumber = ROLE.CITIZEN;
         return roleActionToText(rolenumber);
     }
 }

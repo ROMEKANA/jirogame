@@ -206,21 +206,19 @@ export async function updateBeforeVote(name, vote){
 }
 
 // ゲームのデータ
-export async function addGame(){
-	await update(ref(db, 'game'), {
-		revoteCount: 0
-	});
-}
 
 export async function newGame(){
 	await updateAllAlive(true);
 	await updateAllIsDone(false);
+	const randValue = Math.random();
 	await set(ref(db, 'game'), {
 		date: 0,
 		isDaytime: false,
 		winner: 0,
 		revoteCount: 0,
-		timerStartAt: Date.now()
+		timerStartAt: Date.now(),
+		rand : randValue,
+		beforeExecution: null
 	});
 }
 
@@ -241,7 +239,9 @@ export async function deleteGame(){
 		isDaytime: null,
 		winner: null,
 		revoteCount: 0,
-		timerStartAt: null
+		timerStartAt: null,
+		rand : null,
+		beforeExecution: null
 	});
 }
 
@@ -301,6 +301,27 @@ export async function incrementRevoteCount(){
     await updateRevoteCount(count + 1);
 }
 
+// ランダムな数
+export async function updateRand(){
+	const rand = Math.random();
+	await set(ref(db, 'game/rand'), rand);
+}
+
+export async function getRand(){
+	const snapshot = await get(ref(db, 'game/rand'));
+	return snapshot.val();
+}
+
+// 処刑された人の記録
+export async function updateBeforeExecution(name){
+	await set(ref(db, 'game/beforeExecution'), name);
+}
+
+export async function getBeforeExecution(){
+	const snapshot = await get(ref(db, 'game/beforeExecution'));
+	return snapshot.val();
+}
+
 // 勝敗
 export async function updateWinner(inputwinner){
 	//await updateAllRole(-1);
@@ -309,7 +330,9 @@ export async function updateWinner(inputwinner){
 		isDaytime: null,
 		winner: inputwinner,
 		revoteCount: 0,
-		timerStartAt: null
+		timerStartAt: null,
+		rand: null,
+		beforeExecution: null
 	});
 }
 

@@ -117,17 +117,32 @@ async function getProtectedByKnight(snapPlayers){
 	return protectedByKnightPlayers.map(([name]) => name);
 }
 
+// 社畜が仕事をする関数、仕事の内容は「襲撃先と同じ相手を選んでいたら社畜が死亡」
+async function workPlayer(snapPlayers, wolvesTarget){
+    for(const [name, player] of Object.entries(snapPlayers)){
+        if(!player || !player.alive) continue;
+        if(player.role != ROLE.CORPORATE_WORKER) continue;
+        // 社畜が「襲撃先と同じ相手」を選んでいたら社畜が死亡
+        if(player.vote == wolvesTarget){
+            await firebase.updateAlive(name, false);
+        }
+    }
+}
+
 // プレイヤーを殺す関数、夜
 async function killPlayer(snapPlayers, name){
 	const protectedByKnight = await getProtectedByKnight(snapPlayers);
 	if(protectedByKnight.includes(name)) return;
-	
+	const isCorporateWorker = snapPlayers[name].role == ROLE.CORPORATE_WORKER;
+	if(isCorporateWorker) return;
 	await firebase.updateAlive(name, false);
+	await workPlayer(snapPlayers, name);
 }
 
 // プレイヤーを処刑する関数、昼
 async function ExecutePlayer(name){
 	await firebase.updateAlive(name, false);
+	await firebase.updateBeforeExecution(name);
 }
 
 // 再投票の開始処理, revoteCountをインクリメント
@@ -183,7 +198,7 @@ async function resolveNightPhase(settings, snapPlayers, date, revoteCount){
 			await killPlayer(snapPlayers, targets[0]);
 			await endNightPhase(snapPlayers, date);
 			return;
-		}
+		}	
 	}
 }
 
@@ -255,6 +270,7 @@ export async function checkWinner(){
 
 // 次のフェーズへの移行処理
 export async function goNextPhase(){
+	await firebase.updateRand();
 	const Data = await firebase.getAllData();
 	
 	const snapPlayers = Data.players;
