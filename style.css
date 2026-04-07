@@ -64,7 +64,8 @@ hr {
 #day-count,
 #isDaytime-display,
 #winner-display,
-#role-display {
+#role-display,
+#selected-player {
     font-weight: 700;
 }
 
@@ -76,8 +77,13 @@ hr {
     letter-spacing: 0.02em;
 }
 
+#selected-player {
+    color: #003c96;
+}
+
 #fortune-display,
 #action-display,
+#selected-display,
 #player-list,
 #score-list,
 #vote-list,
@@ -153,8 +159,7 @@ button:active {
     background: linear-gradient(180deg, #db5555, #ad2a2a);
 }
 
-#btn-next,
-#btn-action {
+#btn-next {
     min-width: 170px;
     font-size: 1.06rem;
 }
@@ -184,7 +189,8 @@ button:active {
         border-radius: 12px;
     }
 
-    #role-display {
+    #role-display,
+    #selected-player {
         font-size: 1.28rem;
     }
 

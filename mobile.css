@@ -19,7 +19,8 @@ body {
     border-radius: 12px;
 }
 
-#role-display {
+#role-display,
+#selected-player {
     font-size: 1.32rem;
     line-height: 1.45;
 }
@@ -45,10 +46,6 @@ button {
 }
 
 #btn-next,
-#btn-action {
-    min-width: 0;
-    font-size: 1.06rem;
-}
 
 .role-counter .counter {
     display: grid;

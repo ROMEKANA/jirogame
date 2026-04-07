@@ -228,18 +228,6 @@ export function viewScoreList(players){
 	}
 }
 
-// 使わない
-export function viewAlivePlayers(players){
-	const el = document.getElementById('alive-list');
-	el.innerHTML = "現在の生存者：";
-	for(const name in players){
-		if(players[name].alive) {
-			const player = players[name];
-			el.innerHTML += `<div>${name}: ${roleToText(player.role)}</div>`;
-		}
-	}
-}
-
 export function setDate(count){
 	document.getElementById('day-count').innerText = dateToText(count);
 }
@@ -268,6 +256,10 @@ export function setRole(role){
 	document.getElementById('role-display').innerText = roleToText(role);
 }
 
+export function setSelectedPlayer(name){
+	document.getElementById('selected-player').innerText = name;
+}
+
 export function setFortune(result){
 	if(result == null || result == "") result = "占い結果がここに表示されます";
 	document.getElementById('fortune-display').innerText = result;
@@ -275,10 +267,6 @@ export function setFortune(result){
 
 export function setAction(text){
 	document.getElementById('action-display').innerText = text;
-}
-
-export function setActionButtonText(text){
-	document.getElementById('btn-action').innerText = text;
 }
 
 //　役職設定の表示
@@ -307,40 +295,27 @@ export function createRoleCounters(containerId){
 	});
 }
 
-//投票先表示
-export function viewVoteList(players, savedname){
-	document.getElementById('vote-list').innerHTML = "";
-	if(!players) return;
-	const options = Object.keys(players).filter(name => players[name].alive && name != savedname);
+// 投票先表示（描画のみ）
+export function viewVoteList(voteOptions, onSelectFunction){
 	const container = document.getElementById('vote-list');
+	container.innerHTML = "";
 
-	// 配列をループして要素を作成
-	options.forEach((item, index) => {
-		// ラベル要素の作成
-		const label = document.createElement('label');
+	if(!Array.isArray(voteOptions) || voteOptions.length === 0){
+		container.innerText = "投票できる相手がいません";
+		return;
+	}
 
-		// ラジオボタン本体の作成
-		const radio = document.createElement('input');
-		radio.type = 'radio';
-		radio.name = 'votename'; // 同じname属性にすることでグループ化される
-		radio.value = item;
-		if (index == 0) radio.checked = true; // 最初の要素を初期選択にする
-
-		// 組み立て
-		label.appendChild(radio);
-		label.appendChild(document.createTextNode(item));
-
-		// コンテナに追加
-		container.appendChild(label);
-		container.appendChild(document.createElement('br')); // 改行用
+	voteOptions.forEach((name) => {
+		const button = document.createElement('button');
+		button.type = 'button';
+		button.className = 'vote-choice-button';
+		button.dataset.name = name;
+		button.innerText = `${name}を選ぶ`;
+		button.addEventListener('click', async () => {
+			await onSelectFunction(name);
+		});
+		container.appendChild(button);
 	});
-}
-
-// 選択されている値を取得する関数
-export function getVote() {
-	const selected = document.querySelector('input[name="votename"]:checked');
-	//alert(selected ? `選択中: ${selected.value}` : '未選択です');
-	return selected ? selected.value : null;
 }
 
 // テキスト入力受付
@@ -371,10 +346,6 @@ export function onGameNextClick(callback){
 
 export function onTimerResetClick(callback){
 	document.getElementById('btn-timer-reset').addEventListener('click', callback);
-}
-
-export function onActionClick(callback){
-	document.getElementById('btn-action').addEventListener('click', callback);
 }
 
 export function onScoreResetClick(callback){
