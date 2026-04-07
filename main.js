@@ -276,6 +276,7 @@ ui.onGameNextClick(async () => {
 	if (winner == 0) {
 		await game.goNextPhase();
 	}
+	await firebase.updateTimerStartAt(Date.now());
 });
 
 ui.onTimerResetClick(async () => {
