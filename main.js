@@ -116,7 +116,8 @@ firebase.watchAllPlayers(async (players) => {
 			}
 
 			// 占いの結果の表示
-			const furtuneResaltText = await role.furtuneResultToText(player?.role, player?.beforeVote);
+			const voteRole = player?.beforeVote != null ? players[player.beforeVote]?.role : null;
+			const furtuneResaltText = await role.furtuneResultToText(player?.role, player?.beforeVote, voteRole, latestSettings);
 			ui.setFortune(furtuneResaltText);
 
 			const selectedPlayer = player?.isDone ? player?.vote : "未選択";
@@ -299,7 +300,6 @@ ui.onGameNextClick(async () => {
 		return;
 	}
 
-	//console.log("次へ進むボタンがクリックされました: " + firebase.updateDate());
 	const undecidedCount = await firebase.getRoleCount(-1);
 	if (undecidedCount > 0) {
 		alert("全員に役職が配布されていません");

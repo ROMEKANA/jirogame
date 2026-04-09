@@ -169,6 +169,7 @@ async function startRevote(){
 
 // 夜の処理の関数の最後に、日付を進める処理と時間を昼にする処理
 async function endNightPhase(snapPlayers, date){
+	await firebase.updateRand();
 	await recordBeforeVoteSnapshot(snapPlayers);
 	await firebase.resetRevoteCount();
 	await firebase.updateDate(Number(date) + 1);
@@ -179,6 +180,7 @@ async function endNightPhase(snapPlayers, date){
 async function endDayPhase(snapPlayers){
 	await firebase.resetRevoteCount();
 	await firebase.updateIsDaytime(false);
+	await firebase.updateRand();
 	await recordBeforeVoteSnapshot(snapPlayers);
 }
 
@@ -256,10 +258,9 @@ async function resolveDayPhase(settings, snapPlayers, date, revoteCount){
 }
 
 // 勝った時のスコア処理
-async function handleWin(winteam, addpoint){
-	const players = await firebase.getAllPlayers();
-	for(const name in players){
-		if(roles[players[name].role]?.team == winteam){
+async function handleWin(snapPlayers, winteam, addpoint){
+	for(const name in snapPlayers){
+		if(roles[snapPlayers[name].role]?.team == winteam){
 			await firebase.addScore(name, addpoint);
 		}
 	}
@@ -270,7 +271,7 @@ export async function checkWinner(isDaytime, snapPlayers){
 	const executedPlayer = await firebase.getBeforeExecution();
 	if(isDaytime && snapPlayers[executedPlayer]?.role == ROLE.TERUTERU){
 		await firebase.updateWinner(3);
-		await handleWin(3, 7);
+		await handleWin(snapPlayers, 3, 7);
 		return 3;
 	}
 	const aliveCount = await firebase.getCountAlivePlayers();
@@ -278,11 +279,11 @@ export async function checkWinner(isDaytime, snapPlayers){
 
 	if (wolfCount == 0) {
 		await firebase.updateWinner(1);
-		await handleWin(1, 3);
+		await handleWin(snapPlayers, 1, 3);
 		return 1;
 	} else if (wolfCount >= aliveCount - wolfCount) {
 		await firebase.updateWinner(2);
-		await handleWin(2, 5);
+		await handleWin(snapPlayers, 2, 5);
 		return 2;
 	} else {
 		return 0;
@@ -290,9 +291,7 @@ export async function checkWinner(isDaytime, snapPlayers){
 }
 
 // 次のフェーズへの移行処理
-export async function goNextPhase(Data){
-	await firebase.updateRand();
-	
+export async function goNextPhase(Data){	
 	const snapPlayers = Data.players;
 
 	const date = Data.game.date;

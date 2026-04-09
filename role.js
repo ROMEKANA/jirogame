@@ -60,20 +60,18 @@ export function roleActionToText(role) {
     }
 }
 
-export async function furtuneResultToText(rolenumber, beforeVote) {
+export async function furtuneResultToText(rolenumber, beforeVote, voteRole, settings) {
     const isDaytime = await firebase.getIsDaytime();
     if (isDaytime) {
-        const settings = await firebase.getSettings();
         const firstNightFortune = settings?.firstNightFortune ?? true;
         const firstDayExecution = settings?.firstDayExecution ?? false;
         const date = await firebase.getDate();
         if (beforeVote != null && (firstNightFortune || date != 1)) {
             if (rolenumber == ROLE.SEER) {
-                const voteRole = await firebase.getRole(beforeVote);
                 return (beforeVote + " : " + furtuneToText(voteRole));
             }else if (rolenumber == ROLE.MISUNDERSTOOD_SEER) {
-                const voteRole = await firebase.getRand();
-                return (beforeVote + " : " + furtuneToText(voteRole < 0.5 ? ROLE.WOLF : ROLE.CITIZEN));
+                const ramdomVoteRole = await firebase.getRand();
+                return (beforeVote + " : " + furtuneToText(ramdomVoteRole < 0.5 ? ROLE.WOLF : ROLE.CITIZEN));
             }
         }
         if(rolenumber == ROLE.MEDIUM && ((date != 1 && !firstDayExecution) || date > 1)){
