@@ -400,8 +400,3 @@ export async function newSettings(){
 		revealRoleOnDeath: false
 	});
 }
-
-export async function getSetting(settingsKey){
-	const snapshot = await get(ref(db, 'settings/' + settingsKey));
-	return snapshot.val();
-}
