@@ -130,6 +130,10 @@ export function setRoleHiddenButtonText(isHidden){
 	document.getElementById('btn-roleareahidden').innerText = isHidden ? "設定を表示" : "設定を隠す";
 }
 
+export function setAdminAreaHiddenButtonText(isHidden){
+	document.getElementById('btn-adminareahidden').innerText = isHidden ? "表示" : "隠す";
+}
+
 export function setSettings(settings){
 	const el = document.getElementById('settings-list');
 	if(!settings){
@@ -319,6 +323,10 @@ export function onAssignClick(callback){
 
 export function onRoleAreaHiddenClick(callback){
 	document.getElementById('btn-roleareahidden').addEventListener('click', callback);
+}
+
+export function onAdminAreaHiddenClick(callback){
+	document.getElementById('btn-adminareahidden').addEventListener('click', callback);
 }
 
 export function onGameNextClick(callback){

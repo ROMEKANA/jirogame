@@ -12,7 +12,7 @@
 <body>
 
 <div id="status-area" class="area">
-    現在のバージョン: <span id="nowversion">3.1.1</span>
+    現在のバージョン: <span id="nowversion">3.1.2</span>
 
     <br>
 
@@ -109,26 +109,29 @@
 <hr>
 
 <div id="admin-area" class="area">
+    管理者用エリア <button id="btn-adminareahidden">表示</button>
+    <span id="btn-area" style="display: none;">
+        <br>
+        <input type="text" id="deleteName" placeholder="削除するプレイヤーの名前を入力">
+        <br>
+        <button id="btn-playerdelete">プレイヤーを1人削除</button>
+        <br>
+        <button id="btn-reset">ゲームリセット</button>
+        <br>
+        <button id="btn-scorereset">全員のスコアをリセット</button>
+        <br>
+        <button id="btn-testtools-toggle" class="danger-button">テスト用ボタンを表示</button>
 
-    <input type="text" id="deleteName" placeholder="削除するプレイヤーの名前を入力">
-    <br>
-    <button id="btn-playerdelete">プレイヤーを1人削除</button>
-    <br>
-    <button id="btn-reset">ゲームリセット</button>
-    <br>
-    <button id="btn-scorereset">全員のスコアをリセット</button>
-    <br>
-    <button id="btn-testtools-toggle" class="danger-button">テスト用ボタンを表示</button>
-
-    <div id="test-tools" style="display: none;">
-        <button id="btn-ahead" class="danger-button">一つ進める（テスト用）</button>
-        <br>
-        <button id="randomkill" class="danger-button">ランダムに1人殺す(テスト用)</button>       
-        <br>
-        <button id="btn-allget" class="danger-button">全てのデータをコンソールに表示</button>
-        <br>
-        <button id="btn-alldelete" class="danger-button">全データ削除</button>
-    </div>
+        <div id="test-tools" style="display: none;">
+            <button id="btn-ahead" class="danger-button">一つ進める（テスト用）</button>
+            <br>
+            <button id="randomkill" class="danger-button">ランダムに1人殺す(テスト用)</button>       
+            <br>
+            <button id="btn-allget" class="danger-button">全てのデータをコンソールに表示</button>
+            <br>
+            <button id="btn-alldelete" class="danger-button">全データ削除</button>
+        </div>
+    </span>
 
 </div>
 

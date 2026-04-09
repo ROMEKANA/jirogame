@@ -282,6 +282,15 @@ ui.onRoleAreaHiddenClick(() => {
 	}
 });
 
+// 管理者エリアの表示切替
+ui.onAdminAreaHiddenClick(() => {
+	const adminArea = document.getElementById("btn-area");
+	const isHidden = adminArea.style.display === "none";
+
+	adminArea.style.display = isHidden ? "inline" : "none";
+	ui.setAdminAreaHiddenButtonText(!isHidden);
+});
+
 // テスト用ボタンの表示切替
 ui.onTestToolsToggleClick(() => {
 	const testTools = document.getElementById("test-tools");
