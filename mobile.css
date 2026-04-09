@@ -8,13 +8,7 @@ body {
     padding: 12px 10px 24px;
 }
 
-.status-area,
-.roll-area,
-.info-area,
-.gameinfo-area,
-.game-area,
-.score-area,
-.admin-area {
+.area {
     padding: 14px 12px;
     border-radius: 12px;
 }

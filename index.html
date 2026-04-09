@@ -11,7 +11,7 @@
 
 <body>
 
-<div class="status-area">
+<div id="status-area" class="area">
     <div id="nowversion">現在のバージョン: 2.1.2</div>
 
     <div id="status">Firebase接続確認中...</div>
@@ -27,35 +27,36 @@
 
 <hr>
 
-<div class="roll-area">
+<div id="roll-area" class="area">
 
+    <button id="btn-roleareahidden">設定を表示</button>
+    
     <div id="role-assign" style="display: none;">
         <div id="role-counter" class="role-counter"></div>
 
         <button id="btn-assign">役職を配る</button>
-        <div id="settings-list">設定がここに表示されます</div>
+        <div id="settings-list" class="display">設定がここに表示されます</div>
     </div>
-    <button id="btn-roleareahidden">設定を表示</button>
     <br>
     現在の役職の振り分け: 
     <br>
-    <span id="nowroles">振り分けられたら表示されます</span>
+    <span id="nowroles" class="display">振り分けられたら表示されます</span>
 </div>
 
 <hr>
 
-<div class="info-area">
+<div id="info-area" class="area">
 
     今の参加人数: <span id="player-count">0</span>人
     <br>
 
-    <div id="player-list">参加者の名前がここに表示されます</div>
+    <div id="player-list" class="display">参加者の名前がここに表示されます</div>
     
 </div>
 
 <hr>
 
-<div class="gameinfo-area">
+<div id="gameinfo-area" class="area">
 
     日数: <span id="day-count">不明</span>
     <br>
@@ -75,32 +76,32 @@
 
 <hr>
 
-<div class="game-area">
+<div id="game-area" class="area">
     あなたの役職: <span id="role-display">参加したら役職が表示されます</span>
     <br>
-    <span id="fortune-display">占い結果がここに表示されます</span>
+    <span id="fortune-display" class="display">占い結果がここに表示されます</span>
 
-    <div id="action-display">行動内容がここに表示されます。
+    <div id="action-display" class="display">行動内容がここに表示されます。
         <br>ゲーム開始までお待ちください。</div> 
 
-    <div id="vote-list"></div>
+    <div id="vote-list" class="display"></div>
 
-    <div id="selected-display">選択先: <span id="selected-player">未選択</span></div>
+    <div id="selected-display" class="display">選択先: <span id="selected-player">未選択</span></div>
     
 </div>
 
 <hr>
 
-<div class="score-area">
+<div id="score-area" class="area">
 
     全員のスコア:
-    <div id="score-list">全員のスコアがここに表示されます</div>
+    <div id="score-list" class="display">全員のスコアがここに表示されます</div>
 
 </div>
 
 <hr>
 
-<div class="admin-area">
+<div id="admin-area" class="area">
 
     <input type="text" id="deleteName" placeholder="削除するプレイヤーの名前を入力">
     <br>

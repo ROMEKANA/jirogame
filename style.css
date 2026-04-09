@@ -29,27 +29,7 @@ body {
     font-size: 19px;
     line-height: 1.6;
     color: var(--text);
-    background:
-        radial-gradient(circle at 10% 10%, rgba(255, 255, 255, 0.65), transparent 42%),
-        radial-gradient(circle at 90% 20%, rgba(255, 240, 210, 0.55), transparent 36%),
-        linear-gradient(160deg, var(--bg-top), var(--bg-bottom));
-}
-
-.status-area,
-.roll-area,
-.info-area,
-.gameinfo-area,
-.game-area,
-.score-area,
-.admin-area {
-    width: min(980px, 100%);
-    margin: 0 auto 16px;
-    padding: 18px 16px;
-    background: var(--card);
-    border: 1px solid var(--card-border);
-    border-radius: 14px;
-    box-shadow: var(--shadow);
-    text-align: left;
+    background-color: #e9d4c1;
 }
 
 hr {
@@ -57,59 +37,6 @@ hr {
     margin: 8px auto 12px;
     border: none;
     border-top: 2px dashed var(--line);
-}
-
-#status {
-    font-size: 1rem;
-    color: var(--muted);
-    margin-bottom: 12px;
-}
-
-#name-display,
-#player-count,
-#alive-count,
-#day-count,
-#isDaytime-display,
-#winner-display,
-#role-display,
-#selected-player {
-    font-weight: 700;
-}
-
-#role-display {
-    display: inline-block;
-    font-size: 1.5rem;
-    color: var(--accent-dark);
-    margin: 6px 0;
-    letter-spacing: 0.02em;
-}
-
-#selected-player {
-    color: #003c96;
-}
-
-#fortune-display,
-#action-display,
-#selected-display,
-#player-list,
-#score-list,
-#vote-list,
-#nowroles {
-    display: block;
-    margin-top: 8px;
-    padding: 12px;
-    border-radius: 10px;
-    border: 1px solid var(--list-border);
-    background: var(--list-bg);
-}
-
-#vote-list {
-    text-align: left;
-}
-
-#vote-list label {
-    display: block;
-    text-align: left;
 }
 
 input[type="text"],
@@ -127,13 +54,6 @@ input[type="text"]:focus,
 input[type="number"]:focus {
     outline: 2px solid rgba(177, 70, 39, 0.35);
     border-color: var(--accent);
-}
-
-#vote-list input[type="radio"] {
-    width: auto;
-    margin: 0 8px 0 0;
-    padding: 0;
-    vertical-align: middle;
 }
 
 button {
@@ -166,6 +86,44 @@ button:active {
     background: linear-gradient(180deg, #db5555, #ad2a2a);
 }
 
+.area {
+    width: min(980px, 100%);
+    margin: 0 auto 16px;
+    padding: 18px 16px;
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: 14px;
+    box-shadow: var(--shadow);
+    text-align: left;
+}
+
+.display {
+    display: block;
+    margin-top: 8px;
+    padding: 12px;
+    border-radius: 10px;
+    border: 1px solid var(--list-border);
+    background: var(--list-bg);
+}
+
+#role-display {
+    display: inline-block;
+    font-size: 1.5rem;
+    color: var(--accent-dark);
+    margin: 6px 0;
+    letter-spacing: 0.02em;
+}
+
+#selected-player {
+    color: #003c96;
+}
+
+#status {
+    font-size: 1rem;
+    color: var(--muted);
+    margin-bottom: 12px;
+}
+
 #btn-next {
     min-width: 170px;
     font-size: 1.06rem;
@@ -185,13 +143,7 @@ button:active {
         padding: 12px 10px 24px;
     }
 
-    .status-area,
-    .roll-area,
-    .info-area,
-    .gameinfo-area,
-    .game-area,
-    .score-area,
-    .admin-area {
+    .area {
         padding: 14px 12px;
         border-radius: 12px;
     }
@@ -212,17 +164,4 @@ button:active {
         display: block;
         padding: 4px 0;
     }
-}
-
-#settings-window {
-    margin-top: 8px;
-}
-
-#settings-list {
-    display: block;
-    margin-top: 8px;
-    padding: 12px;
-    border-radius: 10px;
-    border: 1px solid #dbcdb4;
-    background: rgba(255, 255, 255, 0.75);
 }
