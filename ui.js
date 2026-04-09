@@ -264,13 +264,12 @@ export function setRole(role){
 	document.getElementById('role-display').innerText = roleDisplayToText(role);
 }
 
-export function setSelectedPlayer(name){
-	document.getElementById('selected-player').innerText = name;
+export function setFortune(text){
+	document.getElementById('fortune-display').innerText = text;
 }
 
-export function setFortune(result){
-	if(result == null || result == "") result = "未選択";
-	document.getElementById('previous-choice').innerText = result;
+export function setSelectedPlayer(name){
+	document.getElementById('selected-player').innerText = name;
 }
 
 export function setAction(text){

@@ -77,11 +77,11 @@ export async function furtuneResultToText(rolenumber, beforeVote) {
             const beforeExecution = await firebase.getBeforeExecution();
             if (beforeExecution != null) {
                 const voteRole = await firebase.getRole(beforeExecution);
-                return (beforeExecution + " : " + furtuneToText(voteRole));
+                return (beforeVote + ", " +beforeExecution + " : " + furtuneToText(voteRole));
             }
         }
     } 
-    return ("");
+    return (beforeVote);
 }
 
 export async function actionToText(savedname, gamedata) {

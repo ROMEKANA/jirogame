@@ -81,6 +81,7 @@ firebase.watchAllPlayers(async (players) => {
 			// 役職の表示と通知
 			const player = players[savedname];
 			ui.setRole(player?.role);
+			
 			if (farstconnectRole) {
 				farstconnectRole = false;
 				savedRole = player?.role;
