@@ -220,6 +220,7 @@ export async function deleteAllVotes(){
 // ゲームのデータ
 
 export async function newGame(){
+	await deleteAllVotes();
 	await updateAllAlive(true);
 	await updateAllIsDone(false);
 	const randValue = Math.random();
@@ -340,7 +341,6 @@ export async function getBeforeExecution(){
 export async function updateWinner(inputwinner){
 	if(inputwinner == null || inputwinner == 0) return;
 	if(inputwinner < 0) inputwinner = null;
-	await deleteAllVotes();
 	await set(ref(db, 'game/'), {
 		date: null,
 		isDaytime: null,
