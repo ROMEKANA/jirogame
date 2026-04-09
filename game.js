@@ -154,8 +154,8 @@ async function startRevote(players){
 async function endNightPhase(snapPlayers, date){
 	await recordBeforeVoteSnapshot(snapPlayers);
 	await firebase.resetRevoteCount();
-	await firebase.updateIsDaytime(true);
 	await firebase.updateDate(Number(date) + 1);
+	await firebase.updateIsDaytime(true);
 }
 
 // 昼の処理の関数の最後に、勝敗の判定と表示を行う処理
