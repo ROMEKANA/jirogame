@@ -2,12 +2,14 @@ import * as ui from "./ui.js";
 import * as game from "./game.js";
 import * as firebase from "./firebase.js";
 import * as role from "./role.js";
+import * as display from "./display.js";
 
 // テスト用
 window.test = {
 	firebase: firebase,
 	ui: ui,
-	game: game
+	game: game,
+	display: display
 };
 
 let isConnected = false;
