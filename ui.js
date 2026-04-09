@@ -269,8 +269,8 @@ export function setSelectedPlayer(name){
 }
 
 export function setFortune(result){
-	if(result == null || result == "") result = "占い結果がここに表示されます";
-	document.getElementById('fortune-display').innerText = result;
+	if(result == null || result == "") result = "未選択";
+	document.getElementById('previous-choice').innerText = result;
 }
 
 export function setAction(text){
@@ -285,7 +285,7 @@ export function createRoleCounters(containerId){
 
 	roles.forEach(role => {
 		const div = document.createElement("div");
-		div.className = "counter";
+		div.className = "counter-class";
 
 		if(role.type == "display"){
 			div.innerHTML = `

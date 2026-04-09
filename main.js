@@ -121,25 +121,25 @@ firebase.watchGame(async (gamedata) => {
 	ui.setSharedTimerStartAt(timerStart);
 	ui.renderSharedTimer();
 
-	const isGamestarted = await game.isGameStarted();
-	const isExistPlayer = await firebase.getIsPlayerExist(savedname);
+	const isGamestarted = (gamedata.date != null && gamedata.date >= 0);
+	const isExistPlayer = savedname ? await firebase.getIsPlayerExist(savedname) : false;
 
 	ui.setDate(gamedata.date);
+
 	if (isGamestarted) {
-		/*
-		const isAllDone = await firebase.getAllIsDone();
-		if (!isAllDone) {
-			ui.setNextButtonText("全員の行動を待っています");
-		} else {
-			ui.setNextButtonText("次のフェーズへ");
-		}
-		*/
 		ui.setNextButtonText("次のフェーズへ");
 	} else {
 		ui.setNextButtonText("ゲームスタート");
 	}
 
 	ui.setisDaytime(gamedata.isDaytime);
+
+	if(gamedata.isDaytime){
+		display.resetMode();
+	} else {
+		display.setDarkMode();
+	}
+
 	if (!isExistPlayer) {
 		ui.setAction("参加していません");
 	} else {

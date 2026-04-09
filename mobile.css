@@ -8,17 +8,6 @@ body {
     padding: 12px 10px 24px;
 }
 
-.area {
-    padding: 14px 12px;
-    border-radius: 12px;
-}
-
-#role-display,
-#selected-player {
-    font-size: 1.32rem;
-    line-height: 1.45;
-}
-
 input[type="text"],
 input[type="number"] {
     width: 100%;
@@ -27,6 +16,7 @@ input[type="number"] {
     margin: 10px 0;
     font-size: 16px;
     line-height: 1.4;
+    text-align: center;
 }
 
 button {
@@ -39,35 +29,20 @@ button {
     touch-action: manipulation;
 }
 
-#btn-next {
-    min-width: 0;
-    font-size: 1.06rem;
+.area {
+    padding: 14px 12px;
+    border-radius: 12px;
 }
 
-.role-counter .counter {
+.bold-word {
+    font-size: 1.32rem;
+    line-height: 1.45;
+}
+
+.counter-class {
     display: grid;
     grid-template-columns: 1fr minmax(92px, 112px);
     gap: 10px;
     align-items: center;
     margin: 10px 0;
-}
-
-.role-counter .counter input[type="number"] {
-    margin: 0;
-    text-align: center;
-    font-weight: 700;
-}
-
-#vote-list {
-    padding: 10px;
-}
-
-#vote-list label {
-    display: block;
-    padding: 8px 0;
-}
-
-#vote-list input[type="radio"] {
-    transform: scale(1.2);
-    margin-right: 10px;
 }

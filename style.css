@@ -1,21 +1,27 @@
 :root {
-    --bg-top: #f7efe2;
-    --bg-bottom: #dbe8f7;
+    --bg-color: #e9d4c1;
+    --bg-top: #ffecce;
+    --bg-bottom: #ffd1bc;
     --card: #fffaf3;
     --card-border: #d8c7aa;
     --text: #1f2a33;
     --muted: #5a6a77;
-    --accent: #b14627;
-    --accent-dark: #8b2f14;
+    --numberinput-border: #b14627;
+    --numberinput-focus-border: #b14627;
+    --numberinput-bg: #ffffff86;
     --line: #ccb996;
-    --shadow: 0 10px 24px rgba(26, 40, 52, 0.12);
+    --shadow: 0 10px 24px #1a28341f;
+    --btn-color: #ffffff;
     --btn-top: #c45532;
     --btn-bottom: #98361b;
-    --btn-shadow: rgba(122, 36, 17, 0.28);
+    --btn-shadow: #7a241147;
     --btn-hover-top: #d56440;
     --btn-hover-bottom: #ab3c1f;
-    --list-bg: rgba(255, 255, 255, 0.75);
+    --list-bg: #ffffffbf;
     --list-border: #dbcdb4;
+    --role-color: #8b2f14;
+    --selected-color: #003c96;
+    --role-assign-bg: #fff4f4;
 }
 
 * {
@@ -29,7 +35,8 @@ body {
     font-size: 19px;
     line-height: 1.6;
     color: var(--text);
-    background-color: #e9d4c1;
+    background-color: var(--bg-color);
+    background: linear-gradient(180deg, var(--bg-top), var(--bg-bottom));
 }
 
 hr {
@@ -45,15 +52,15 @@ input[type="number"] {
     padding: 12px 14px;
     margin: 8px 0;
     font-size: 1rem;
-    border: 1px solid #b6a285;
+    border: 1px solid var(--numberinput-border);
     border-radius: 10px;
-    background: #fff;
+    background: var(--numberinput-bg);
 }
 
 input[type="text"]:focus,
 input[type="number"]:focus {
-    outline: 2px solid rgba(177, 70, 39, 0.35);
-    border-color: var(--accent);
+    outline: 2px solid var(--numberinput-focus-border);
+    border-color: var(--numberinput-border);
 }
 
 button {
@@ -63,7 +70,7 @@ button {
     font-weight: 700;
     border: none;
     border-radius: 10px;
-    color: #fff;
+    color: var(--btn-color);
     background: linear-gradient(180deg, var(--btn-top), var(--btn-bottom));
     box-shadow: 0 4px 10px var(--btn-shadow);
     cursor: pointer;
@@ -79,7 +86,7 @@ button:active {
 
 .danger-button {
     background: linear-gradient(180deg, #cf3f3f, #9f1f1f);
-    box-shadow: 0 4px 10px rgba(120, 24, 24, 0.3);
+    box-shadow: 0 4px 10px #7818184d;
 }
 
 .danger-button:hover {
@@ -106,62 +113,32 @@ button:active {
     background: var(--list-bg);
 }
 
-#role-display {
+.bold-word {
+    font-weight: 700;
     display: inline-block;
     font-size: 1.5rem;
-    color: var(--accent-dark);
     margin: 6px 0;
     letter-spacing: 0.02em;
 }
 
+.counter-class {
+    margin: 8px 0;
+}
+
+#role-assign {
+    background-color: var(--role-assign-bg);
+}
+
+#role-display {
+    color: var(--role-color);
+}
+
 #selected-player {
-    color: #003c96;
+    color: var(--selected-color);
 }
 
 #status {
     font-size: 1rem;
     color: var(--muted);
     margin-bottom: 12px;
-}
-
-#btn-next {
-    min-width: 170px;
-    font-size: 1.06rem;
-}
-
-#test-tools {
-    margin-top: 4px;
-}
-
-.role-counter .counter {
-    margin: 8px 0;
-}
-
-@media (max-width: 700px) {
-    body {
-        font-size: 17px;
-        padding: 12px 10px 24px;
-    }
-
-    .area {
-        padding: 14px 12px;
-        border-radius: 12px;
-    }
-
-    #role-display,
-    #selected-player {
-        font-size: 1.28rem;
-    }
-
-    input[type="text"],
-    input[type="number"],
-    button {
-        width: 100%;
-        margin-right: 0;
-    }
-
-    #vote-list label {
-        display: block;
-        padding: 4px 0;
-    }
 }
