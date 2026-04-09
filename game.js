@@ -39,6 +39,7 @@ export async function assignRoles(){
 		}
 	}
 
+	await firebase.updateViewRole(false);
 	await firebase.updateAllRole(-1);
 
 	const roleArray = [];

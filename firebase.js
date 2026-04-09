@@ -218,7 +218,8 @@ export async function newGame(){
 		revoteCount: 0,
 		timerStartAt: Date.now(),
 		rand : randValue,
-		beforeExecution: null
+		beforeExecution: null,
+		viewRoles: false
 	});
 }
 
@@ -241,7 +242,8 @@ export async function deleteGame(){
 		revoteCount: 0,
 		timerStartAt: null,
 		rand : null,
-		beforeExecution: null
+		beforeExecution: null,
+		viewRoles: true
 	});
 }
 
@@ -324,7 +326,7 @@ export async function getBeforeExecution(){
 
 // 勝敗
 export async function updateWinner(inputwinner){
-	//await updateAllRole(-1);
+	if(inputwinner == null || inputwinner == 0) return;
 	await set(ref(db, 'game/'), {
 		date: null,
 		isDaytime: null,
@@ -332,7 +334,8 @@ export async function updateWinner(inputwinner){
 		revoteCount: 0,
 		timerStartAt: null,
 		rand: null,
-		beforeExecution: null
+		beforeExecution: null,
+		viewRoles: true
 	});
 }
 
@@ -344,6 +347,16 @@ export function watchWinner(callback){
 
 export async function getWinner(){
 	const snapshot = await get(ref(db, 'game/winner'));
+	return snapshot.val();
+}
+
+// プレイヤーリストの表示
+export async function updateViewRole(isViewAllPlayersRole){
+	await set(ref(db, 'game/viewRoles'), isViewAllPlayersRole);
+}
+
+export async function getViewRole(){
+	const snapshot = await get(ref(db, 'game/viewRoles'));
 	return snapshot.val();
 }
 

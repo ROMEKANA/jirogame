@@ -9,10 +9,9 @@ window.test = {
 	firebase: firebase,
 	ui: ui,
 	game: game,
-	display: display
+	display: display,
+	role: role
 };
-
-let isConnected = false;
 
 let farstconnectRole = true;
 let savedRole = null;
@@ -34,7 +33,17 @@ if (savedname) {
 	ui.setNameDisplay(savedname);
 }
 
-// 生成
+// 接続状態の表示
+let isConnected = false;
+firebase.watchConnection((connected) => {
+	ui.setStatus(connected);
+	isConnected = connected;
+});
+
+let latestPlayers = await firebase.getAllPlayers();
+let latestGameData = await firebase.getGame();
+let latestSettings = await firebase.getSettings();
+
 // 役職設定の入力欄の生成
 ui.createRoleCounters("role-counter");
 
@@ -50,17 +59,30 @@ function renderVoteList(players) {
 	ui.viewVoteList(voteOptions, handleVoteSelect);
 }
 
-//　表示
-// 接続状態の表示
-firebase.watchConnection((connected) => {
-	ui.setStatus(connected);
-	isConnected = connected;
-});
+// プレイヤーの役職の表示の可否をゲームデータと設定から照らし合わせて取得
+function shouldViewAllPlayersRole(players) {
+	let isViewAllPlayersRole = !!latestGameData?.viewRoles;
+	if (!isViewAllPlayersRole && savedname && Object.prototype.hasOwnProperty.call(players, savedname)) {
+		const playerIsAlive = players[savedname]?.alive ?? true;
+		if (!playerIsAlive && !!latestSettings?.revealRoleOnDeath) {
+			isViewAllPlayersRole = true;
+		}
+	}
+	return isViewAllPlayersRole;
+}
+
+// プレイヤーの役職の表示の更新
+function refreshPlayerListVisibility() {
+	if (!latestPlayers) return;
+	ui.viewAllPlayers(shouldViewAllPlayersRole(latestPlayers), latestPlayers);
+}
 
 // プレイヤー情報からの表示
 firebase.watchAllPlayers(async (players) => {
 	if (players) {
-		ui.viewAllPlayers(players);
+		latestPlayers = players;
+		ui.viewAllPlayers(shouldViewAllPlayersRole(players), players);
+
 		ui.viewScoreList(players);
 		ui.setNowRole(players);
 		if (savedname) {
@@ -94,10 +116,10 @@ firebase.watchAllPlayers(async (players) => {
 			}
 
 			// 占いの結果の表示
-			const furtuneResaltText = await role.furtuneResultToText(player.role, player.beforeVote);
+			const furtuneResaltText = await role.furtuneResultToText(player?.role, player?.beforeVote);
 			ui.setFortune(furtuneResaltText);
 
-			const selectedPlayer = player.isDone ? player.vote : "未選択";
+			const selectedPlayer = player?.isDone ? player?.vote : "未選択";
 			ui.setSelectedPlayer(selectedPlayer);
 
 			// 死亡時の通知
@@ -118,6 +140,9 @@ firebase.watchAllPlayers(async (players) => {
 
 // ゲームの状態からの表示
 firebase.watchGame(async (gamedata) => {
+	latestGameData = gamedata;
+	refreshPlayerListVisibility();
+
 	const timerStart = Number(gamedata?.timerStartAt);
 	ui.setSharedTimerStartAt(timerStart);
 	ui.renderSharedTimer();
@@ -181,6 +206,10 @@ firebase.watchGame(async (gamedata) => {
 
 // 設定の表示
 firebase.watchSettings((settings) => {
+	latestSettings = settings;
+
+	refreshPlayerListVisibility();
+
 	ui.setSettings(settings);
 	const discussionMin = Number(settings?.discussionTime) || 5;
 	const timerDurationSec = Number.isFinite(discussionMin) && discussionMin > 0

@@ -5,7 +5,7 @@
     --card: #fffaf3;
     --card-border: #d8c7aa;
     --text: #1f2a33;
-    --muted: #5a6a77;
+    --status-color: #ff0000;
     --numberinput-border: #b14627;
     --numberinput-focus-border: #b14627;
     --numberinput-bg: #ffffff86;
@@ -161,6 +161,32 @@ button:active {
 
 #status {
     font-size: 1rem;
-    color: var(--muted);
+    color: var(--status-color);
     margin-bottom: 12px;
+}
+
+#player-list .player-row {
+    display: grid;
+    grid-template-columns: minmax(140px, 1.4fr) 88px 96px;
+    gap: 10px;
+    align-items: center;
+    padding: 4px 0;
+    border-bottom: 1px dotted var(--line);
+}
+
+#player-list .player-row:last-child {
+    border-bottom: none;
+}
+
+#player-list.with-role-column .player-row {
+    grid-template-columns: minmax(140px, 1.4fr) 88px 96px minmax(110px, 1fr);
+}
+
+#player-list .player-col.name {
+    font-weight: 700;
+    overflow-wrap: anywhere;
+}
+
+#player-list .player-col {
+    min-width: 0;
 }

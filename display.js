@@ -1,3 +1,6 @@
+import { roles, teams } from "./role.js";
+
+// ダークモードのCSS変数の変化
 const DARK_VARS = {
     '--bg-color':           '#000000',
     '--bg-top':             '#353524',
@@ -5,7 +8,6 @@ const DARK_VARS = {
     '--card':               '#2a2a2a',
     '--card-border':        '#444444',
     '--text':               '#e0e0e0',
-    '--muted':              '#9aabb7',
     '--numberinput-border': '#1a5fa8',
     '--numberinput-focus-border': '#1a5fa8',
     '--numberinput-bg':     '#ffffffb7',
@@ -36,4 +38,107 @@ export function resetMode() {
     for (const key of Object.keys(DARK_VARS)) {
         root.style.removeProperty(key);
     }
+}
+
+// プレイヤーの役職と生死の更新と取得
+function aliveToText(alive) {
+    if (alive == null) return "参加前";
+    return alive ? "生存" : "死亡";
+}
+
+function isDoneToText(isDone) {
+    if (isDone == null) return "参加前";
+    return isDone ? "行動済み" : "未行動";
+}
+
+function escapeHtml(text) {
+    return String(text)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#39;");
+}
+
+export function viewAllPlayers(isViewAllPlayersRole, players) {
+    const el = document.getElementById('player-list');
+    el.classList.toggle('with-role-column', !!isViewAllPlayersRole);
+    if (!players) {
+        el.innerHTML = "";
+        return;
+    }
+
+    const playersArray = Object.entries(players)
+        .sort((a, b) => {
+            const PlayerA = a[1];
+            const PlayerB = b[1];
+            return (PlayerB.alive - PlayerA.alive);
+        });
+
+
+    const lines = playersArray.map(([name, player]) => {
+        const roleColumn = isViewAllPlayersRole
+            ? `<span class="player-col role">${escapeHtml(roleDisplayToText(player.role))}</span>`
+            : "";
+
+        return `
+            <div class="player-row">
+                <span class="player-col name">${escapeHtml(name)}</span>
+                <span class="player-col alive">${escapeHtml(aliveToText(player.alive))}</span>
+                <span class="player-col done">${escapeHtml(isDoneToText(player.isDone))}</span>
+                ${roleColumn}
+            </div>
+        `;
+    });
+
+    el.innerHTML = lines.join("");
+}
+
+// 
+export function statusToText(isConnected){
+    if(isConnected == null) return "接続します...";
+    const root = document.documentElement;
+    if(isConnected) {
+        root.style.setProperty('--status-color', '#05a500');
+        return "接続しました！";
+    } else {
+        root.style.setProperty('--status-color', '#ff0000');
+        return "接続待ち...";
+    }
+}
+
+export function roleToText(role){
+    if(role == null) return "参加前";
+    if(role == -1) return "未決定";
+    if(role >= 0 && role < roles.length) return roles[role].name;
+    return "未定義";
+}
+
+export function roleDisplayToText(role){
+    if(role == null) return "参加前";
+    if(role == -1) return "未決定";
+    if(role >= 0 && role < roles.length) return roles[role].displayName ? roles[role].displayName : roles[role].name;
+    return "未定義";
+}
+
+export function dateToText(date){
+    if(date == null) return "開始前";
+    if(typeof date == "object" && date != null && "date" in date){
+        return `${date.date}日目`;
+    }
+    return `${date}日目`;
+}
+
+export function isDaytimeToText(date){
+    if(date == null) return "開始前";
+    if(typeof date == "object" && date != null && "isDaytime" in date){
+        return date.isDaytime ? "昼" : "夜";
+    }
+    return date ? "昼" : "夜";
+}
+
+export function teamToText(team){
+    if(team == null) return "開始前";
+    if(team >= 0 && team < teams.length) return teams[team].name;
+    return "未定義";
 }

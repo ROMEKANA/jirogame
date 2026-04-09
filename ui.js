@@ -1,4 +1,5 @@
 import { roles, teams } from "./role.js";
+import * as display from "./display.js";
 
 export let roleAreaHidden = false;
 export let roleHidden = false;
@@ -8,11 +9,6 @@ let sharedTimerDurationSec = 0;
 let sharedTimerIntervalId = null;
 
 // テキスト変換
-export function statusToText(isConnected){
-	if(isConnected == null) return "接続します...";
-	return isConnected ? "接続しました！" : "接続待ち...";
-}
-
 export function roleToText(role){
 	if(role == null) return "参加前";
 	if(role == -1) return "未決定";
@@ -25,16 +21,6 @@ export function roleDisplayToText(role){
 	if(role == -1) return "未決定";
 	if(role >= 0 && role < roles.length) return roles[role].displayName ? roles[role].displayName : roles[role].name;
 	return "未定義";
-}
-
-export function aliveToText(alive){
-	if(alive == null) return "参加前";
-	return alive ? "生存" : "死亡";
-}
-
-export function isDoneToText(isDone){
-	if(isDone == null) return "参加前";
-	return isDone ? "行動済み" : "未行動";
 }
 
 export function dateToText(date){
@@ -103,7 +89,7 @@ export function stopSharedTimerLoop() {
 // テキストセット
 export function setStatus(isConnected){
 	const el = document.getElementById('status');
-	el.innerText = statusToText(isConnected);
+	el.innerText = display.statusToText(isConnected);
 }
 
 export function setUserName(name){
@@ -160,7 +146,7 @@ export function setSettings(settings){
 		firstNightFortune: "初夜占い",
 		firstNightRandomWhite: "初夜のランダム白出し(未実装)",
 		firstDayExecution: "初日の処刑",
-		revealRoleOnDeath: "死亡時の役職公開(未実装)",
+		revealRoleOnDeath: "死亡時の役職公開",
 	};
 
 	const lines = [];
@@ -199,21 +185,8 @@ export function setPlayerCount(count){
 	document.getElementById('player-count').innerText = count;
 }
 
-export function viewAllPlayers(players){
-	if(!players) return;
-	const playersArray = Object.entries(players)
-		.sort((a, b) => {
-			const PlayerA = a[1];
-			const PlayerB = b[1];
-			return (PlayerB.alive - PlayerA.alive);
-		});
-	const el = document.getElementById('player-list');
-	el.innerHTML = "";
-	for(const [name, player] of playersArray){
-		//el.innerHTML += `<div>${name}</div>`;
-		//el.innerHTML += `<div>${name}: ${roleToText(player.role)}, ${aliveToText(player.alive)}, ${isDoneToText(player.isDone)}</div>`;
-		el.innerHTML += `<div>${name}: ${aliveToText(player.alive)}, ${isDoneToText(player.isDone)}</div>`;
-	}
+export function viewAllPlayers(isViewAllPlayersRole, players){
+	display.viewAllPlayers(isViewAllPlayersRole, players);
 }
 
 export function viewScoreList(players){
