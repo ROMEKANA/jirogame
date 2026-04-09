@@ -329,6 +329,10 @@ export function onTimerResetClick(callback){
 	document.getElementById('btn-timer-reset').addEventListener('click', callback);
 }
 
+export function onResetbtnClick(callback){
+	document.getElementById('btn-reset').addEventListener('click', callback);
+}
+
 export function onScoreResetClick(callback){
 	document.getElementById('btn-scorereset').addEventListener('click', callback);
 }

@@ -116,11 +116,11 @@ firebase.watchAllPlayers(async (players) => {
 			}
 
 			// 占いの結果の表示
-			const voteRole = player?.beforeVote != null ? players[player.beforeVote]?.role : null;
+			const voteRole = players[player?.beforeVote]?.role ?? null;
 			const furtuneResaltText = await role.furtuneResultToText(player?.role, player?.beforeVote, voteRole, latestSettings);
 			ui.setFortune(furtuneResaltText);
 
-			const selectedPlayer = player?.isDone ? player?.vote : "未選択";
+			const selectedPlayer = !!player?.isDone ? player?.vote : "未選択";
 			ui.setSelectedPlayer(selectedPlayer);
 
 			// 死亡時の通知
@@ -161,7 +161,7 @@ firebase.watchGame(async (gamedata) => {
 
 	ui.setisDaytime(gamedata.isDaytime);
 
-	if(gamedata.isDaytime){
+	if(gamedata.isDaytime ?? true){
 		display.resetMode();
 	} else {
 		display.setDarkMode();
@@ -332,6 +332,13 @@ ui.onGameNextClick(async () => {
 
 ui.onTimerResetClick(async () => {
 	await firebase.updateTimerStartAt(Date.now());
+});
+
+// ゲームのリセット
+ui.onResetbtnClick(async () => {
+	if (confirm("ゲームをリセットしますか？")) {
+		await firebase.updateWinner(-1);
+	}
 });
 
 // 全員のスコアリセット

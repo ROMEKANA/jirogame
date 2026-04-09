@@ -82,7 +82,7 @@ export async function furtuneResultToText(rolenumber, beforeVote, voteRole, sett
             }
         }
     } 
-    return (beforeVote);
+    return (beforeVote || "未選択");
 }
 
 export async function actionToText(savedname, gamedata) {

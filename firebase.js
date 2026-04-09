@@ -205,6 +205,18 @@ export async function updateBeforeVote(name, vote){
 	});
 }
 
+export async function deleteAllVotes(){
+	const snapshot = await get(ref(db, 'players'));
+	const players = snapshot.val();
+	if(!players) return;
+
+	for (const name in players) {
+		await updateVote(name, null);
+		await updateBeforeVote(name, null);
+	}
+}
+
+
 // ゲームのデータ
 
 export async function newGame(){
@@ -327,6 +339,8 @@ export async function getBeforeExecution(){
 // 勝敗
 export async function updateWinner(inputwinner){
 	if(inputwinner == null || inputwinner == 0) return;
+	if(inputwinner < 0) inputwinner = null;
+	await deleteAllVotes();
 	await set(ref(db, 'game/'), {
 		date: null,
 		isDaytime: null,
