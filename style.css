@@ -121,8 +121,30 @@ button:active {
     letter-spacing: 0.02em;
 }
 
-.counter-class {
+.role-counter-list {
     margin: 8px 0;
+}
+
+.role-counter-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(84px, 120px);
+    gap: 10px;
+    align-items: center;
+    margin: 8px 0;
+}
+
+.role-counter-row .role-name {
+    min-width: 0;
+}
+
+.role-counter-row .role-value-display {
+    justify-self: start;
+    font-weight: 700;
+}
+
+.role-counter-row input[type="number"] {
+    width: 100%;
+    margin: 0;
 }
 
 #role-assign {

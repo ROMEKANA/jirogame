@@ -281,19 +281,20 @@ export function createRoleCounters(containerId){
 
 	const container = document.getElementById(containerId);
 	container.innerHTML = ""; // 初期化
+	container.classList.add("role-counter-list");
 
 	roles.forEach(role => {
 		const div = document.createElement("div");
-		div.className = "counter-class";
+		div.className = "role-counter-row";
 
 		if(role.type == "display"){
 			div.innerHTML = `
-				${role.name}：
-				<span id="${role.id}">0</span>人
+				<span class="role-name">${role.name}</span>
+				<span class="role-value-display"><span id="${role.id}">0</span></span>
 			`;
 		}else{
 			div.innerHTML = `
-				${role.name}：
+				<label class="role-name" for="${role.id}">${role.name}</label>
 				<input type="number" class="value" id="${role.id}" value="0" min="0">
 			`;
 		}

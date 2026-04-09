@@ -39,10 +39,24 @@ button {
     line-height: 1.45;
 }
 
-.counter-class {
+.role-counter-list {
+    margin: 10px 0;
+}
+
+.role-counter-row {
     display: grid;
-    grid-template-columns: 1fr minmax(92px, 112px);
+    grid-template-columns: minmax(0, 1fr) 96px;
     gap: 10px;
     align-items: center;
     margin: 10px 0;
+}
+
+.role-counter-row .role-value-display {
+    justify-self: start;
+}
+
+.role-counter-row input[type="number"] {
+    margin: 0;
+    min-height: 44px;
+    padding: 8px 10px;
 }
