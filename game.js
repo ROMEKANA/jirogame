@@ -107,7 +107,7 @@ async function recordBeforeVoteSnapshot(snapPlayers){
 	}
 }
 
-async function getProtectedByKnight(snapPlayers){
+function getProtectedByKnight(snapPlayers){
 	const knightPlayers = Object.entries(snapPlayers)
 		.filter(([, player]) => player && player.role == ROLE.KNIGHT && player.alive);
 	if(knightPlayers.length == 0) return [];
@@ -117,12 +117,23 @@ async function getProtectedByKnight(snapPlayers){
 	return protectedByKnightPlayers.map(([name]) => name);
 }
 
-// 社畜が仕事をする関数、仕事の内容は「襲撃先と同じ相手を選んでいたら社畜が死亡」
-async function workPlayer(snapPlayers, wolvesTarget){
+// 逃亡者の関数「逃亡者が人狼を選んでいたら逃亡者が死亡」
+async function handleFugitive(snapPlayers){
+	for(const [name, player] of Object.entries(snapPlayers)){
+		if(!player || !player.alive) continue;
+		if(player.role != ROLE.FUGITIVE) continue;
+		const voteRole = snapPlayers[player.vote]?.role;
+		if(voteRole == ROLE.WOLF){
+			await firebase.updateAlive(name, false);
+		}
+	}
+}
+
+// 社畜や逃亡者の関数、「襲撃先と同じ相手を選んでいたら社畜が死亡」
+async function movePlayer(snapPlayers, wolvesTarget){
     for(const [name, player] of Object.entries(snapPlayers)){
         if(!player || !player.alive) continue;
-        if(player.role != ROLE.CORPORATE_WORKER) continue;
-        // 社畜が「襲撃先と同じ相手」を選んでいたら社畜が死亡
+        if(player.role != ROLE.CORPORATE_WORKER && player.role != ROLE.FUGITIVE) continue;
         if(player.vote == wolvesTarget){
             await firebase.updateAlive(name, false);
         }
@@ -131,22 +142,26 @@ async function workPlayer(snapPlayers, wolvesTarget){
 
 // プレイヤーを殺す関数、夜
 async function killPlayer(snapPlayers, name){
-	const protectedByKnight = await getProtectedByKnight(snapPlayers);
+	await handleFugitive(snapPlayers);
+	if(name == null) return;
+	const protectedByKnight = getProtectedByKnight(snapPlayers);
 	if(protectedByKnight.includes(name)) return;
 	const isCorporateWorker = snapPlayers[name].role == ROLE.CORPORATE_WORKER;
-	if(isCorporateWorker) return;
+	const isFugitive = snapPlayers[name].role == ROLE.FUGITIVE;
+	if(isCorporateWorker || isFugitive) return;
 	await firebase.updateAlive(name, false);
-	await workPlayer(snapPlayers, name);
+	await movePlayer(snapPlayers, name);
 }
 
 // プレイヤーを処刑する関数、昼
-async function ExecutePlayer(name){
-	await firebase.updateAlive(name, false);
+async function ExecutePlayer(snapPlayers, name){
 	await firebase.updateBeforeExecution(name);
+	if(snapPlayers[name].role == ROLE.TERUTERU) return;
+	await firebase.updateAlive(name, false);
 }
 
 // 再投票の開始処理, revoteCountをインクリメント
-async function startRevote(players){
+async function startRevote(){
 	await firebase.incrementRevoteCount();
 }
 
@@ -191,7 +206,7 @@ async function resolveNightPhase(settings, snapPlayers, date, revoteCount){
 				return;
 			}
 			// そうでないときは再投票
-			await startRevote(snapPlayers);
+			await startRevote();
 			return;
 		} else {
 			// 投票数が1位の人を殺す
@@ -221,18 +236,18 @@ async function resolveDayPhase(settings, snapPlayers, date, revoteCount){
 
 		if (targets.length !== 1) { // 同数投票のとき
 			if (revote && revoteCount < 1) { // 同数投票のとき、再投票が許可されていて、まだ再投票が行われていないときは再投票
-				await startRevote(snapPlayers);
+				await startRevote();
 				return;
 			} else if (skipExecutionSameVote) { // 同数投票のとき、処刑なしの設定のときは処刑なしで夜に移行
 				await endDayPhase(snapPlayers);
 				return;
 			} else {
 				const randomTarget = pickRandomTarget(targets);
-				await ExecutePlayer(randomTarget);
+				await ExecutePlayer(snapPlayers, randomTarget);
 				await endDayPhase(snapPlayers);
 			}
 		} else {
-			await ExecutePlayer(targets[0]);
+			await ExecutePlayer(snapPlayers, targets[0]);
 			await endDayPhase(snapPlayers);
 		}
 	}
@@ -249,19 +264,23 @@ async function handleWin(winteam, addpoint){
 }
 
 //　どちらが勝ったのかの判定
-export async function checkWinner(){
+export async function checkWinner(isDaytime, snapPlayers){
+	const executedPlayer = await firebase.getBeforeExecution();
+	if(isDaytime && snapPlayers[executedPlayer]?.role == ROLE.TERUTERU){
+		await firebase.updateWinner(3);
+		await handleWin(3, 7);
+		return 3;
+	}
 	const aliveCount = await firebase.getCountAlivePlayers();
 	const wolfCount = await firebase.getAliveRoleCount(ROLE.WOLF);
 
 	if (wolfCount == 0) {
 		await firebase.updateWinner(1);
 		await handleWin(1, 3);
-		//await firebase.updateAllRole(-1);
 		return 1;
 	} else if (wolfCount >= aliveCount - wolfCount) {
 		await firebase.updateWinner(2);
 		await handleWin(2, 5);
-		//await firebase.updateAllRole(-1);
 		return 2;
 	} else {
 		return 0;
@@ -269,9 +288,8 @@ export async function checkWinner(){
 }
 
 // 次のフェーズへの移行処理
-export async function goNextPhase(){
+export async function goNextPhase(Data){
 	await firebase.updateRand();
-	const Data = await firebase.getAllData();
 	
 	const snapPlayers = Data.players;
 
@@ -284,5 +302,5 @@ export async function goNextPhase(){
 	}else{
 		await resolveDayPhase(settings, snapPlayers, date, Number(Data.game.revoteCount));
 	}
-	await checkWinner();
+	await checkWinner(isDaytime, snapPlayers);
 }

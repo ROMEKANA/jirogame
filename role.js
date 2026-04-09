@@ -10,7 +10,8 @@ export const ROLE = {
     CORPORATE_WORKER: 6,
     MEDIUM: 7,
     TERUTERU: 8,
-    MISUNDERSTOOD_WOLF: 9
+    MISUNDERSTOOD_WOLF: 9,
+    FUGITIVE: 10
 };
 
 export const TEAM = {
@@ -29,8 +30,9 @@ export const roles = [
     { name: "勘違い占い師", displayName: "占い師", id: "count5", type: "input", number: ROLE.MISUNDERSTOOD_SEER, team: TEAM.CITIZEN },
     { name: "社畜", id: "count6", type: "input", number: ROLE.CORPORATE_WORKER, team: TEAM.CITIZEN },
     { name: "霊媒師", id: "count7", type: "input", number: ROLE.MEDIUM, team: TEAM.CITIZEN },
-    { name: "てるてる(未完成)", id: "count8", type: "input", number: ROLE.TERUTERU, team: TEAM.TERUTERU },
-    { name: "勘違い人狼", displayName: "人狼", id: "count9", type: "input", number: ROLE.MISUNDERSTOOD_WOLF, team: TEAM.CITIZEN }
+    { name: "てるてる", id: "count8", type: "input", number: ROLE.TERUTERU, team: TEAM.TERUTERU },
+    { name: "勘違い人狼", displayName: "人狼", id: "count9", type: "input", number: ROLE.MISUNDERSTOOD_WOLF, team: TEAM.CITIZEN },
+    { name: "逃亡者", id: "count10", type: "input", number: ROLE.FUGITIVE, team: TEAM.CITIZEN }
 ];
 
 export const teams = [
@@ -53,6 +55,7 @@ export function roleActionToText(role) {
         case ROLE.MISUNDERSTOOD_SEER: return "誰を占いますか？";
         case ROLE.KNIGHT: return "誰を守りますか？";
         case ROLE.CORPORATE_WORKER: return "誰の家で仕事をしますか？";
+        case ROLE.FUGITIVE: return "誰の家に逃げますか？";
         default: return "怪しいと思う人を選んでください";
     }
 }

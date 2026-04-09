@@ -283,16 +283,20 @@ ui.onGameNextClick(async () => {
 		return;
 	}
 
-	const allDone = await firebase.getAllIsDone();
+	let allDone = await firebase.getAllIsDone();
+	const AllData = await firebase.getAllData();
+
+	allDone = allDone ? await firebase.getAllIsDone() : false;
+
 	if (!allDone) {
 		alert("全員が行動を完了していません");
 		return;
 	}
 
 	await firebase.updateAllIsDone(false);
-	const winner = await game.checkWinner();
+	const winner = await game.checkWinner(AllData.game.isDaytime, AllData.players);
 	if (winner == 0) {
-		await game.goNextPhase();
+		await game.goNextPhase(AllData);
 	}
 	await firebase.updateTimerStartAt(Date.now());
 });
