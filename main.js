@@ -235,8 +235,11 @@ firebase.watchSettings((settings) => {
 ui.startSharedTimerLoop();
 ui.setSettingsEditorVisible(false);
 
+const ENTRY_BACK_FLAG_KEY = "wolf_back_to_entry";
+
 //　ボタン
 ui.onEntryPageClick(() => {
+	sessionStorage.setItem(ENTRY_BACK_FLAG_KEY, "1");
 	window.location.href = "./entry.html";
 });
 

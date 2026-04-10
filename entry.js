@@ -15,8 +15,14 @@ const statusEl = document.getElementById("status");
 const userNameEl = document.getElementById("userName");
 const joinBtnEl = document.getElementById("btn-join");
 const roomKeyEl = document.getElementById("roomKey");
+const ENTRY_BACK_FLAG_KEY = "wolf_back_to_entry";
 
 let isConnected = false;
+
+let pageBacked = sessionStorage.getItem(ENTRY_BACK_FLAG_KEY) === "1";
+if (pageBacked) {
+    sessionStorage.removeItem(ENTRY_BACK_FLAG_KEY);
+}
 
 function isGameStarted(game) {
     return game && game.date != null && game.date >= 0;
@@ -58,7 +64,7 @@ async function tryAutoEnterFromLocalStorage() {
 
     firebase.setKey(savedKey);
     const exists = await firebase.getIsPlayerExist(savedName);
-    if (exists) {
+    if (exists && !pageBacked) {
         goGamePage();
     }
 }
