@@ -270,6 +270,7 @@ async function handleWin(snapPlayers, winteam, addpoint){
 //　どちらが勝ったのかの判定
 export async function checkWinner(isDaytime, snapPlayers){
 	const executedPlayer = await firebase.getBeforeExecution();
+	if(!snapPlayers) return 0;
 	if(isDaytime && snapPlayers[executedPlayer]?.role == ROLE.TERUTERU){
 		await firebase.updateWinner(3);
 		await handleWin(snapPlayers, 3, 7);

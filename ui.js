@@ -87,14 +87,17 @@ export function stopSharedTimerLoop() {
 }
 
 // テキストセット
-export function setStatus(isConnected){
-	const el = document.getElementById('status');
-	el.innerText = display.statusToText(isConnected);
+export function setStatus(Connectedtext){
+	const el = document.getElementById('status2');
+	if (!el) return;
+	el.innerText = Connectedtext;
 }
 
+/*
 export function setUserName(name){
 	document.getElementById('userName').value = name;
 }
+*/
 
 export function setNameDisplay(name){
 	document.getElementById('name-display').innerText = name;
@@ -152,7 +155,7 @@ export function setSettings(settings){
 
 	const lines = [];
 	for(const [key, value] of Object.entries(settings)){
-		const label = display.labels[key][0] || key;
+		const label = display.labels[key]?.[0] ?? key;
 		let displayValue = value;
 		if(typeof value === "boolean"){
 			displayValue = value ? "ON" : "OFF";
@@ -172,9 +175,8 @@ export function setSettingNameList(settings){
 
 	const lines = [];
 	for(const [key, value] of Object.entries(settings)){
-		const label = display.labels[key][0] || key;
-		//lines.push(`<div>${display.escapeHtml(label)}: ${display.escapeHtml(key)} = ${display.escapeHtml(typeof value)}</div>`);
-		lines.push(`<div>${display.escapeHtml(key)}:= ${display.escapeHtml(typeof value)}, default: ${display.labels[key][1]}</div>`);
+		const defaultValue = display.labels[key]?.[1] ?? "n/a";
+		lines.push(`<div>${display.escapeHtml(key)}:= ${display.escapeHtml(typeof value)}, default: ${display.escapeHtml(defaultValue)}</div>`);
 	}
 
 	el.innerHTML = lines.join("");
@@ -223,7 +225,7 @@ export function viewScoreList(players){
 
 	el.innerHTML = "";
 	for(const [name, score] of scoreArray){
-		el.innerHTML += `<div>${name}: ${score}点</div>`;
+		el.innerHTML += `<div>${display.escapeHtml(name)}: ${score}点</div>`;
 	}
 }
 
@@ -318,9 +320,11 @@ export function viewVoteList(voteOptions, onSelectFunction){
 }
 
 // テキスト入力受付
+/*
 export function getUserName(){
 	return document.getElementById('userName').value;
 }
+*/
 
 export function getDeleteName(){
 	return document.getElementById('deleteName').value;
@@ -341,7 +345,18 @@ export function clearSettingInputs(){
 
 // ボタンクリック受付
 export function onJoinClick(callback){
-	document.getElementById('btn-join').addEventListener('click', callback);
+	// document.getElementById('btn-join').addEventListener('click', callback);
+	const el = document.getElementById('btn-join');
+	if (!el) return;
+	el.addEventListener('click', callback);
+}
+
+export function onEntryPageClick(callback){
+	document.getElementById('btn-entrypage').addEventListener('click', callback);
+}
+
+export function onDeleteNameClick(callback){
+	document.getElementById('btn-deleteName').addEventListener('click', callback);
 }
 
 export function onAssignClick(callback){

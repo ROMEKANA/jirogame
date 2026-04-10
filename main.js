@@ -3,6 +3,9 @@ import * as game from "./game.js";
 import * as firebase from "./firebase.js";
 import * as role from "./role.js";
 import * as display from "./display.js";
+import { setVersionText } from "./version.js";
+
+setVersionText();
 
 // テスト用
 window.test = {
@@ -10,7 +13,10 @@ window.test = {
 	ui: ui,
 	game: game,
 	display: display,
-	role: role
+	role: role,
+	movin: firebase.moveRoom,
+	newin: firebase.newRoom,
+	delin: firebase.deleteRoom
 };
 
 let farstconnectRole = true;
@@ -25,18 +31,22 @@ let savedAlive = null;
 let farstconnectRevote = true;
 let savedRevote = null;
 
-// 名前復元
+// 復元
 let savedname = localStorage.getItem('wolf_my_name');
+let key = firebase.localGetKey();
 
-if (savedname) {
-	ui.setUserName(savedname);
-	ui.setNameDisplay(savedname);
-}
+if (!savedname || !key) {
+	window.location.href = "./entry.html";
+} else {
+
+ui.setNameDisplay(savedname || "未参加");
+firebase.setKey(key);
+
 
 // 接続状態の表示
 let isConnected = false;
 firebase.watchConnection((connected) => {
-	ui.setStatus(connected);
+	ui.setStatus(display.statusToText(connected));
 	isConnected = connected;
 });
 
@@ -120,7 +130,7 @@ firebase.watchAllPlayers(async (players) => {
 			const furtuneResaltText = await role.furtuneResultToText(player?.role, player?.beforeVote, voteRole, latestSettings);
 			ui.setFortune(furtuneResaltText);
 
-			const selectedPlayer = !!player?.isDone ? player?.vote : "未選択";
+			const selectedPlayer = !!player?.isDone ? (player?.vote || "未選択") : "未選択";
 			ui.setSelectedPlayer(selectedPlayer);
 
 			// 死亡時の通知
@@ -148,10 +158,10 @@ firebase.watchGame(async (gamedata) => {
 	ui.setSharedTimerStartAt(timerStart);
 	ui.renderSharedTimer();
 
-	const isGamestarted = (gamedata.date != null && gamedata.date >= 0);
+	const isGamestarted = (gamedata?.date != null && gamedata?.date >= 0);
 	const isExistPlayer = savedname ? await firebase.getIsPlayerExist(savedname) : false;
 
-	ui.setDate(gamedata.date);
+	ui.setDate(gamedata?.date);
 
 	if (isGamestarted) {
 		ui.setNextButtonText("次のフェーズへ");
@@ -159,9 +169,9 @@ firebase.watchGame(async (gamedata) => {
 		ui.setNextButtonText("ゲームスタート");
 	}
 
-	ui.setisDaytime(gamedata.isDaytime);
+	ui.setisDaytime(gamedata?.isDaytime);
 
-	if(gamedata.isDaytime ?? true){
+	if(gamedata?.isDaytime ?? true){
 		display.resetMode();
 	} else {
 		display.setDarkMode();
@@ -179,26 +189,26 @@ firebase.watchGame(async (gamedata) => {
 	}
 
 	// 勝利陣営の通知
-	ui.setWinner(gamedata.winner);
+	ui.setWinner(gamedata?.winner);
 	if (farstconnectWinner) {
 		farstconnectWinner = false;
-		savedWinner = gamedata.winner;
-	} else if (gamedata.winner != null && gamedata.winner != 0 && gamedata.winner != savedWinner) {
-		alert(ui.teamToText(gamedata.winner) + "の勝利です！");
-		savedWinner = gamedata.winner;
+		savedWinner = gamedata?.winner;
+	} else if (gamedata?.winner != null && gamedata?.winner != 0 && gamedata?.winner != savedWinner) {
+		alert(ui.teamToText(gamedata?.winner) + "の勝利です！");
+		savedWinner = gamedata?.winner;
 	} else {
-		savedWinner = gamedata.winner;
+		savedWinner = gamedata?.winner;
 	}
 
 	// 同数投票の再投票の通知
 
 	if (farstconnectRevote) {
 		farstconnectRevote = false;
-		savedRevote = gamedata.revoteCount;
-	} else if (gamedata.revoteCount != null && gamedata.revoteCount > 0) {
-		if (gamedata.revoteCount != savedRevote) {
+		savedRevote = gamedata?.revoteCount;
+	} else if (gamedata?.revoteCount != null && gamedata?.revoteCount > 0) {
+		if (gamedata?.revoteCount != savedRevote) {
 			alert("同数投票のため、再投票が行われます");
-			savedRevote = gamedata.revoteCount;
+			savedRevote = gamedata?.revoteCount;
 		}
 	} else {
 		savedRevote = 0;
@@ -226,6 +236,19 @@ ui.startSharedTimerLoop();
 ui.setSettingsEditorVisible(false);
 
 //　ボタン
+ui.onEntryPageClick(() => {
+	window.location.href = "./entry.html";
+});
+
+ui.onDeleteNameClick(async () => {
+	if(!!savedname) {
+		localStorage.removeItem('wolf_my_name');
+		await firebase.deletePlayer(savedname);
+		savedname = null;
+	}
+	window.location.href = "./entry.html";
+});
+/*
 // 参加ボタン
 ui.onJoinClick(async () => {
 	if (!isConnected) {
@@ -259,6 +282,7 @@ ui.onJoinClick(async () => {
 	alert(name + "さん、参加完了！");
 
 });
+*/
 
 // 役職配布
 ui.onAssignClick(async () => {
@@ -302,6 +326,14 @@ ui.onSettingsEditHiddenClick(() => {
 });
 
 ui.onSettingsEnterClick(async () => {
+	const isGameStarted = await game.isGameStarted();
+	if (isGameStarted) {
+		if (!confirm("ゲーム開始後に設定を変更すると、ゲームの進行に影響が出る可能性があります。\n変更してもよろしいですか？")) {
+			return;
+		}
+	}
+
+
 	const name = (ui.getSettingName() || "").trim();
 	const inputValue = (ui.getSettingValue() || "").trim();
 
@@ -350,11 +382,28 @@ ui.onSettingsResetClick(async () => {
 
 
 // テスト用ボタンの表示切替
-ui.onTestToolsToggleClick(() => {
+ui.onTestToolsToggleClick(async () => {
 	const testTools = document.getElementById("test-tools");
-	const toggleButton = document.getElementById("btn-testtools-toggle");
 	const isHidden = testTools.style.display === "none";
 
+	const hash = (s) => {
+		const text = String(s ?? "");
+		return [...text].reduce((h, c) => (h * 31 + c.charCodeAt(0)) % 1000000007, 0);
+	};
+
+	if (isHidden) {
+		const inputKey = prompt("テスト用ボタンの表示/非表示を切り替えます。\nパスワードを入力してください");
+		if(!inputKey) return;
+		const inputHash = hash(inputKey);
+		const iscorrect = await firebase.isCorrectKey(inputHash);
+		if (!iscorrect) {
+			alert("パスワードが違います");
+			return;
+		}
+	}
+
+	const toggleButton = document.getElementById("btn-testtools-toggle");
+	
 	testTools.style.display = isHidden ? "block" : "none";
 	toggleButton.innerText = isHidden ? "テスト用ボタンを隠す" : "テスト用ボタンを表示";
 });
@@ -443,6 +492,7 @@ ui.onPlayerDeleteClick(async () => {
 		savedname = null;
 		ui.setNameDisplay("未参加");
 		ui.setRole(null);
+		window.location.href = "./entry.html";
 	}
 	alert(deleteName + " を削除しました");
 });
@@ -497,6 +547,11 @@ ui.onAllDeleteClick(async () => {
 		await firebase.deleteGame();
 		await firebase.newSettings();
 		localStorage.removeItem('wolf_my_name');
+		savedname = null;
 		alert("全データを削除しました");
+		window.location.href = "./entry.html";
 	}
 });
+
+}
+

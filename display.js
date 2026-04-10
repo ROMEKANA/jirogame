@@ -107,7 +107,6 @@ export function viewAllPlayers(isViewAllPlayersRole, players) {
     el.innerHTML = lines.join("");
 }
 
-// 
 export function statusToText(isConnected){
     if(isConnected == null) return "接続します...";
     const root = document.documentElement;
@@ -119,6 +118,7 @@ export function statusToText(isConnected){
         return "接続待ち...";
     }
 }
+
 
 export function roleToText(role){
     if(role == null) return "参加前";

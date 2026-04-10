@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>人狼 - 入室</title>
+    <link rel="icon" href="./favicon.png">
+    <link rel="stylesheet" href="./style.css">
+    <link rel="stylesheet" href="./mobile.css" media="(max-width: 768px)">
+</head>
+<body>
+    <main class="display">
+        <section class="entry-card">
+            <h1>人狼ゲーム</h1>
+            現在のバージョン: <span class="version">0</span>
+            <p class="subtitle">名前と部屋番号を入力して入室</p>
+
+            <div id="status">Firebase接続確認中...</div>
+
+            <input type="text" id="userName" placeholder="名前を入力" autocomplete="name">
+            <br>
+            <input type="text" id="roomKey" placeholder="部屋番号を入力" autocomplete="off">
+            <button id="btn-join" type="button">参加する</button>
+
+            <p class="hint">参加後は自動でゲーム画面に移動します。</p>
+        </section>
+    </main>
+
+    <script type="module" src="./entry.js"></script>
+</body>
+</html>
