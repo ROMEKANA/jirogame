@@ -30,6 +30,23 @@ function goGamePage() {
     window.location.href = "./index.html";
 }
 
+function applyPrefillFromUrl() {
+    const params = new URLSearchParams(window.location.search);
+    const prefillName = (params.get("name") || params.get("user") || "").trim();
+    const prefillRoom = (params.get("room") || params.get("key") || "").trim();
+
+    if (!!prefillName) {
+        userNameEl.value = prefillName;
+        localStorage.setItem("wolf_my_name", prefillName);
+    }
+    if (!!prefillRoom) {
+        roomKeyEl.value = prefillRoom;
+        firebase.setKey(prefillRoom);
+    }
+
+    return !!(prefillName || prefillRoom);
+}
+
 async function tryAutoEnterFromLocalStorage() {
     const savedName = (localStorage.getItem("wolf_my_name") || "").trim();
     const savedKey = firebase.localGetKey();
@@ -101,4 +118,5 @@ joinBtnEl.addEventListener("click", async () => {
     goGamePage();
 });
 
+applyPrefillFromUrl();
 await tryAutoEnterFromLocalStorage();
