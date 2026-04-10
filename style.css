@@ -190,3 +190,16 @@ button:active {
 #player-list .player-col {
     min-width: 0;
 }
+
+#setting-inputs {
+    display: flex;
+    gap: 8px;
+}
+
+#setting-name {
+    flex: 7;
+}
+
+#setting-value {
+    flex: 3;
+}

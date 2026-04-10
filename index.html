@@ -12,7 +12,7 @@
 <body>
 
 <div id="status-area" class="area">
-    現在のバージョン: <span id="nowversion">3.1.2</span>
+    現在のバージョン: <span id="nowversion">3.2.0</span>
 
     <br>
 
@@ -38,6 +38,15 @@
 
         <button id="btn-assign">役職を配る</button>
         <div id="settings-list" class="display">設定がここに表示されます</div>
+        <button id="btn-settingsedithidden">設定の変更をする</button>
+        <div id="settings-senter" style="display: block;">
+                <div id="setting-inputs">
+                    <input type="text" id="setting-name" placeholder="設定の名前">
+                    <input type="text" id="setting-value" placeholder="true/false、数字">
+                </div>
+                <button id="btn-settingsenter">設定を保存</button> <button id="btn-settingsreset">設定をリセット</button>
+                <div id="setting-name-list" class="display">設定の一覧がここに表示されます</div>
+        </div>
     </div>
     <br>
     現在の役職の振り分け: 

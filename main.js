@@ -212,6 +212,8 @@ firebase.watchSettings((settings) => {
 	refreshPlayerListVisibility();
 
 	ui.setSettings(settings);
+	ui.setSettingNameList(settings);
+	
 	const discussionMin = Number(settings?.discussionTime) || 5;
 	const timerDurationSec = Number.isFinite(discussionMin) && discussionMin > 0
 		? Math.floor(discussionMin * 60)
@@ -221,6 +223,7 @@ firebase.watchSettings((settings) => {
 });
 
 ui.startSharedTimerLoop();
+ui.setSettingsEditorVisible(false);
 
 //　ボタン
 // 参加ボタン
@@ -290,6 +293,63 @@ ui.onAdminAreaHiddenClick(() => {
 	adminArea.style.display = isHidden ? "inline" : "none";
 	ui.setAdminAreaHiddenButtonText(!isHidden);
 });
+
+ui.onSettingsEditHiddenClick(() => {
+	const settingsArea = document.getElementById("settings-senter");
+	const isHidden = settingsArea.style.display === "none";
+
+	ui.setSettingsEditorVisible(isHidden);
+});
+
+ui.onSettingsEnterClick(async () => {
+	const name = (ui.getSettingName() || "").trim();
+	const inputValue = (ui.getSettingValue() || "").trim();
+
+	if (!name) {
+		alert("設定名を入力してください");
+		return;
+	}
+
+	if (!inputValue) {
+		alert("設定値を入力してください");
+		return;
+	}
+
+	if (!latestSettings || !Object.hasOwn(latestSettings, name)) {
+		alert("存在する設定名を入力してください");
+		return;
+	}
+
+	let valueType = typeof latestSettings[name];
+
+	let parsedValue = inputValue;
+	if (inputValue === "true") {
+		parsedValue = true;
+	} else if (inputValue === "false") {
+		parsedValue = false;
+	} else if (!Number.isNaN(Number(inputValue)) && Number.isFinite(Number(inputValue))) {
+		parsedValue = Number(inputValue);
+	} else {
+		alert("設定値は true / false / 数字 で入力してください");
+		return;
+	}
+	if(typeof parsedValue !== valueType){
+		alert("設定値の型が正しくありません。期待される型: " + valueType);
+		return;
+	}
+
+	await firebase.updateSetting(name, parsedValue);
+	ui.clearSettingInputs();
+	ui.setSettingsEditorVisible(false);
+	alert("設定を保存しました");
+});
+
+ui.onSettingsResetClick(async () => {
+	if (confirm("設定を初期化しますか？")) {
+		await firebase.newSettings();
+	}
+});
+
 
 // テスト用ボタンの表示切替
 ui.onTestToolsToggleClick(() => {
@@ -426,7 +486,7 @@ ui.onRandomKillClick(async () => {
 });
 
 // 全データ取得
-ui.AllgetClick(async () => {
+ui.onAllGetClick(async () => {
 	const data = await firebase.getAllData();
 	console.log(data);
 	console.log("localname: " + localStorage.getItem('wolf_my_name'));

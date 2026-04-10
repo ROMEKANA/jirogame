@@ -392,11 +392,15 @@ export async function newSettings(){
 		firstNightAttack: false,
 		revote: true,
 		randomKillSameVote: true,
-		skipExecutionSameVote: false,
-		discussionTime: 5,
+		skipExecutionSameVote: true,
+		discussionTime: 3,
 		firstNightFortune: true,
 		firstNightRandomWhite: false,
 		firstDayExecution: false,
 		revealRoleOnDeath: false
 	});
+}
+
+export async function updateSetting(name, value){
+	await set(ref(db, 'settings/' + name), value);
 }

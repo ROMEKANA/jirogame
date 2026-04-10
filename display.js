@@ -40,6 +40,19 @@ export function resetMode() {
     }
 }
 
+// 設定の設定
+export const labels = {
+    firstNightAttack: ["初夜の襲撃", false],
+    revote: ["同数投票時に再投票", true],
+    randomKillSameVote: ["夜の同数投票時にランダム襲撃", true],
+    skipExecutionSameVote: ["昼の同数投票時に処刑スキップ", true],
+    discussionTime: ["議論時間(分)", 3],
+    firstNightFortune: ["初夜占い", true],
+    firstNightRandomWhite: ["初夜のランダム白出し(未実装)", false],
+    firstDayExecution: ["初日の処刑", false],
+    revealRoleOnDeath: ["死亡時の役職公開", true]
+};
+
 // プレイヤーの役職と生死の更新と取得
 function aliveToText(alive) {
     if (alive == null) return "参加前";
@@ -51,7 +64,7 @@ function isDoneToText(isDone) {
     return isDone ? "行動済み" : "未行動";
 }
 
-function escapeHtml(text) {
+export function escapeHtml(text) {
     return String(text)
         .replaceAll("&", "&amp;")
         .replaceAll("<", "&lt;")

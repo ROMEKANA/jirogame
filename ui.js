@@ -134,6 +134,15 @@ export function setAdminAreaHiddenButtonText(isHidden){
 	document.getElementById('btn-adminareahidden').innerText = isHidden ? "表示" : "隠す";
 }
 
+export function setSettingsEditorButtonText(isHidden){
+	document.getElementById('btn-settingsedithidden').innerText = isHidden ? "設定の変更をする" : "設定の変更を隠す";
+}
+
+export function setSettingsEditorVisible(isVisible){
+	document.getElementById('settings-senter').style.display = isVisible ? "block" : "none";
+	setSettingsEditorButtonText(!isVisible);
+}
+
 export function setSettings(settings){
 	const el = document.getElementById('settings-list');
 	if(!settings){
@@ -141,26 +150,31 @@ export function setSettings(settings){
 		return;
 	}
 
-	const labels = {
-		firstNightAttack: "初夜の襲撃",
-		revote: "同数投票時に再投票",
-		randomKillSameVote: "夜の同数投票時にランダム襲撃",
-		skipExecutionSameVote: "昼の同数投票時に処刑スキップ",
-		discussionTime: "議論時間(分)",
-		firstNightFortune: "初夜占い",
-		firstNightRandomWhite: "初夜のランダム白出し(未実装)",
-		firstDayExecution: "初日の処刑",
-		revealRoleOnDeath: "死亡時の役職公開",
-	};
-
 	const lines = [];
 	for(const [key, value] of Object.entries(settings)){
-		const label = labels[key] || key;
+		const label = display.labels[key][0] || key;
 		let displayValue = value;
 		if(typeof value === "boolean"){
 			displayValue = value ? "ON" : "OFF";
 		}
-		lines.push(`<div>${label}: ${displayValue}</div>`);
+		lines.push(`<div>${display.escapeHtml(label)}: ${display.escapeHtml(displayValue)}</div>`);
+	}
+
+	el.innerHTML = lines.join("");
+}
+
+export function setSettingNameList(settings){
+	const el = document.getElementById('setting-name-list');
+	if(!settings){
+		el.innerHTML = "設定の一覧がありません";
+		return;
+	}
+
+	const lines = [];
+	for(const [key, value] of Object.entries(settings)){
+		const label = display.labels[key][0] || key;
+		//lines.push(`<div>${display.escapeHtml(label)}: ${display.escapeHtml(key)} = ${display.escapeHtml(typeof value)}</div>`);
+		lines.push(`<div>${display.escapeHtml(key)}:= ${display.escapeHtml(typeof value)}, default: ${display.labels[key][1]}</div>`);
 	}
 
 	el.innerHTML = lines.join("");
@@ -312,6 +326,19 @@ export function getDeleteName(){
 	return document.getElementById('deleteName').value;
 }
 
+export function getSettingName(){
+	return document.getElementById('setting-name').value;
+}
+
+export function getSettingValue(){
+	return document.getElementById('setting-value').value;
+}
+
+export function clearSettingInputs(){
+	document.getElementById('setting-name').value = "";
+	document.getElementById('setting-value').value = "";
+}
+
 // ボタンクリック受付
 export function onJoinClick(callback){
 	document.getElementById('btn-join').addEventListener('click', callback);
@@ -327,6 +354,18 @@ export function onRoleAreaHiddenClick(callback){
 
 export function onAdminAreaHiddenClick(callback){
 	document.getElementById('btn-adminareahidden').addEventListener('click', callback);
+}
+
+export function onSettingsEditHiddenClick(callback){
+	document.getElementById('btn-settingsedithidden').addEventListener('click', callback);
+}
+
+export function onSettingsEnterClick(callback){
+	document.getElementById('btn-settingsenter').addEventListener('click', callback);
+}
+
+export function onSettingsResetClick(callback){
+	document.getElementById('btn-settingsreset').addEventListener('click', callback);
 }
 
 export function onGameNextClick(callback){
@@ -357,7 +396,7 @@ export function onRandomKillClick(callback){
 	document.getElementById('randomkill').addEventListener('click', callback);
 }
 
-export function AllgetClick(callback){
+export function onAllGetClick(callback){
     document.getElementById('btn-allget').addEventListener('click', callback);
 }
 
