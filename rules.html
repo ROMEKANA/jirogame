@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>人狼 - ルール</title>
+    <link rel="icon" href="./favicon.png">
+    <link rel="stylesheet" href="./style.css">
+    <link rel="stylesheet" href="./rules.css">
+    <link rel="stylesheet" href="./mobile.css" media="(max-width: 768px)">
+</head>
+<body>
+    <main class="rules-page">
+        <section class="area hero">
+            <h1>JIROWOLF ルールブック</h1>
+            <p class="lead">定番人狼の読み合いに、勘違い役職と巻き込みギミックを足した、ちょっとランダム性の高い人狼です。</p>
+            <div class="nav-row">
+                <a href="./entry.html">入室ページへ</a>
+                <a href="./index.html">ゲーム画面へ</a>
+            </div>
+        </section>
+
+        <section class="rules-grid">
+            <article class="area">
+                <h2>ゲームの流れ</h2>
+                <ol>
+                    <li>全員が部屋に入り、役職を配る</li>
+                    <li>0日目の夜から開始</li>
+                    <li>夜に行動、昼に議論と投票</li>
+                    <li>勝敗が決まるまで繰り返し</li>
+                </ol>
+            </article>
+
+            <article class="area">
+                <h2>勝利条件</h2>
+                <ul>
+                    <li>市民陣営: 生存中の人狼が0人</li>
+                    <li>人狼陣営: 生存人狼数が生存非人狼数以上</li>
+                    <li>てるてる陣営: 昼にてるてるが処刑される</li>
+                </ul>
+                <h3>得点</h3>
+                <ul>
+                    <li>市民陣営勝利: +3</li>
+                    <li>人狼陣営勝利: +5</li>
+                    <li>てるてる陣営勝利: +7</li>
+                </ul>
+            </article>
+
+            <article class="area full">
+                <h2>役職一覧</h2>
+                <ul class="role-list">
+                    <li><strong>市民</strong>: 能力なし。議論と投票で戦う。</li>
+                    <li><strong>人狼</strong>: 夜の襲撃先を投票で決める。</li>
+                    <li><strong>占い師</strong>: 夜の対象を翌昼に判定確認。</li>
+                    <li><strong>狂人</strong>: 人狼陣営。襲撃能力なし。</li>
+                    <li><strong>騎士</strong>: 夜に1人護衛。襲撃先と一致すると襲撃失敗。</li>
+                    <li><strong>勘違い占い師</strong>: 表示は占い師だが判定はランダム。</li>
+                    <li><strong>社畜</strong>: 夜の直接襲撃では死なない。襲撃先と同じ相手を選ぶと巻き込み死。</li>
+                    <li><strong>霊媒師</strong>: 処刑者の判定を確認できる。</li>
+                    <li><strong>てるてる</strong>: 昼に処刑されると即勝利。</li>
+                    <li><strong>勘違い人狼</strong>: 表示は人狼だが、実際の襲撃集計には含まれない。</li>
+                    <li><strong>逃亡者</strong>: 夜の直接襲撃では死なない。人狼を選ぶ、または襲撃先と同じ相手を選ぶと死亡。</li>
+                </ul>
+            </article>
+
+            <article class="area">
+                <h2>同数投票時の処理</h2>
+                <h3>夜</h3>
+                <ul>
+                    <li>同数時は設定に応じてランダム襲撃か再投票</li>
+                    <li>再投票後も同数ならランダムで1人</li>
+                </ul>
+                <h3>昼</h3>
+                <ul>
+                    <li>同数時は再投票設定がONなら1回だけ再投票</li>
+                    <li>再投票後も同数なら、設定に応じて処刑スキップかランダム処刑</li>
+                </ul>
+            </article>
+
+            <article class="area">
+                <h2>初期設定</h2>
+                <ul>
+                    <li>初夜の襲撃: OFF</li>
+                    <li>同数投票時に再投票: ON</li>
+                    <li>夜の同数投票時にランダム襲撃: ON</li>
+                    <li>昼の同数投票時に処刑スキップ: ON</li>
+                    <li>議論時間: 3分</li>
+                    <li>初夜占い: ON</li>
+                    <li>初日の処刑: OFF</li>
+                    <li>死亡時の役職公開: OFF</li>
+                </ul>
+            </article>
+
+            <article class="area caution full">
+                <h2>Firebase無料プランの注意</h2>
+                <ul>
+                    <li>Sparkプランには同時接続数、通信量、保存量の上限があります。</li>
+                    <li>上限に近づくと更新遅延や書き込み失敗が起こることがあります。</li>
+                    <li>FirebaseコンソールでRealtime Database使用量を定期確認してください。</li>
+                    <li>公開運用する場合は、DBルールを必ず見直して安全に運用してください。</li>
+                </ul>
+            </article>
+        </section>
+    </main>
+
+    <p class="footer-note">表示がおかしいときはリロードを試してください。バグ報告: https://github.com/ROMEKANA/jirogame/issues</p>
+</body>
+</html>
