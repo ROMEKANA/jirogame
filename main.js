@@ -340,8 +340,6 @@ ui.onSettingsEnterClick(async () => {
 
 	await firebase.updateSetting(name, parsedValue);
 	ui.clearSettingInputs();
-	ui.setSettingsEditorVisible(false);
-	alert("設定を保存しました");
 });
 
 ui.onSettingsResetClick(async () => {
