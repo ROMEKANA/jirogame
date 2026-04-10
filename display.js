@@ -91,7 +91,7 @@ export function viewAllPlayers(isViewAllPlayersRole, players) {
 
     const lines = playersArray.map(([name, player]) => {
         const roleColumn = isViewAllPlayersRole
-            ? `<span class="player-col role">${escapeHtml(roleDisplayToText(player.role))}</span>`
+            ? `<span class="player-col role">${escapeHtml(roleToText(player.role))}</span>`
             : "";
 
         return `
