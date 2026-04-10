@@ -50,7 +50,7 @@ export const labels = {
     firstNightFortune: ["初夜占い", true],
     firstNightRandomWhite: ["初夜のランダム白出し(未実装)", false],
     firstDayExecution: ["初日の処刑", false],
-    revealRoleOnDeath: ["死亡時の役職公開", true]
+    revealRoleOnDeath: ["死亡時の役職公開", false]
 };
 
 // プレイヤーの役職と生死の更新と取得
