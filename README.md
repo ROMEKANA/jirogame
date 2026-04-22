@@ -1,4 +1,4 @@
-人狼ゲームver.4.1.3
+人狼ゲームver.4.2.0
 # JIROWOLF ルールメモ
 
 このゲームは、Firebase Realtime Databaseで進行を同期するオンライン人狼です。  

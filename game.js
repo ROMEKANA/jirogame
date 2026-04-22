@@ -132,7 +132,7 @@ async function handleFugitive(snapPlayers){
 	}
 }
 
-// 社畜や逃亡者の関数、「襲撃先と同じ相手を選んでいたら社畜が死亡」
+// 社畜や逃亡者の関数、「襲撃先と同じ相手を選んでいたら死亡」
 async function movePlayer(snapPlayers, wolvesTarget){
     for(const [name, player] of Object.entries(snapPlayers)){
         if(!player || !player.alive) continue;
@@ -151,7 +151,10 @@ async function killPlayer(snapPlayers, name){
 	if(protectedByKnight.includes(name)) return;
 	const isCorporateWorker = snapPlayers[name].role == ROLE.CORPORATE_WORKER;
 	const isFugitive = snapPlayers[name].role == ROLE.FUGITIVE;
-	if(isCorporateWorker || isFugitive) return;
+	if(isCorporateWorker || isFugitive){
+		await movePlayer(snapPlayers, name);
+		return;
+	}
 	await firebase.updateAlive(name, false);
 	await movePlayer(snapPlayers, name);
 }
