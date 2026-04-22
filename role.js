@@ -99,7 +99,7 @@ export function wolfToText(rolenumber, players) {
     if (wolfPlayers.length === 0) return "";
 
     if (rolenumber == ROLE.BETRAYER) {
-        return "あなたは背信者です。人狼は: " + wolfPlayers.join("、");
+        return "人狼は: " + wolfPlayers.join("、");
     }
 
     return "";
