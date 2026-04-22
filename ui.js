@@ -261,6 +261,10 @@ export function setFortune(text){
 	document.getElementById('fortune-display').innerText = text;
 }
 
+export function setStreamer(text){
+	document.getElementById('streamer-display').innerText = text;
+}
+
 export function setSelectedPlayer(name){
 	document.getElementById('selected-player').innerText = name;
 }

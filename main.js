@@ -130,6 +130,9 @@ firebase.watchAllPlayers(async (players) => {
 			const furtuneResaltText = await role.furtuneResultToText(player?.role, player?.beforeVote, voteRole, latestSettings);
 			ui.setFortune(furtuneResaltText);
 
+			const streamerResaltText = await role.streamerResultToText(players);
+			ui.setStreamer(streamerResaltText);
+
 			const selectedPlayer = !!player?.isDone ? (player?.vote || "未選択") : "未選択";
 			ui.setSelectedPlayer(selectedPlayer);
 

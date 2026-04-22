@@ -11,7 +11,8 @@ export const ROLE = {
     MEDIUM: 7,
     TERUTERU: 8,
     MISUNDERSTOOD_WOLF: 9,
-    FUGITIVE: 10
+    FUGITIVE: 10,
+    STREAMER: 11
 };
 
 export const TEAM = {
@@ -32,7 +33,8 @@ export const roles = [
     { name: "霊媒師", id: "count7", type: "input", number: ROLE.MEDIUM, team: TEAM.CITIZEN },
     { name: "てるてる", id: "count8", type: "input", number: ROLE.TERUTERU, team: TEAM.TERUTERU },
     { name: "勘違い人狼", displayName: "人狼", id: "count9", type: "input", number: ROLE.MISUNDERSTOOD_WOLF, team: TEAM.CITIZEN },
-    { name: "逃亡者", id: "count10", type: "input", number: ROLE.FUGITIVE, team: TEAM.CITIZEN }
+    { name: "逃亡者", id: "count10", type: "input", number: ROLE.FUGITIVE, team: TEAM.CITIZEN },
+    { name: "配信者", id: "count11", type: "input", number: ROLE.STREAMER, team: TEAM.CITIZEN }
 ];
 
 export const teams = [
@@ -83,6 +85,19 @@ export async function furtuneResultToText(rolenumber, beforeVote, voteRole, sett
         }
     } 
     return (beforeVote || "未選択");
+}
+
+export async function streamerResultToText(players){
+    if (!players) return "";
+    const isDaytime = await firebase.getIsDaytime();
+    if (isDaytime) {
+        for (const player of Object.values(players)) {
+            if (player && player.role == ROLE.STREAMER && player.alive) {
+                return "動画がアップされました";
+            }
+        }
+    }
+    return "";
 }
 
 export async function actionToText(savedname, gamedata) {
