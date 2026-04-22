@@ -66,6 +66,18 @@ main.rules-page {
     margin-bottom: 8px;
 }
 
+.team-citizen {
+    color: #2b7bde;
+}
+
+.team-wolf {
+    color: #d12b2b;
+}
+
+.team-teruteru {
+    color: #d18d2b;
+}
+
 .qa-list {
     margin: 10px 0 0;
 }

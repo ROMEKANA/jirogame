@@ -286,7 +286,8 @@ export function createRoleCounters(containerId){
 
 	roles.forEach(role => {
 		const div = document.createElement("div");
-		div.className = "role-counter-row";
+		const teamClass = "role-team-" + role.team;
+		div.className = "role-counter-row " + teamClass;
 
 		if(role.type == "display"){
 			div.innerHTML = `

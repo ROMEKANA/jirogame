@@ -137,6 +137,18 @@ button:active {
     min-width: 0;
 }
 
+.role-counter-row.role-team-1 .role-name {
+    color: #2b7bde;
+}
+
+.role-counter-row.role-team-2 .role-name {
+    color: #d12b2b;
+}
+
+.role-counter-row.role-team-3 .role-name {
+    color: #d18d2b;
+}
+
 .role-counter-row .role-value-display {
     justify-self: start;
     font-weight: 700;
