@@ -130,6 +130,9 @@ firebase.watchAllPlayers(async (players) => {
 			const furtuneResaltText = await role.furtuneResultToText(player?.role, player?.beforeVote, voteRole, latestSettings);
 			ui.setFortune(furtuneResaltText);
 
+			const wolfResaltText = role.wolfToText(player?.role, players);
+			ui.setWolf(wolfResaltText);
+
 			const streamerResaltText = await role.streamerResultToText(players);
 			ui.setStreamer(streamerResaltText);
 

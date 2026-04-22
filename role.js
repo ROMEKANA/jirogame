@@ -12,7 +12,8 @@ export const ROLE = {
     TERUTERU: 8,
     MISUNDERSTOOD_WOLF: 9,
     FUGITIVE: 10,
-    STREAMER: 11
+    STREAMER: 11,
+    BETRAYER: 12
 };
 
 export const TEAM = {
@@ -34,7 +35,8 @@ export const roles = [
     { name: "てるてる", id: "count8", type: "input", number: ROLE.TERUTERU, team: TEAM.TERUTERU },
     { name: "勘違い人狼", displayName: "人狼", id: "count9", type: "input", number: ROLE.MISUNDERSTOOD_WOLF, team: TEAM.CITIZEN },
     { name: "逃亡者", id: "count10", type: "input", number: ROLE.FUGITIVE, team: TEAM.CITIZEN },
-    { name: "配信者", id: "count11", type: "input", number: ROLE.STREAMER, team: TEAM.CITIZEN }
+    { name: "配信者", id: "count11", type: "input", number: ROLE.STREAMER, team: TEAM.CITIZEN },
+    { name: "背信者", id: "count12", type: "input", number: ROLE.BETRAYER, team: TEAM.WOLF }
 ];
 
 export const teams = [
@@ -85,6 +87,22 @@ export async function furtuneResultToText(rolenumber, beforeVote, voteRole, sett
         }
     } 
     return (beforeVote || "未選択");
+}
+
+export function wolfToText(rolenumber, players) {
+    if (!players) return "";
+
+    const wolfPlayers = Object.entries(players)
+        .filter(([, player]) => player && player.role == ROLE.WOLF && player.alive)
+        .map(([name]) => name);
+
+    if (wolfPlayers.length === 0) return "";
+
+    if (rolenumber == ROLE.BETRAYER) {
+        return "あなたは背信者です。人狼は: " + wolfPlayers.join("、");
+    }
+
+    return "";
 }
 
 export async function streamerResultToText(players){
