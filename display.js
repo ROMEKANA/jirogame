@@ -48,7 +48,6 @@ export const labels = {
     skipExecutionSameVote: ["昼の同数投票時に処刑スキップ", true],
     discussionTime: ["議論時間(分)", 3],
     firstNightFortune: ["初夜占い", true],
-    firstNightRandomWhite: ["初夜のランダム白出し(未実装)", false],
     firstDayExecution: ["初日の処刑", false],
     revealRoleOnDeath: ["死亡時の役職公開", false]
 };

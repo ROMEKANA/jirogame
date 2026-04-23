@@ -56,7 +56,6 @@ export async function newRoom(str){
 			skipExecutionSameVote: true,
 			discussionTime: 3,
 			firstNightFortune: true,
-			firstNightRandomWhite: false,
 			firstDayExecution: false,
 			revealRoleOnDeath: false
 		}
@@ -479,7 +478,6 @@ export async function newSettings(){
 		skipExecutionSameVote: true,
 		discussionTime: 3,
 		firstNightFortune: true,
-		firstNightRandomWhite: false,
 		firstDayExecution: false,
 		revealRoleOnDeath: false
 	});
