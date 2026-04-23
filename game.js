@@ -111,13 +111,13 @@ async function recordBeforeVoteSnapshot(snapPlayers){
 }
 
 function getProtectedByKnight(snapPlayers){
-	const knightPlayers = Object.entries(snapPlayers)
-		.filter(([, player]) => player && player.role == ROLE.KNIGHT && player.alive);
-	if(knightPlayers.length == 0) return [];
-	const protectedByKnightPlayers = Object.entries(snapPlayers)
-		.filter(([name, player]) => player && knightPlayers.some(([, knight]) => knight.vote == name));
+	const protectorPlayers = Object.entries(snapPlayers)
+		.filter(([, player]) => player && (player.role == ROLE.KNIGHT || player.role == ROLE.FAKE_WOLF) && player.alive);
+	if(protectorPlayers.length == 0) return [];
+	const protectedPlayers = Object.entries(snapPlayers)
+		.filter(([name, player]) => player && protectorPlayers.some(([, protector]) => protector.vote == name));
 
-	return protectedByKnightPlayers.map(([name]) => name);
+	return protectedPlayers.map(([name]) => name);
 }
 
 // 逃亡者の関数「逃亡者が人狼を選んでいたら逃亡者が死亡」

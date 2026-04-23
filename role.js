@@ -13,7 +13,8 @@ export const ROLE = {
     MISUNDERSTOOD_WOLF: 9,
     FUGITIVE: 10,
     STREAMER: 11,
-    BETRAYER: 12
+    BETRAYER: 12,
+    FAKE_WOLF: 13
 };
 
 export const TEAM = {
@@ -36,7 +37,8 @@ export const roles = [
     { name: "勘違い人狼", displayName: "人狼", id: "count9", type: "input", number: ROLE.MISUNDERSTOOD_WOLF, team: TEAM.CITIZEN },
     { name: "逃亡者", id: "count10", type: "input", number: ROLE.FUGITIVE, team: TEAM.CITIZEN },
     { name: "配信者", id: "count11", type: "input", number: ROLE.STREAMER, team: TEAM.CITIZEN },
-    { name: "背信者", id: "count12", type: "input", number: ROLE.BETRAYER, team: TEAM.WOLF }
+    { name: "背信者", id: "count12", type: "input", number: ROLE.BETRAYER, team: TEAM.WOLF },
+    { name: "裏切り人狼", id: "count13", type: "input", number: ROLE.FAKE_WOLF, team: TEAM.CITIZEN }
 ];
 
 export const teams = [
@@ -48,7 +50,7 @@ export const teams = [
 
 export function furtuneToText(voteRole) {
     if (voteRole == null) return "未定義";
-    return voteRole == ROLE.WOLF ? "人狼です" : "人狼ではありません";
+    return (voteRole == ROLE.WOLF || voteRole == ROLE.FAKE_WOLF) ? "人狼です" : "人狼ではありません";
 }
 
 export function roleActionToText(role) {
@@ -57,7 +59,8 @@ export function roleActionToText(role) {
         case ROLE.MISUNDERSTOOD_WOLF: return "誰を襲撃しますか？";
         case ROLE.SEER:
         case ROLE.MISUNDERSTOOD_SEER: return "誰を占いますか？";
-        case ROLE.KNIGHT: return "誰を守りますか？";
+        case ROLE.KNIGHT:
+        case ROLE.FAKE_WOLF: return "誰を守りますか？";
         case ROLE.CORPORATE_WORKER: return "誰の家で仕事をしますか？";
         case ROLE.FUGITIVE: return "誰の家に逃げますか？";
         default: return "怪しいと思う人を選んでください";

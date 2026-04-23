@@ -55,13 +55,14 @@
                     <li><strong class="team-wolf">狂人</strong>: 人狼陣営。襲撃能力なし。</li>
                     <li><strong class="team-citizen">騎士</strong>: 夜に1人護衛。襲撃先と一致すると襲撃失敗。</li>
                     <li><strong class="team-citizen">勘違い占い師</strong>: 表示は占い師だが判定はランダム。</li>
-                    <li><strong class="team-citizen">社畜</strong>: 夜の直接襲撃では死なない。襲撃先と同じ相手を選ぶと巻き込み死。</li>
+                    <li><strong class="team-citizen">社畜</strong>: 夜の直接襲撃では死なない。襲撃先と同じ相手を選ぶと死亡。</li>
                     <li><strong class="team-citizen">霊媒師</strong>: 処刑者の判定を確認できる。</li>
                     <li><strong class="team-teruteru">てるてる</strong>: 昼に処刑されると即勝利。</li>
-                    <li><strong class="team-citizen">勘違い人狼</strong>: 表示は人狼だが、実際の襲撃集計には含まれない。</li>
+                    <li><strong class="team-citizen">勘違い人狼</strong>: 自分の表示だけは人狼だが、実際は市民。</li>
                     <li><strong class="team-citizen">逃亡者</strong>: 夜の直接襲撃では死なない。人狼を選ぶ、または襲撃先と同じ相手を選ぶと死亡。</li>
-                    <li><strong class="team-citizen">配信者</strong>: 昼に「動画がアップされました」のメッセージを全員に表示する特別な市民役職。</li>
-                    <li><strong class="team-wolf">背信者</strong>: 人狼陣営の特別役職。夜に人狼の名前を確認できる。</li>
+                    <li><strong class="team-citizen">配信者</strong>: 生きてる限り昼に「動画がアップされました」のメッセージを全員に表示する。</li>
+                    <li><strong class="team-wolf">背信者</strong>: 人狼陣営の特別役職。人狼の名前を確認できる。</li>
+                    <li><strong class="team-citizen">裏切り人狼</strong>: 夜に1人護衛。占いなどで人狼として判定される。</li>
                 </ul>
             </article>
 
@@ -128,6 +129,11 @@
             <article class="area full">
                 <h2>更新履歴</h2>
                 <ul class="changelog-list">
+                    <li><strong>4.5.0</strong>
+                        <ul>
+                            <li>役職「裏切り人狼」を追加</li>
+                        </ul>
+                    </li>
                     <li><strong>4.4.5</strong>
                         <ul>
                             <li>未実装の「初夜のランダム白出し」オプションを削除。</li>
